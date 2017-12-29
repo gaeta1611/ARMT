@@ -33,6 +33,9 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    @section('css')
+    @show
+
 </head>
 
 <body>
@@ -293,6 +296,10 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="{{ asset('js/sb-admin-2.js') }}"></script>
+
+    @section('js')
+    @show
+
 
 </body>
 

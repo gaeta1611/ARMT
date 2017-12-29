@@ -2,7 +2,7 @@
 
 @section('title','Administration')
 
-@section('sidebar')
+@include('includes.sidebar')
 <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
@@ -109,7 +109,6 @@
                 <!-- /.sidebar-collapse -->
             </div>
             <!-- /.navbar-static-side -->
-@endsection
 
 @section('content')
             <div class="row">
