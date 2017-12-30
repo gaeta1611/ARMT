@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Client;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Session;
 
 class ClientController extends Controller
 {
@@ -54,7 +55,7 @@ class ClientController extends Controller
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
         }
 
-        return view('clients.index');
+        return redirect()->route('clients.index');
     
     }
 
