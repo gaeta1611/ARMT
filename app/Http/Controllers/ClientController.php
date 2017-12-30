@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Client;
+use Illuminate\Support\Facades\Input;
 
 class ClientController extends Controller
 {
@@ -15,7 +16,7 @@ class ClientController extends Controller
     public function index()
     {
         //Vérifier les permission d'accès
-
+       
         //Récuperer les données
         $clients = Client::all()->where('prospect',0);
 
@@ -32,7 +33,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        return 'creation client';
+        return view('clients.create');
     }
 
     /**
@@ -43,7 +44,18 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //TODO validation
+        $client = new client(Input::all());
+        $client->prospect = 0;
+        if($client->save()){
+            Session::put('success','Le client a bien été enregistré');
+        }
+        else{
+            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+        }
+
+        return view('clients.index');
+    
     }
 
     /**

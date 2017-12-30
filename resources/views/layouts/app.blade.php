@@ -273,6 +273,16 @@
         </nav>
 
         <div id="page-wrapper">
+            @if(Session::has('success'))
+            <div class="alert alert-success">
+                {{ Session::pull('success') }}
+            </div>
+            @elseif(Session::has('errors'))
+            <div class="alert alert-danger">
+                {{ Session::pull('errors') }}
+            </div>
+            @endif
+
             @yield('content')
         </div>
         <!-- /#page-wrapper -->
