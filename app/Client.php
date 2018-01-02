@@ -30,4 +30,12 @@ class Client extends Model
      * @var string
      */
     protected $table = 'client';
+
+     /**
+     * Récuperer la localité associée au client
+     */
+    public function localite(){
+        return $this->belongsTo('App\Localite');
+    }
+    
 }
