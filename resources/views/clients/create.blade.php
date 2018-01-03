@@ -41,7 +41,7 @@
                                     <div class="form-group">
                                         {{ Form::label('nom_entreprise','Nom entreprise:')}}
                                         {{ Form::text('nom_entreprise',
-                                            old('nom_entreprise')?? isset($client) ? $client->nom_entreprise:'',
+                                            old('nom_entreprise')?? (isset($client) ? $client->nom_entreprise:''),
                                             [
                                             'placeholder'=>'ex: adva consult',
                                             'class'=>'form-control'
@@ -51,7 +51,7 @@
                                     <div class="form-group">
                                         {{ Form::label('tva','TVA:')}}
                                         {{ Form::text('tva',
-                                            old('tva')?? isset($client) ? $client->tva:'',
+                                            old('tva')?? (isset($client) ? $client->tva:''),
                                             [
                                             'placeholder'=>'ex: BE 0 123 456 774',
                                             'class'=>'form-control'
@@ -61,7 +61,7 @@
                                     <div class="form-group">
                                         {{ Form::label('personne_contact','Personne de contact:')}}
                                         {{ Form::text('personne_contact',
-                                            old('personne_contact')?? isset($client) ? $client->personne_contact:'',
+                                            old('personne_contact')?? (isset($client) ? $client->personne_contact:''),
                                             [
                                             'placeholder'=>'ex: Prénom Nom ',
                                             'class'=>'form-control'
@@ -71,7 +71,7 @@
                                     <div class="form-group">
                                         {{ Form::label('telephone','Téléphone:')}}
                                         {{ Form::text('telephone',
-                                            old('telephone')?? isset($client) ? $client->telephone:'',
+                                            old('telephone')?? (isset($client) ? $client->telephone:''),
                                             [
                                             'placeholder'=>'ex: 0494/23/58/74',
                                             'class'=>'form-control'
@@ -83,7 +83,7 @@
                                         <div class="form-group input-group">
                                             <span class="input-group-addon">@</span>
                                             {{ Form::text('email',
-                                                old('email')?? isset($client) ? $client->email:'',
+                                                old('email')?? (isset($client) ? $client->email:''),
                                                 [
                                                 'placeholder'=>'mail@example.com',
                                                 'class'=>'form-control'
@@ -96,7 +96,7 @@
                                     <div class="form-group">
                                         {{ Form::label('localite','Localité:')}}
                                         {{ Form::text('localite',
-                                            old('localite')?? isset($client) ? $client->localite:'',
+                                            old('localite')?? (isset($client) ? $client->localite:''),
                                             [
                                                 'placeholder'=>'ex: Nivelles',
                                                 'class'=>'form-control',
@@ -111,7 +111,7 @@
                                     <div class="form-group">
                                         {{ Form::label('adresse','Adresse:')}}
                                         {{ Form::text('adresse',
-                                            old('adresse')?? isset($client) ? $client->adresse:'',
+                                            old('adresse')?? (isset($client) ? $client->adresse:''),
                                             [
                                             'placeholder'=>'ex: Chaussée de Mons, 50',
                                             'class'=>'form-control'
@@ -121,7 +121,7 @@
                                     <div class="form-group">
                                         {{ Form::label('site','Site internet:')}}
                                         {{ Form::text('site',
-                                            old('site')?? isset($client) ? $client->site:'',
+                                            old('site')?? (isset($client) ? $client->site:''),
                                             [
                                             'placeholder'=>'ex: https://www.advaconsult.com',
                                             'class'=>'form-control'
@@ -131,7 +131,7 @@
                                     <div class="form-group">
                                         {{ Form::label('linkedin','LinkedIn:')}}
                                         {{ Form::text('linkedin',
-                                            old('linkedin')?? isset($client) ? $client->linkedin:'',
+                                            old('linkedin')?? (isset($client) ? $client->linkedin:''),
                                             [
                                             'placeholder'=>'ex: https://www.linkedin.com/in/example',
                                             'class'=>'form-control'
