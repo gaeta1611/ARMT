@@ -69,9 +69,14 @@
                                             </a>
                                         </td>
                                         <td style="text-align: center">
-                                            <a href="{{ route('clients.destroy',$client->id)}}">
-                                                <i class="fa fa-trash" aria-hidden="true" title="supprimer client"></i>
-                                            </a>
+                                            {{Form::open([
+                                                'route'=>['clients.destroy',$client->id],
+                                                'method'=>'DELETE',
+                                                'role'=>'form',
+                                                'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce client")'
+                                            ]) }}
+                                                <button class="fa fa-trash" aria-hidden="true" title="supprimer client"></button>                                        
+                                            {{ Form::close() }}
                                         </td>
                                         <td style="text-align: center">
                                             <a href="{{ route('clients.show',$client->id)}}">

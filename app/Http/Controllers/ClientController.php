@@ -240,6 +240,19 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $client = Client::find($id);
+
+        try {
+            if(isset($client) && $client->delete()){
+                Session::put('success','Le client a bien été supprimé');
+            }else {
+                Session::push('errors','Une erreur s\'est produite lors de la suppression du client!');
+            }
+
+        } catch (\Exception $ex){
+                Session::push('errors','Impossible de supprimer ce client (supprimer les missions avant)!');
+        }
+
+        return redirect()->route('clients.index');
     }
 }

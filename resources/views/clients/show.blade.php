@@ -24,11 +24,6 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-lg-6">
-                                    {{Form::open([
-                                        'route'=>['clients.edit',$client->id],
-                                        'method'=>'GET',
-                                        'role'=>'form'
-                                    ]) }}
                                     <dl class="dl-horizontal">
                                         <dt>Nom entreprise : </dt>
                                         <dd>{{ $client->nom_entreprise}}</dd>
@@ -53,15 +48,32 @@
                                         <dt>Linkedin : </dt>
                                         <dd>{{ $client->linkedin}}</dd>
                                     </dl>
-
-                                    <div style="margin-top:35px">
-                                    {{ Form::submit('Modifier',['class'=>'btn btn-warning pull-right'])}}
-                                    </div>
-
-                                    {{Form::close()}}
                                 </div>
                             </div>
-                           
+                            <div class="row">
+                                <div class="col-lg-12 text-right">
+                                    {{Form::open([
+                                        'route'=>['clients.edit',$client->id],
+                                        'method'=>'GET',
+                                        'role'=>'form',
+                                        'style' => 'display:inline'
+                                    ]) }}
+
+                                    {{ Form::submit('Modifier',['class'=>'btn btn-warning'])}}
+                                    {{Form::close()}}
+                        
+                                    {{Form::open([
+                                        'route'=>['clients.destroy',$client->id],
+                                        'method'=>'DELETE',
+                                        'role'=>'form',
+                                        'style' => 'display:inline',
+                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce client")'
+                                    ]) }}
+                                    
+                                    {{ Form::submit('Supprimer',['class'=>'btn btn-danger'])}}
+                                    {{ Form::close() }}
+                                </div>
+                            </div>
                         </div>
                         <!-- /.panel-body -->
                     </div>
