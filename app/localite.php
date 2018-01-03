@@ -26,7 +26,7 @@ class Localite extends Model
      /**
      * Récuperer les clients associés à la localité
      */
-    public function client(){
+    public function mission (){
         return $this->hasMany('App\Client');
     }
     

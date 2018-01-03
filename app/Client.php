@@ -37,5 +37,12 @@ class Client extends Model
     public function localite(){
         return $this->belongsTo('App\Localite');
     }
+
+     /**
+     * Récuperer les missions  associée au client
+     */
+    public function missions(){
+        return $this->hasMany('App\Mission');
+    }
     
 }

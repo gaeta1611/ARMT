@@ -120,12 +120,15 @@ class ClientController extends Controller
         $client = Client::find($id);
         $title = 'Profil '.($client->prospect ? 'prospect':'client');
 
+        //$missions = $client->missions;
+
         //TODO réglé relation many to one
         $localite = Localite::find($client->localite);
+        
         return view('clients.show',[
             'client'=>$client,
             'title' =>$title,
-            'client_localite' =>$localite
+            'client_localite' =>$localite,
             ]);
     }
 
