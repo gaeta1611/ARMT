@@ -21,5 +21,7 @@ Route::get('/login', function () {
 
 Route::resource('clients','ClientController');
 
+Route::resource('missions','MissionController');
+
 
 
