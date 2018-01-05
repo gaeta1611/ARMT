@@ -124,7 +124,7 @@ class ClientController extends Controller
 
         //TODO réglé relation many to one
         $localite = Localite::find($client->localite);
-        
+
         return view('clients.show',[
             'client'=>$client,
             'title' =>$title,

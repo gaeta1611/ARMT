@@ -6,11 +6,13 @@
 
 @elseif(Session::has('errors'))
 <div class="alert alert-danger">
-    @if(count($errors)>0)
-        @for($i=0;$i<count($errors);$i++)
-            <p>{{ Session::pull("errors.$i")}} </p>
-        @endfor
+    @if(is_array(Session::get('errors')))
+        <p> {{ implode ('<br>', Session::pull('errors')) }} </p>
+    @else
+        @foreach (Session::get('errors')->toArray() as $error => $tMessages)
+        <p> {{ implode ('<br>', $tMessages) }} </p>
+        @endforeach
     @endif
-    {{ Session::forget('errors') }}
 </div>
 @endif
+
