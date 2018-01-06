@@ -102,7 +102,7 @@
                                         @forelse($client->missions as $mission)
                                             <tr class="odd">
                                                 <td>
-                                                    <a href="{{ route('clients.show',$mission->id)}}">
+                                                    <a href="{{ route('missions.show',$mission->id)}}">
                                                         {{ $mission->id}}
                                                     </a>
                                                 </td>
@@ -123,12 +123,12 @@
                                                 </td>
                                                 <td style="text-align: center">
                                                     {{Form::open([
-                                                        'route'=>['clients.destroy',$mission->id],
+                                                        'route'=>['missions.destroy',$mission->id],
                                                         'method'=>'DELETE',
                                                         'role'=>'form',
-                                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce client")'
+                                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cette mission")'
                                                     ]) }}
-                                                        <button class="fa fa-trash" aria-hidden="true" title="supprimer client"></button>                                        
+                                                        <button class="fa fa-trash" aria-hidden="true" title="supprimer mission"></button>                                        
                                                     {{ Form::close() }}
                                                 </td>
                                             </tr>

@@ -25,28 +25,22 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
-                                        <dt>Nom entreprise : </dt>
+                                        <dt>Nom du client : </dt>
                                         <dd>{{ $client->nom_entreprise }}</dd>
-                                        <dt>TVA : </dt>
-                                        <dd>{{ $client->tva }}</dd>
-                                        <dt>Personne de contact : </dt>
-                                        <dd>{{ $client->personne_contact }}</dd>
-                                        <dt>Téléphone : </dt>
-                                        <dd>{{ $client->telephone }}</dd>
-                                        <dt>Email : </dt>
-                                        <dd>{{ $client->email }}</dd>
+                                        <dt>Fonction : </dt>
+                                        <dd>{{ $mission->fonction }}</dd>
+                                        <dt>Référence : </dt>
+                                        <dd>{{ $mission->id }}</dd>
+                                        <dt>Date : </dt>
+                                        <dd>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</dd>
+                                        <dt>Type de contrat : </dt>
+                                        <dd>{{ $mission->typeContrat->type }}</dd>
                                     </dl>
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
-                                        <dt>Localité : </dt>
-                                        <dd>{{ $client_localite->code_postal }} {{ $client_localite->localite }}</dd>
-                                        <dt>Adresse : </dt>
-                                        <dd>{{ $client->adresse }}</dd>
-                                        <dt>Site internet : </dt>
-                                        <dd>{{ $client->site }}</dd>
-                                        <dt>Linkedin : </dt>
-                                        <dd>{{ $client->linkedin }}</dd>
+                                        <dt>Status : </dt>
+                                        <dd>{{ $mission->status }}</dd>
                                     </dl>
                                 </div>
                             </div>
@@ -59,7 +53,7 @@
                                         'style' => 'display:inline'
                                     ]) }}
 
-                                    {{ Form::submit('Ajouter une fiche',['class'=>'btn btn-primary'])}}
+                                    {{ Form::submit('Ajouter un candidat',['class'=>'btn btn-primary'])}}
                                     {{ Form::close() }}
 
                                     {{Form::open([
@@ -73,11 +67,11 @@
                                     {{ Form::close() }}
                         
                                     {{Form::open([
-                                        'route'=>['clients.destroy',$client->id],
+                                        'route'=>['missions.destroy',$mission->id],
                                         'method'=>'DELETE',
                                         'role'=>'form',
                                         'style' => 'display:inline',
-                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce client")'
+                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cette mission")'
                                     ]) }}
                                     
                                     {{ Form::submit('Supprimer',['class'=>'btn btn-danger'])}}

@@ -109,20 +109,22 @@ class MissionController extends Controller
 
         //Déplacer le contrat dans le dossier uploads
         $file = $request->file('contrat_id');
-        $url = Storage::putFile('public/uploads',$file);
 
-        //Enregistrer le document dans la base de donnée
-        $contrat = new Document ();
-        $contrat-> type ='Contrat';
-        $contrat->url_document = $url;
-        $contrat->filename = $file->getClientOriginalname();
+        if($file){
+            $url = Storage::putFile('public/uploads',$file);
+            //Enregistrer le document dans la base de donnée
+            $contrat = new Document ();
+            $contrat-> type ='Contrat';
+            $contrat->url_document = $url;
+            $contrat->filename = $file->getClientOriginalname();
 
-        if(!$contrat->save()){
-            Session::push('errors','Erreur lors de l\'enregristrement du document!');
+            if(!$contrat->save()){
+                Session::push('errors','Erreur lors de l\'enregristrement du document!');
+            }
         }
-
+        
         $mission = new mission(Input::all());
-        $mission->contrat_id = $contrat->id;
+        $mission->contrat_id = $file ? $contrat->id:null;
         
         if($mission->save()){
             Session::put('success','La mission a bien été enregistrée');
@@ -142,8 +144,16 @@ class MissionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
-        //
+    {   
+        $mission = Mission::find($id);
+        $client = Client::find($mission->client_id);
+        $title = 'Détails de la mission ';
+
+        return view('missions.show',[
+            'mission'=>$mission,
+            'client'=>$client,
+            'title' =>$title,
+            ]);
     }
 
     /**
@@ -187,6 +197,21 @@ class MissionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $mission = Mission::find($id);
+        $clientId = $mission->client_id;
+        
+                try {
+                    if(isset($mission) && $mission->delete()){
+                        Session::put('success','La mission a bien été supprimé');
+                    }else {
+                        Session::push('errors','Une erreur s\'est produite lors de la suppression de la mission!');
+                    }
+        
+                } catch (\Exception $ex){
+                        Session::push('errors','Impossible de supprimer cette mission (supprimer les candidats avant)!');
+                }
+        
+                return redirect()->route('clients.show', $clientId);
+            
     }
 }
