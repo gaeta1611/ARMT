@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Client;
 use App\Mission;
+use App\TypeContrat;
+use App\Document;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class MissionController extends Controller
 {
@@ -28,27 +31,51 @@ class MissionController extends Controller
      */
     public function create( $id=null )
     {
+        //Récuperer le client pour lequel on créer la mission
+        $oldClient = Client::find($id);
+
+        //Définir le titre de la page
         $title = 'Ajouter mission';
+        //Définir les paramètres du formulaire
         $route = 'missions.store';
         $method = 'POST';
 
-        $listeClients = $clients = Client::where('prospect',0)
+        //Récuperer la liste des clients pour le formulaire(select)
+        $listeClients = Client::where('prospect',0)
                             ->orderBy('nom_entreprise')
                             ->get();
-
         $clients=[];
         foreach($listeClients as $client){
             $clients[$client->id] = $client->nom_entreprise;
         }
 
-        $oldClient = Client::find($id);
-        
+        //Récuperer la liste des types de contrats pour le formulaire(select)
+        $listTypesContrat = TypeContrat::all();
+        $typesContrat = [];
+        foreach($listTypesContrat as $type){
+            $typesContrat[$type->id] = $type->type;
+        }
+
+        //Récuperer la liste des status pour le formulaire(select)
+        $listStatus = DB::select(
+            DB::raw("SHOW COLUMNS FROM mission WHERE FIELD = 'status'")
+        )[0]->Type;
+        preg_match('/^enum\((.*)\)$/', $listStatus, $matches);
+        $listeStatus = [];
+        foreach( explode(',', $matches[1]) as $value )
+        {
+          $v = trim( $value, "'" );
+          $listeStatus = array_add($listeStatus, $v, $v);
+        }
+
         return view('missions.create',[
                     'title' => $title,
                     'route' => $route,
                     'method' => $method,
                     'clients' =>$clients,
-                    'oldClient' => $oldClient
+                    'oldClient' => $oldClient,
+                    'typesContrat' => $typesContrat,
+                    'listeStatus' => $listeStatus
         ]);
     }
 
@@ -64,9 +91,9 @@ class MissionController extends Controller
             'client_id'=> 'required',
             'fonction'=> 'required|max:120',
             'type_contrat_id'=>'required|numeric',
-            'status'=>'required|numeric',
-            'contrat_id'=>'nullable|numeric',
-            'job_description_id'=>'nullable|numeric',
+            'status'=>'required',
+            //'contrat_id'=>'nullable',
+            //'job_description_id'=>'nullable',
             
         ],[
             'client_id.required'=>'Veuillez entrer le nom du client',
@@ -77,18 +104,29 @@ class MissionController extends Controller
             'type_contrat_id.required'=>'Veuillez entrer le type de contrat',
             'type_contrat_id.numeric'=>'Le type du contrat est incorrecte',
 
-            'status.required'=>'Veuillez entrer le type de status',
-            'status.numeric'=>'Le type du status est incorrecte',
-
-            'contrat_id.numeric'=>'Le type du document contrat est incorrecte',
-
-            'job_description_id.numeric'=>'Le type du document job description est incorrecte',
+            'status.required'=>'Veuillez entrer le type de status'
         ]);
 
+        //Déplacer le contrat dans le dossier uploads
+        $file = $request->file('contrat_id');
+        $url = Storage::putFile('public/uploads',$file);
+
+        //Enregistrer le document dans la base de donnée
+        $contrat = new Document ();
+        $contrat-> type ='Contrat';
+        $contrat->url_document = $url;
+        $contrat->filename = $file->getClientOriginalname();
+
+        if(!$contrat->save()){
+            Session::push('errors','Erreur lors de l\'enregristrement du document!');
+        }
+
         $mission = new mission(Input::all());
+        $mission->contrat_id = $contrat->id;
         
         if($mission->save()){
             Session::put('success','La mission a bien été enregistrée');
+
         }
         else{
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');

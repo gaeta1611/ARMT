@@ -36,9 +36,11 @@
                                     {{Form::open([
                                         'route'=>$route,
                                         'method'=>$method,
-                                        'role'=>'form'
+                                        'role'=>'form',
+                                        'enctype'=>'multipart/form-data'
                                     ]) }}
                                     <div class="form-group">
+                                        
                                         {{ Form::label('client_id','Nom du client:')}}
                                         {{ Form::select('client_id',
                                             $clients,
@@ -56,7 +58,6 @@
                                                 'placeholder'=>'ex: Ingénieur construction',
                                                 'class'=>'form-control',
                                                 'list'=>'list-fonctions',
-                                                'style'=>'display:inline;width:auto'
                                         ]) }}
                                         <datalist id="list-fonctions">
                                             <option value="1">Ingénieur</option>
@@ -66,8 +67,9 @@
 
                                     <div class="form-group">
                                         {{ Form::label('type_contrat_id','Type de contrat:')}}
-                                        {{ Form::select('type_contrat_id',[ 1 => 
-                                            old('type_contrat_id')?? (isset($mission) ? $mission->type_contrat_id:'1')],
+                                        {{ Form::select('type_contrat_id', 
+                                            $typesContrat,
+                                            (isset($mission) ? $mission->type_contrat_id: null),
                                             [
                                             'class'=>'form-control'
                                         ]) }}
@@ -75,8 +77,9 @@
 
                                     <div class="form-group">
                                         {{ Form::label('status','Status de la mission:')}}
-                                        {{ Form::select('status',[ 1 => 
-                                            old('status')?? (isset($mission) ? $mission->status:'1')],
+                                        {{ Form::select('status',
+                                            $listeStatus,
+                                            (isset($mission) ? $mission->status: 'En cours'),
                                             [
                                             'class'=>'form-control'
                                         ]) }}

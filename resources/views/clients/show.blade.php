@@ -53,7 +53,7 @@
                             <div class="row">
                                 <div class="col-lg-12 text-right">
                                     {{Form::open([
-                                        'route'=>['missions.create',$client->id],
+                                        'route'=>['missions.create.from.client',$client->id],
                                         'method'=>'GET',
                                         'role'=>'form',
                                         'style' => 'display:inline'

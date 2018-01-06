@@ -23,5 +23,7 @@ Route::resource('clients','ClientController');
 
 Route::resource('missions','MissionController');
 
+Route::get('/missions/create/{id?}','MissionController@create',['id'])
+                        ->name('missions.create.from.client');
 
 

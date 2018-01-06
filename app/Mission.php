@@ -17,7 +17,6 @@ class Mission extends Model
         'fonction',
         'type_contrat_id',
         'status',
-        'contrat_id',
         'job_description_id',
         'remarques',
     ];
@@ -30,9 +29,16 @@ class Mission extends Model
     protected $table = 'mission';
     
      /**
-     * Récuperer les clients associés à la localité
+     * Récuperer les clients associés à cette mission
      */
     public function client(){
         return $this->belongsTo('App\Client');
+    }
+
+    /**
+     * Récuperer les types de contrats  associés à la mission
+     */
+    public function typeContrat (){
+        return $this->belongsTo('App\TypeContrat');
     }
 }
