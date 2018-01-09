@@ -17,7 +17,6 @@ class Mission extends Model
         'fonction',
         'type_contrat_id',
         'status',
-        'job_description_id',
         'remarques',
     ];
 
@@ -41,4 +40,23 @@ class Mission extends Model
     public function typeContrat (){
         return $this->belongsTo('App\TypeContrat');
     }
+
+    /**
+     * Récuperer le contrat associés à cette mission
+     */
+    public function contrat(){
+        //Relation une mission possède un et un seul contrat
+        //Mission.contrat_id correspond à document.id
+        return $this->hasOne('App\Document','id','contrat_id');
+    }
+
+     /**
+     * Récuperer les job description associés à cette mission
+     */
+    public function job_descriptions(){
+        //Relation une mission possède un et un seul contrat
+        //Mission.contrat_id correspond à document.id
+        return $this->hasMany('App\Document');
+    }
+
 }

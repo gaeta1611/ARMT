@@ -31,14 +31,15 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-body">
+                        {{Form::open([
+                            'route'=>$route,
+                            'method'=>$method,
+                            'role'=>'form',
+                            'enctype'=>'multipart/form-data'
+                        ]) }}
                             <div class="row">
                                 <div class="col-lg-6">
-                                    {{Form::open([
-                                        'route'=>$route,
-                                        'method'=>$method,
-                                        'role'=>'form',
-                                        'enctype'=>'multipart/form-data'
-                                    ]) }}
+                                    
                                     <div class="form-group">
                                         
                                         {{ Form::label('client_id','Nom du client:')}}
@@ -97,12 +98,37 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('job_description_id','Charger le/les job descriptions:')}}
-                                        {{ Form::file('job_description_id',[ 1 => 
-                                            old('job_description_id')?? (isset($mission) ? $mission->job_description_id:'1')],
-                                            [
-                                            'class'=>'form-control'
-                                        ]) }}
+                                        {{ Form::label('job_description_ids','Charger le/les job descriptions:')}}
+                                        <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
+                                            <div>
+                                                {{ Form::label('descriptions[]','Description:')}}
+                                                {{ Form::text('descriptions[]',
+                                                    old('descriptions[]')?? (isset($mission) ? $mission->description:''),
+                                                    [
+                                                        'placeholder'=>'ex: Ingénieur construction',
+                                                        'class'=>'form-control',
+                                                        'style'=>'display:inline;width:auto;height:1.8em;margin-bottom:5px'
+                                                ]) }}
+
+
+                                                {{ Form::file('job_description_ids[]',[ 1 => 
+                                                    old('job_description_id')?? (isset($mission) ? $mission->job_description_id:'1')],
+                                                    [
+                                                    'class'=>'form-control'
+                                                ]) }}
+                                            </div>
+
+                                            <i class="fa fa-plus-square" aria-hidden="true" 
+                                            style="margin-top:10px;font-size: 1.5em;color:blue"
+                                            onclick="$input = $(this).parent().find('div:first-of-type').clone();
+                                                        $input.insertBefore($(this));">
+                                            </i>
+                                            <i class="fa fa-minus-square" aria-hidden="true" 
+                                            style="margin-top:10px;font-size: 1.5em;color:lightcoral"
+                                            onclick="$input = $(this).parent().find('div:last-of-type').remove();">
+                                            </i>
+                                        </div>
+                                        
                                     </div>
 
                                     <div class="form-group">
@@ -118,10 +144,9 @@
                                     {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
                                     </div>
 
-                                    {{Form::close()}}
                                 </div>
                             </div>
-                           
+                        {{Form::close()}}
                         </div>
                         <!-- /.panel-body -->
                     </div>

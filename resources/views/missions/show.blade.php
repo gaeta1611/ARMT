@@ -41,6 +41,30 @@
                                     <dl class="dl-horizontal">
                                         <dt>Status : </dt>
                                         <dd>{{ $mission->status }}</dd>
+                                        <dt>Contrat : </dt>
+                                        <dd>
+                                            @if($mission->contrat_id)
+                                               <a href="{{ url(Storage::url($mission->contrat->url_document)) }}" target="_blank"> 
+                                                   <i class="fa fa-download" aria-hidden="true"></i>
+                                                </a>
+                                            @else()
+                                                Aucun contrat
+                                            @endif
+                                        </dd>
+
+                                        <dt>Job description : </dt>
+                                        <dd>
+                                        @if($mission->job_descriptions)
+                                            @foreach($mission->job_descriptions as $job_description)
+                                               <a href="{{ url(Storage::url($job_description->url_document)) }}" target="_blank"> 
+                                                   <i class="fa fa-download" aria-hidden="true"></i>
+                                                   {{ $job_description->description }}
+                                                </a></br>
+                                            @endforeach
+                                        @else()
+                                            Aucun job description
+                                        @endif
+                                        </dd>
                                     </dl>
                                 </div>
                             </div>

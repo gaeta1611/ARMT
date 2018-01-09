@@ -111,7 +111,17 @@ class MissionController extends Controller
         $file = $request->file('contrat_id');
 
         if($file){
-            $url = Storage::putFile('public/uploads',$file);
+
+            //Déplacer le fichier dans le dossier de téléchargement public
+            $filename = Storage::putFile('public/uploads/contrats',$file);
+
+            //Récuperer le nouveau nom de fichier
+            $filename = strrchr($filename,"/");
+
+            //Récuperer l'url du dossier de téléchargement
+            //à partir du fichier de config config/filesystems.php
+            $url = '/uploads/contrats'.$filename;
+
             //Enregistrer le document dans la base de donnée
             $contrat = new Document ();
             $contrat-> type ='Contrat';
@@ -119,7 +129,7 @@ class MissionController extends Controller
             $contrat->filename = $file->getClientOriginalname();
 
             if(!$contrat->save()){
-                Session::push('errors','Erreur lors de l\'enregristrement du document!');
+                Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
             }
         }
         
@@ -129,8 +139,36 @@ class MissionController extends Controller
         if($mission->save()){
             Session::put('success','La mission a bien été enregistrée');
 
-        }
-        else{
+            //Déplacer le contrat dans le dossier uploads
+             $jobFiles = $request->file('job_description_ids');
+        
+            if($jobFiles){
+                for($i=0;$i<count($jobFiles);$i++){
+        
+                    //Déplacer le fichier dans le dossier de téléchargement public
+                    $filename = Storage::putFile('public/uploads/jobs',$jobFiles[$i]);
+        
+                    //Récuperer le nouveau nom de fichier
+                    $filename = strrchr($filename,"/");
+        
+                    //Récuperer l'url du dossier de téléchargement
+                    //à partir du fichier de config config/filesystems.php
+                    $url = '/uploads/jobs'.$filename;
+        
+                    //Enregistrer le document dans la base de donnée
+                    $job_desc = new Document ();
+                    $job_desc-> type ='Job description';
+                    $job_desc-> description = $request->input('descriptions') [$i];
+                    $job_desc->url_document = $url;
+                    $job_desc->filename = $file->getClientOriginalname();
+                    $job_desc->mission_id = $mission->id;
+        
+                    if(!$job_desc->save()){
+                        Session::push('errors','Erreur lors de l\'enregristrement du document (job description)!');
+                    }
+                }
+            }
+        } else {
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
         }
 
