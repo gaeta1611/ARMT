@@ -26,7 +26,11 @@
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
                                         <dt>Nom du client : </dt>
-                                        <dd>{{ $client->nom_entreprise }}</dd>
+                                        <dd>
+                                            <a href="{{ route('clients.show',$mission->client_id) }}">
+                                                {{ $client->nom_entreprise }}
+                                            </a>
+                                        </dd>
                                         <dt>Fonction : </dt>
                                         <dd>{{ $mission->fonction }}</dd>
                                         <dt>Référence : </dt>
@@ -47,24 +51,32 @@
                                                <a href="{{ url(Storage::url($mission->contrat->url_document)) }}" target="_blank"> 
                                                    <i class="fa fa-download" aria-hidden="true"></i>
                                                 </a>
-                                            @else()
+                                            @else
                                                 Aucun contrat
                                             @endif
                                         </dd>
 
                                         <dt>Job description : </dt>
                                         <dd>
-                                        @if($mission->job_descriptions)
+                                        @if(count($mission->job_descriptions))
                                             @foreach($mission->job_descriptions as $job_description)
                                                <a href="{{ url(Storage::url($job_description->url_document)) }}" target="_blank"> 
                                                    <i class="fa fa-download" aria-hidden="true"></i>
                                                    {{ $job_description->description }}
                                                 </a></br>
                                             @endforeach
-                                        @else()
+                                        @else
                                             Aucun job description
                                         @endif
                                         </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <dl class="dl-horizontal">
+                                        <dt>Remarques :</dt>
+                                            <dd>{{$mission->remarques}}</dd>
                                     </dl>
                                 </div>
                             </div>
@@ -81,7 +93,7 @@
                                     {{ Form::close() }}
 
                                     {{Form::open([
-                                        'route'=>['clients.edit',$client->id],
+                                        'route'=>['missions.edit',$mission->id],
                                         'method'=>'GET',
                                         'role'=>'form',
                                         'style' => 'display:inline'

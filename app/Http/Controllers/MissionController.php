@@ -39,7 +39,7 @@ class MissionController extends Controller
         //Définir les paramètres du formulaire
         $route = 'missions.store';
         $method = 'POST';
-
+        
         //Récuperer la liste des clients pour le formulaire(select)
         $listeClients = Client::where('prospect',0)
                             ->orderBy('nom_entreprise')
@@ -48,7 +48,7 @@ class MissionController extends Controller
         foreach($listeClients as $client){
             $clients[$client->id] = $client->nom_entreprise;
         }
-
+        
         //Récuperer la liste des types de contrats pour le formulaire(select)
         $listTypesContrat = TypeContrat::all();
         $typesContrat = [];
@@ -106,10 +106,10 @@ class MissionController extends Controller
 
             'status.required'=>'Veuillez entrer le type de status'
         ]);
-
-        //Déplacer le contrat dans le dossier uploads
+        
+        //Récuperer le fichier chargé dans le formulaire
         $file = $request->file('contrat_id');
-
+        
         if($file){
 
             //Déplacer le fichier dans le dossier de téléchargement public
@@ -117,28 +117,28 @@ class MissionController extends Controller
 
             //Récuperer le nouveau nom de fichier
             $filename = strrchr($filename,"/");
-
+            
             //Récuperer l'url du dossier de téléchargement
             //à partir du fichier de config config/filesystems.php
             $url = '/uploads/contrats'.$filename;
 
             //Enregistrer le document dans la base de donnée
             $contrat = new Document ();
-            $contrat-> type ='Contrat';
+            $contrat->type = 'Contrat';
             $contrat->url_document = $url;
-            $contrat->filename = $file->getClientOriginalname();
+            $contrat->filename = $file->getClientOriginalName();
 
             if(!$contrat->save()){
                 Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
             }
         }
         
-        $mission = new mission(Input::all());
+        $mission = new Mission(Input::all());
         $mission->contrat_id = $file ? $contrat->id:null;
         
         if($mission->save()){
             Session::put('success','La mission a bien été enregistrée');
-
+            
             //Déplacer le contrat dans le dossier uploads
              $jobFiles = $request->file('job_description_ids');
         
@@ -160,7 +160,7 @@ class MissionController extends Controller
                     $job_desc-> type ='Job description';
                     $job_desc-> description = $request->input('descriptions') [$i];
                     $job_desc->url_document = $url;
-                    $job_desc->filename = $file->getClientOriginalname();
+                    $job_desc->filename = $jobFiles[$i]->getClientOriginalName();
                     $job_desc->mission_id = $mission->id;
         
                     if(!$job_desc->save()){
@@ -202,17 +202,61 @@ class MissionController extends Controller
      */
     public function edit($id)
     {
+        
+        //Récuper la mission à modifier    
         $mission = mission::find($id);
+
+        //Récuperer le client pour lequel on modifie la mission
+        $oldClient = Client::find($mission->client_id);
+        
+        //Définir le titre de la page
         $title = 'Modifier mission';
+
+        //Définir les paramètres du formulaire
         $route = ['missions.update',$id];
         $method = 'PUT';
 
+        //Récuperer la liste des clients pour le formulaire(select)
+        $listeClients = Client::where('prospect',0)
+                            ->orderBy('nom_entreprise')
+                            ->get();
+        $clients=[];
+        foreach($listeClients as $client){
+            $clients[$client->id] = $client->nom_entreprise;
+        }
+
+        //Récuperer la liste des types de contrats pour le formulaire(select)
+        $listTypesContrat = TypeContrat::all();
+        $typesContrat = [];
+        foreach($listTypesContrat as $type){
+            $typesContrat[$type->id] = $type->type;
+        }
+
+        //Récuperer la liste des status pour le formulaire(select)
+        $listStatus = DB::select(
+            DB::raw("SHOW COLUMNS FROM mission WHERE FIELD = 'status'")
+        )[0]->Type;
+        preg_match('/^enum\((.*)\)$/', $listStatus, $matches);
+        $listeStatus = [];
+        foreach( explode(',', $matches[1]) as $value )
+        {
+            $v = trim( $value, "'" );
+            $listeStatus = array_add($listeStatus, $v, $v);
+        }
+
+        //Récuperer les jobs descriptions
+        $mission->job_description_ids = [4,14,20];
+
         return view('missions.create',[
-            'mission'=> $mission,
-            'title' => $title,
-            'route' => $route,
-            'method' => $method
-            ]);
+                    'mission'=> $mission,
+                    'title' => $title,
+                    'route' => $route,
+                    'method' => $method,
+                    'clients' =>$clients,
+                    'oldClient' => $oldClient,
+                    'typesContrat' => $typesContrat,
+                    'listeStatus' => $listeStatus
+        ]);
     }
 
     /**
@@ -224,7 +268,95 @@ class MissionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validatorData = $request->validate([
+            'client_id'=> 'required',
+            'fonction'=> 'required|max:120',
+            'type_contrat_id'=>'required|numeric',
+            'status'=>'required',
+            //'contrat_id'=>'nullable',
+            //'job_description_id'=>'nullable',
+            
+        ],[
+            'client_id.required'=>'Veuillez entrer le nom du client',
+            
+            'fonction.required'=>'Veuillez entrer la fonction recherchée',
+            'fonction.max'=>'La fonction ne peut pas dépasser 120 caractères',
+
+            'type_contrat_id.required'=>'Veuillez entrer le type de contrat',
+            'type_contrat_id.numeric'=>'Le type du contrat est incorrecte',
+
+            'status.required'=>'Veuillez entrer le type de status'
+        ]);
+        
+        //Récuperer le fichier chargé dans le formulaire
+        $file = $request->file('contrat_id');
+        
+        if($file){
+
+            //Déplacer le fichier dans le dossier de téléchargement public
+            $filename = Storage::putFile('public/uploads/contrats',$file);
+
+            //Récuperer le nouveau nom de fichier
+            $filename = strrchr($filename,"/");
+            
+            //Récuperer l'url du dossier de téléchargement
+            //à partir du fichier de config config/filesystems.php
+            $url = '/uploads/contrats'.$filename;
+
+            //Enregistrer le document dans la base de donnée
+            $contrat = new Document ();
+            $contrat->type = 'Contrat';
+            $contrat->url_document = $url;
+            $contrat->filename = $file->getClientOriginalName();
+
+            if(!$contrat->save()){
+                Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
+            }
+        }
+        
+        $mission = Mission::find($id);
+        $data = (Input::all());
+
+        $mission->contrat_id = $file ? $contrat->id:null;
+        
+        if($mission->update($data)) {
+            Session::put('success','La mission a bien été modifiée');
+            
+            //Déplacer le contrat dans le dossier uploads
+             $jobFiles = $request->file('job_description_ids');
+        
+            if($jobFiles){
+                for($i=0;$i<count($jobFiles);$i++){
+        
+                    //Déplacer le fichier dans le dossier de téléchargement public
+                    $filename = Storage::putFile('public/uploads/jobs',$jobFiles[$i]);
+        
+                    //Récuperer le nouveau nom de fichier
+                    $filename = strrchr($filename,"/");
+        
+                    //Récuperer l'url du dossier de téléchargement
+                    //à partir du fichier de config config/filesystems.php
+                    $url = '/uploads/jobs'.$filename;
+        
+                    //Enregistrer le document dans la base de donnée
+                    $job_desc = new Document ();
+                    $job_desc-> type ='Job description';
+                    $job_desc-> description = $request->input('descriptions') [$i];
+                    $job_desc->url_document = $url;
+                    $job_desc->filename = $jobFiles[$i]->getClientOriginalName();
+                    $job_desc->mission_id = $mission->id;
+        
+                    if(!$job_desc->save()){
+                        Session::push('errors','Erreur lors de l\'enregristrement du document (job description)!');
+                    }
+                }
+            }
+        } else {
+            Session::push('errors','Une erreur s\'est produite lors de la modification!');
+        }
+
+        return redirect()->route('missions.show',$id);
+        
     }
 
     /**

@@ -90,22 +90,57 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         {{ Form::label('contrat_id','Charger contrat:')}}
-                                        {{ Form::file('contrat_id',[ 1 => 
-                                            old('contrat_id')?? (isset($mission) ? $mission->contrat_id:'1')],
+                                        @if(isset($mission) && $mission->contrat_id)
+                                            <a href="{{ url(Storage::url($mission->contrat->url_document)) }}" target="_blank"> 
+                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                {{$mission->contrat->filename}}
+                                            </a>
+                                            <i class="fa fa-times" aria-hidden="true" 
+                                                style="margin-top:10px;font-size: 1.5em;color:orangered"
+                                                onmouseover="$(this).css('cursor','pointer')"
+                                                onclick="$(this).parent().find('a:first-of-type').remove();
+                                                        $(this).parent().find('input:first-of-type')
+                                                                .css('display','block')
+                                                                .attr('disabled',false);                               
+                                                        $(this).remove();">
+                                            </i>
+                                            {{ Form::file('contrat_id',
                                             [
-                                            'class'=>'form-control'
-                                        ]) }}
+                                                'style'=>'display:none',
+                                                'disabled'=>'disabled'
+                                            ]) }}
+                                        @else
+                                            {{ Form::file('contrat_id') }}
+                                        @endif
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('job_description_ids','Charger le/les job descriptions:')}}
+                                        <dl>
+                                            <dt>{{ Form::label('job_description_ids','Charger le/les job descriptions:') }}</dt>
+                                        @if(isset($mission) && $mission->job_descriptions)
+                                            <dd style="margin-left:15px">
+                                            @foreach($mission->job_descriptions as $job_description)
+                                               <a href="{{ url(Storage::url($job_description->url_document)) }}" target="_blank"> 
+                                                   <i class="fa fa-download" aria-hidden="true"></i>
+                                                   {{ $job_description->description }}
+                                                </a>
+                                                <i class="fa fa-times" aria-hidden="true" 
+                                                style="margin-top:10px;font-size: 1.1em;color:orangered"
+                                                onmouseover="$(this).css('cursor','pointer')"
+                                                onclick="$(this).parent().find('a:first-of-type,br').remove(); 
+                                                        $(this).remove();">
+                                                </i></br>
+                                            @endforeach
+                                            <dd>
+                                        @endif
+                                        </dl>
                                         <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
                                             <div>
                                                 {{ Form::label('descriptions[]','Description:')}}
                                                 {{ Form::text('descriptions[]',
                                                     old('descriptions[]')?? (isset($mission) ? $mission->description:''),
                                                     [
-                                                        'placeholder'=>'ex: Ingénieur construction',
+                                                        'placeholder'=>'ex: Français',
                                                         'class'=>'form-control',
                                                         'style'=>'display:inline;width:auto;height:1.8em;margin-bottom:5px'
                                                 ]) }}
@@ -120,12 +155,37 @@
 
                                             <i class="fa fa-plus-square" aria-hidden="true" 
                                             style="margin-top:10px;font-size: 1.5em;color:blue"
-                                            onclick="$input = $(this).parent().find('div:first-of-type').clone();
-                                                        $input.insertBefore($(this));">
+                                            onmouseover="$(this).css({'cursor':'pointer','color':'Darkblue'})"
+                                            onmouseout="$(this).css({'cursor':'pointer','color':'blue'})"
+                                            onclick="$divs = $(this).parent().find('div')
+                                                    $lastDiv = $divs.last();
+                                                    if($divs.length==1 && $lastDiv.find('input[type=file]').attr('disabled')){
+                                                        $lastDiv.css('display','block');
+                                                        $lastDiv.find('input[type=file]').attr('disabled',false);                      
+                                                     }
+                                                     else{
+                                                        $div = $lastDiv.clone();
+                                                        $div.insertBefore($(this));
+                                                        $div.parent().find('input[type=file]').last().val('');
+                                                        $div.parent().find('input[type=text]').last().val('');
+                                                         
+                                                     }">
                                             </i>
                                             <i class="fa fa-minus-square" aria-hidden="true" 
-                                            style="margin-top:10px;font-size: 1.5em;color:lightcoral"
-                                            onclick="$input = $(this).parent().find('div:last-of-type').remove();">
+                                            style="margin-top:10px;font-size: 1.5em;color:orangered"
+                                            onmouseover="$(this).css({'cursor':'pointer','color':'darkred'})"
+                                            onmouseout="$(this).css({'cursor':'pointer','color':'orangered'})"
+                                            onclick="$divs = $(this).parent().find('div');
+                                                     if($divs.length>1){
+                                                        $divs.last().remove();
+                                                     }
+                                                     else{
+                                                         $divs.last().css('display','none');
+                                                         $divs.last().find('input[type=file]')
+                                                                    .attr('disabled',true)
+                                                                    .val('');
+                                                         $div.last().find('input[type=text]').val('');
+                                                     }">
                                             </i>
                                         </div>
                                         
