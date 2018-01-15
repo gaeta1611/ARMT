@@ -3,9 +3,28 @@
 @section('title',$title)
 
 @section('css')
+<!-- DataTables CSS -->
+<link href="{{ asset ('../vendor/datatables-plugins/dataTables.bootstrap.css') }}" rel="stylesheet">
+
+<!-- DataTables Responsive CSS -->
+<link href="{{ asset('../vendor/datatables-responsive/dataTables.responsive.css') }}" rel="stylesheet">
 @endsection
 
 @section('js')
+<!-- DataTables JavaScript -->
+<script src="{{ asset('../vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('../vendor/datatables-plugins/dataTables.bootstrap.min.js') }}"></script>
+<script src="{{ asset('../vendor/datatables-responsive/dataTables.responsive.js') }}"></script>
+
+<script>
+
+$(document).ready(function() {
+    $('#dataTables-candidats').DataTable({
+        responsive: true,
+        order: [[0,'Candidats']]
+    });
+});
+</script>
 @endsection
 
 @include('includes.sidebar')
@@ -116,7 +135,7 @@
                             </div>
                             <div class="row">
                                 <div class="well-lg">
-                                    <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-clients">
+                                    <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-candidats">
                                         <thead>
                                             <tr>
                                                 <th>Fiches</th>

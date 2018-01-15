@@ -101,7 +101,8 @@
                                                 onclick="$(this).parent().find('a:first-of-type').remove();
                                                         $(this).parent().find('input[type=file]')
                                                                 .css('display','block')
-                                                                .attr('disabled',false);                               
+                                                                .attr('disabled',false);
+                                                        $(this).parent().append('<input type=hidden name=delete value=1>')                               
                                                         $(this).remove();">
                                             </i>
                                             {{ Form::hidden('contrat_id', $mission->contrat_id) }}
@@ -121,16 +122,19 @@
                                         @if(isset($mission) && $mission->job_descriptions)
                                             <dd style="margin-left:15px">
                                             @foreach($mission->job_descriptions as $job_description)
-                                               <a href="{{ url(Storage::url($job_description->url_document)) }}" target="_blank"> 
-                                                   <i class="fa fa-download" aria-hidden="true"></i>
-                                                   {{ $job_description->description }}
-                                                </a>
-                                                <i class="fa fa-times" aria-hidden="true" 
-                                                style="margin-top:10px;font-size: 1.1em;color:orangered"
-                                                onmouseover="$(this).css('cursor','pointer')"
-                                                onclick="$(this).parent().find('a:first-of-type,br').remove(); 
-                                                        $(this).remove();">
-                                                </i></br>
+                                                <p style="margin:0">
+                                                    <a href="{{ url(Storage::url($job_description->url_document)) }}" target="_blank"> 
+                                                        <i class="fa fa-download" aria-hidden="true"></i>
+                                                        {{ $job_description->description }}
+                                                        </a>
+                                                        <i class="fa fa-times" aria-hidden="true" 
+                                                        style="margin-top:10px;font-size: 1.1em;color:orangered"
+                                                        onmouseover="$(this).css('cursor','pointer')"
+                                                        onclick="$(this).prev('a').remove();
+                                                                $(this).parent().parent('dd').append('<input type=hidden name=deleteFileIds[] value={{ $job_description->id }}>')  
+                                                                $(this).parent('p').remove();">
+                                                        </i>
+                                                </p>
                                             @endforeach
                                             <dd>
                                         @endif

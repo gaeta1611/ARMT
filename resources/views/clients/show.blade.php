@@ -3,9 +3,28 @@
 @section('title',$title)
 
 @section('css')
+<!-- DataTables CSS -->
+<link href="{{ asset ('../vendor/datatables-plugins/dataTables.bootstrap.css') }}" rel="stylesheet">
+
+<!-- DataTables Responsive CSS -->
+<link href="{{ asset('../vendor/datatables-responsive/dataTables.responsive.css') }}" rel="stylesheet">
 @endsection
 
 @section('js')
+<!-- DataTables JavaScript -->
+<script src="{{ asset('../vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('../vendor/datatables-plugins/dataTables.bootstrap.min.js') }}"></script>
+<script src="{{ asset('../vendor/datatables-responsive/dataTables.responsive.js') }}"></script>
+
+<script>
+
+$(document).ready(function() {
+    $('#dataTables-missions').DataTable({
+        responsive: true,
+        order: [[0,'Fiches']]
+    });
+});
+</script>
 @endsection
 
 @include('includes.sidebar')
@@ -84,59 +103,61 @@
                                     {{ Form::close() }}
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="well-lg">
-                                    <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-clients">
-                                        <thead>
-                                            <tr>
-                                                <th>Fiches</th>
-                                                <th>Fonction</th>
-                                                <th>Date</th>
-                                                <th>Remarques</th>
-                                                <th>Status</th>
-                                                <th>Mail</th>
-                                                <th>Supprimer</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        @forelse($client->missions as $mission)
-                                            <tr class="odd">
-                                                <td>
-                                                    <a href="{{ route('missions.show',$mission->id)}}">
-                                                        {{ $mission->id}}
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                        {{ $mission->fonction}}
-                                                </td>
-                                                <td>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</td>
-                                                <td>
-                                                        {{ $mission->remarques}}
-                                                </td>
-                                                <td>
-                                                        {{ $mission->status}}
-                                                </td>
-                                                <td style="text-align: center">
-                                                    <a href="{{ route('clients.show',$client->id)}}">
-                                                        <i class="fa fa-envelope-o" aria-hidden="true" title="Afficher les emails"></i>
-                                                    </a>
-                                                </td>
-                                                <td style="text-align: center">
-                                                    {{Form::open([
-                                                        'route'=>['missions.destroy',$mission->id],
-                                                        'method'=>'DELETE',
-                                                        'role'=>'form',
-                                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cette mission")'
-                                                    ]) }}
-                                                        <button class="fa fa-trash" aria-hidden="true" title="supprimer mission"></button>                                        
-                                                    {{ Form::close() }}
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr><td colspan="7">Aucune missions.</td></tr>
-                                        @endforelse
-                                        </tbody>
-                                    </table>
+                            <div class="row" style="padding: 10px">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-missions">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fiches</th>
+                                                    <th>Fonction</th>
+                                                    <th>Date</th>
+                                                    <th>Remarques</th>
+                                                    <th>Status</th>
+                                                    <th>Mail</th>
+                                                    <th>Supprimer</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            @forelse($client->missions as $mission)
+                                                <tr class="odd">
+                                                    <td>
+                                                        <a href="{{ route('missions.show',$mission->id)}}">
+                                                            {{ $mission->id}}
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                            {{ $mission->fonction}}
+                                                    </td>
+                                                    <td>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</td>
+                                                    <td>
+                                                            {{ $mission->remarques}}
+                                                    </td>
+                                                    <td>
+                                                            {{ $mission->status}}
+                                                    </td>
+                                                    <td style="text-align: center">
+                                                        <a href="{{ route('clients.show',$client->id)}}">
+                                                            <i class="fa fa-envelope-o" aria-hidden="true" title="Afficher les emails"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td style="text-align: center">
+                                                        {{Form::open([
+                                                            'route'=>['missions.destroy',$mission->id],
+                                                            'method'=>'DELETE',
+                                                            'role'=>'form',
+                                                            'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cette mission")'
+                                                        ]) }}
+                                                            <button class="fa fa-trash" aria-hidden="true" title="supprimer mission"></button>                                        
+                                                        {{ Form::close() }}
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr><td colspan="7">Aucune missions.</td></tr>
+                                            @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>

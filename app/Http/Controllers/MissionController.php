@@ -291,7 +291,7 @@ class MissionController extends Controller
         $mission = Mission::find($id);
         $data = Input::all();
 
-        //Récuperer le fichier chargé dans le formulaire
+        //Récuperer le  nouveau contrat chargé dans le formulaire
         $file = $request->file('contrat_id');
         
         if($file){
@@ -313,12 +313,31 @@ class MissionController extends Controller
             $contrat->filename = $file->getClientOriginalName();
 
             if($contrat->save()){
+                $oldContratId = $mission->contrat_id;
                 $mission->contrat_id = $contrat->id;
+                
+                //Suppression de l'ancien contrat
+                if($request->get('delete')) {
+                    $oldContrat = Document::find($oldContratId);
+                    if($oldContrat->delete()) {
+                        Session::push('errors','L\ancien contrat n\'a pas pu être supprimé !');
+                    }
+                }
             } else{
                 Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
             }
+        //Il n'y a pas de nouveau contrat => sauver OU supprimer ancien contrat
         } elseif(empty($file) && !empty($request->get('contrat_id'))) {
-            $mission->contrat_id = $request->get('contrat_id');
+            if($request->get('delete')) {
+                $oldContrat = Document::find($request->get('contrat_id'));
+                if(!$oldContrat->delete()) {
+                    Session::push('errors','L\ancien contrat n\'a pas pu être supprimé !');
+                }
+                $mission->contrat_id = null;
+            } else {  //Sauver ancien contrat
+                $mission->contrat_id = $request->get('contrat_id');
+            }
+        //Aucun contrat pour cette mission
         } else {
             $mission->contrat_id = null;
         }
@@ -326,8 +345,10 @@ class MissionController extends Controller
         
         if($mission->update($data)) {
             Session::put('success','La mission a bien été modifiée');
-            
-            //Déplacer le contrat dans le dossier uploads
+
+        //Mise a jour des documents(job description)
+        //Ajout des nouveaux documents
+            //Déplacer le job description dans le dossier uploads
              $jobFiles = $request->file('job_description_ids');
         
             if($jobFiles){
@@ -353,6 +374,18 @@ class MissionController extends Controller
         
                     if(!$job_desc->save()){
                         Session::push('errors','Erreur lors de l\'enregristrement du document (job description)!');
+                    }
+                }
+            }
+
+        //Suppresion des anciens documents
+            $deleteFileIds = $request->get('deleteFileIds');
+
+            if($deleteFileIds){
+                foreach($deleteFileIds as $deleteFileId){
+                    $oldJobDesc = Document::find($deleteFileId);
+                    if(!$oldJobDesc->delete()) {
+                        Session::push('errors','L\ancien job description n\'a pas pu être supprimé !');
                     }
                 }
             }
