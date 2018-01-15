@@ -288,6 +288,9 @@ class MissionController extends Controller
             'status.required'=>'Veuillez entrer le type de status'
         ]);
         
+        $mission = Mission::find($id);
+        $data = Input::all();
+
         //Récuperer le fichier chargé dans le formulaire
         $file = $request->file('contrat_id');
         
@@ -309,15 +312,17 @@ class MissionController extends Controller
             $contrat->url_document = $url;
             $contrat->filename = $file->getClientOriginalName();
 
-            if(!$contrat->save()){
+            if($contrat->save()){
+                $mission->contrat_id = $contrat->id;
+            } else{
                 Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
             }
+        } elseif(empty($file) && !empty($request->get('contrat_id'))) {
+            $mission->contrat_id = $request->get('contrat_id');
+        } else {
+            $mission->contrat_id = null;
         }
-        
-        $mission = Mission::find($id);
-        $data = (Input::all());
-
-        $mission->contrat_id = $file ? $contrat->id:null;
+    
         
         if($mission->update($data)) {
             Session::put('success','La mission a bien été modifiée');

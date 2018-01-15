@@ -99,11 +99,12 @@
                                                 style="margin-top:10px;font-size: 1.5em;color:orangered"
                                                 onmouseover="$(this).css('cursor','pointer')"
                                                 onclick="$(this).parent().find('a:first-of-type').remove();
-                                                        $(this).parent().find('input:first-of-type')
+                                                        $(this).parent().find('input[type=file]')
                                                                 .css('display','block')
                                                                 .attr('disabled',false);                               
                                                         $(this).remove();">
                                             </i>
+                                            {{ Form::hidden('contrat_id', $mission->contrat_id) }}
                                             {{ Form::file('contrat_id',
                                             [
                                                 'style'=>'display:none',
