@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TypeContrat extends Model
+class Diplome extends Model
 {
      /**
      * The attributes that are mass assignable.
@@ -12,7 +12,8 @@ class TypeContrat extends Model
      * @var array
      */
     protected $fillable = [
-        'type',
+        'designation',
+        'niveau',
     ];
 
     /**
@@ -20,13 +21,5 @@ class TypeContrat extends Model
      *
      * @var string
      */
-    protected $table = 'type_contrat';
-
-     /**
-     * Récuperer les missions associés au type de contrat
-     */
-    public function mission (){
-        return $this->hasMany('App\Mission');
-    }
-    
+    protected $table = 'diplomes';
 }

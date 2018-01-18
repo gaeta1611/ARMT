@@ -13,7 +13,7 @@
                             <!-- /input-group -->
                         </li>
                         <li>
-                            <a href="index.html"><i class="fa fa-dashboard fa-fw"></i> Accueil</a>
+                            <a href="{{ route('clients.index') }}"><i class="fa fa-dashboard fa-fw"></i> Accueil</a>
                         </li>
                         <li>
                             <a href="#"><i class="fa fa-briefcase fa-fw"></i> Clients<span class="fa arrow"></span></a>
@@ -31,10 +31,10 @@
                             <a href="#"><i class="fa fa-user fa-fw"></i> Candidats<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="{{ route('clients.index')}}">Rechercher <i class="fa fa-search"></i></a>
+                                    <a href="{{ route('candidats.index')}}">Rechercher <i class="fa fa-search"></i></a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('clients.create')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
+                                    <a href="{{ route('candidats.create')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
@@ -62,6 +62,11 @@
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-center" id="sidenavToggler" color="dark">
+                                <i class="fa fa-fw fa-angle-left"></i>
+                            </a>
                         </li>
                     </ul>
                 </div>

@@ -29,5 +29,12 @@ class Localite extends Model
     public function mission (){
         return $this->hasMany('App\Client');
     }
+
+    /**
+     * Récuperer les candidats associés à la localité
+     */
+    public function candidat (){
+        return $this->hasMany('App\Candidat');
+    }
     
 }

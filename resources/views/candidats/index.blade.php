@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Liste des clients')
+@section('title','Liste des candidats')
 
 @section('css')
 <!-- DataTables CSS -->
@@ -19,7 +19,7 @@
 <script>
 
     $(document).ready(function() {
-        $('#dataTables-clients').DataTable({
+        $('#dataTables-candidats').DataTable({
             responsive: true
         });
     });
@@ -31,7 +31,7 @@
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Liste des clients</h1>
+                    <h1 class="page-header">Liste des candidats</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -44,53 +44,57 @@
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
-                            <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-clients">
+                            <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-candidats">
                                 <thead>
                                     <tr>
-                                        <th>Clients</th>
-                                        <th>Date</th>
-                                        <th>Profil client</th>
+                                        <th>Nom</th>
+                                        <th>Prenom</th>
+                                        <th>Date de naissance</th>
+                                        <th>Date de création</th>
                                         <th>Supprimer</th>
-                                        <th>Ajouter fiche</th>
+                                        <th>Ajouter à une fiche</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @forelse($clients as $client)
+                                @forelse($candidats as $candidat)
                                     <tr class="odd">
                                         <td>
-                                            <a href="{{ route('clients.show',$client->id)}}">
-                                                {{ $client->nom_entreprise}}
+                                            <a href="{{ route('candidats.show',$candidat->id)}}">
+                                                {{ $candidat->nom}}
                                             </a>
                                         </td>
-                                        <td>{{ Carbon::parse($client->created_at)->format('d-m-Y') }}</td>
-                                        <td style="text-align: center">
-                                            <a href="{{ route('clients.show',$client->id)}}">
-                                                <i class="fa fa-eye" aria-hidden="true" title="afficher client"></i>
-                                            </a>
+                                        <td>
+                                            {{ $candidat->prenom}}
                                         </td>
+                                        <td>
+                                            {{ Carbon::parse($candidat->date_naissance)->format('d-m-Y') }}
+                                        </td>
+                                        <td>{{ Carbon::parse($candidat->created_at)->format('d-m-Y') }}</td>
                                         <td style="text-align: center">
                                             {{Form::open([
-                                                'route'=>['clients.destroy',$client->id],
+                                                'route'=>['candidats.destroy',$candidat->id],
                                                 'method'=>'DELETE',
                                                 'role'=>'form',
-                                                'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce client")'
+                                                'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce candidat")'
                                             ]) }}
-                                                <button class="fa fa-trash" aria-hidden="true" title="supprimer client"></button>                                        
+                                                <button class="fa fa-trash" aria-hidden="true" title="supprimer candidat"></button>                                        
                                             {{ Form::close() }}
                                         </td>
+                                        
                                         <td style="text-align: center">
-                                            {{Form::open([
-                                                'route'=>['missions.create.from.client',$client->id],
-                                                'method'=>'GET',
-                                                'role'=>'form',
-                                                'style' => 'display:inline'
+                                            {{ Form::open([
+                                                'route'=>['candidatures.store'],
+                                                'method'=>'POST'
                                             ]) }}
-                                                <button class="fa fa-plus-circle" aria-hidden="true" title="ajouter une nouvelle fiche"></button>
+                                            {{ Form::hidden('candidat_id',$candidat->id) }}
+                                            {{ Form::select('mission_id',$ongoingMissions,'0') }}
+                                            {{ Form::submit('OK') }}
                                             {{ Form::close() }}
                                         </td>
+                                        
                                     </tr>
                                 @empty
-                                    <tr><td colspan="5">Aucun client.</td></tr>
+                                    <tr><td colspan="5">Aucun candidat.</td></tr>
                                 @endforelse
                                 </tbody>
                             </table>

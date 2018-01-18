@@ -118,7 +118,7 @@ class ClientController extends Controller
     public function show($id)
     {
         $client = Client::find($id);
-        $title = 'Profil '.($client->prospect ? 'prospect':'client');
+        $title = 'Client : '.($client->prospect ? 'prospect': $client->nom_entreprise);
 
         //$missions = $client->missions;
 

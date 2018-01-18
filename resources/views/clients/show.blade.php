@@ -55,6 +55,9 @@ $(document).ready(function() {
                                         <dt>Email : </dt>
                                         <dd>{{ $client->email }}</dd>
                                     </dl>
+                                    <a href="{{ $client->site }}" target="_blank" style="margin:10px"><i class="fa fa-internet-explorer fa-lg"></i></a>
+                                    <a href="{{ $client->linkedin }}" target="_blank" style="margin:10px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
+                                    <a href=" mailto:{{ $client->email }}" target="_blank" style="margin:10px"><i class="fa fa-envelope-o fa-lg"></i></a>
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
@@ -68,6 +71,7 @@ $(document).ready(function() {
                                         <dd>{{ $client->linkedin }}</dd>
                                     </dl>
                                 </div>
+                                
                             </div>
                             <div class="row">
                                 <div class="col-lg-12 text-right">

@@ -185,7 +185,7 @@ class MissionController extends Controller
     {   
         $mission = Mission::find($id);
         $client = Client::find($mission->client_id);
-        $title = 'Détails de la mission ';
+        $title = 'Mission : ' .($mission->id);
 
         return view('missions.show',[
             'mission'=>$mission,
