@@ -149,6 +149,8 @@ $(document).ready(function() {
                                                     <th>Date réponse</th>
                                                     <th>Date 1er F2F</th>
                                                     <th>Date client vs candidat</th>
+                                                    <th>Rapport interview</th>
+                                                    <th>Remarques</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -185,24 +187,19 @@ $(document).ready(function() {
                                                     <td style="white-space:nowrap">
                                                         {{ $candidature->date_rencontre_client ? Carbon::parse($candidature->date_rencontre_client)->format('d-m-Y'):'' }}
                                                     </td>
-                                                    <td style="text-align: center">
-                                                        <a href="{{ route('clients.show',$client->id)}}">
-                                                            <i class="fa fa-envelope-o" aria-hidden="true" title="Afficher les emails"></i>
-                                                        </a>
+                                                    <td>
+                                                        @if($candidature->rapport_interview)
+                                                            <a href="{{ url(Storage::url($candidature->rapport_interview)) }}" target="_blank"> 
+                                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                            </a>
+                                                        @endif
                                                     </td>
-                                                    <td style="text-align: center">
-                                                        {{Form::open([
-                                                            'route'=>['missions.destroy',$mission->id],
-                                                            'method'=>'DELETE',
-                                                            'role'=>'form',
-                                                            'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cette mission")'
-                                                        ]) }}
-                                                            <button class="fa fa-trash" aria-hidden="true" title="supprimer mission"></button>                                        
-                                                        {{ Form::close() }}
+                                                    <td>
+                                                        {{ $candidature->remarques }}
                                                     </td>
                                                 </tr>
                                             @empty
-                                                <tr><td colspan="7">Aucune missions.</td></tr>
+                                                <tr><td colspan="12">Aucune candidatures.</td></tr>
                                             @endforelse
                                             
                                             </tbody>

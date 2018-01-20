@@ -46,8 +46,8 @@ class CandidatureController extends Controller
             $candidature = new Candidature(Input::all());
             $candidature->date_candidature = now()->format('Y-m-d');
             $candidature->date_traitement = NULL;//TODO verifier l'utilité de ce champs
-            $candidature->status = 1;//1=>ouvert, à prevalider
-            $candidature->mode_candidature = 3;//3=> par chasse, base de donnée
+            $candidature->status_id = 1;//1=>ouvert, à prevalider
+            $candidature->mode_candidature_id = 3;//3=> par chasse, base de donnée
 
             if($candidature->save()){
                 Session::put('success','La candidature a bien été enregistré');
@@ -64,14 +64,14 @@ class CandidatureController extends Controller
                 'candidat_id'=>'required',
                 'date_candidature'=>'nullable|date',
                 'date_traitement'=>'nullable|date',
-                'status'=>'required|numeric',
-                'information_candidat'=>'required|numeric',
-                'mode_reponse'=>'required|numeric',
+                'status_id'=>'required|numeric',
+                'information_candidature_id'=>'required|numeric',
+                'mode_reponse_id'=>'required|numeric',
                 'date_reponse'=>'nullable|date',
                 'date_F2F'=>'nullable|date',
                 'date_rencontre_client'=>'nullable|date',
                 'rapport_interview'=>'required|max:255',
-                'mode_candidature'=>'required|numeric',
+                'mode_candidature_id'=>'required|numeric',
     
             ]/*,[
                 'nom_entreprise.required'=>'Veuillez entrer le nom d\'une entreprise',
