@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 
-class ClientController extends Controller
+class ProspectController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -21,12 +21,12 @@ class ClientController extends Controller
         //Vérifier les permission d'accès
        
         //Récuperer les données
-        $clients = Client::all()->where('prospect',0);
+        $clients = Client::all()->where('prospect',1);
 
         //Traiter les données
 
         //Envoyer les données à la vue ou rediriger
-        return view ('clients.index')->with('clients',$clients);
+        return view ('prospects.index')->with('clients',$clients);
     }
 
     /**
@@ -36,11 +36,11 @@ class ClientController extends Controller
      */
     public function create()
     {
-        $title = 'Ajouter client';
-        $route = 'clients.store';
+        $title = 'Ajouter prospect';
+        $route = 'prospects.store';
         $method = 'POST';
         
-        return view('clients.create',[
+        return view('prospects.create',[
                     'title' => $title,
                     'route' => $route,
                     'method' => $method
@@ -97,15 +97,15 @@ class ClientController extends Controller
         ]);
 
         $client = new client(Input::all());
-        $client->prospect = 0;
+        $client->prospect = 1;
         if($client->save()){
-            Session::put('success','Le client a bien été enregistré');
+            Session::put('success','Le prospect a bien été enregistré');
         }
         else{
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
         }
 
-        return redirect()->route('clients.index');
+        return redirect()->route('prospects.index');
     
     }
 
@@ -118,14 +118,14 @@ class ClientController extends Controller
     public function show($id)
     {
         $client = Client::find($id);
-        $title = 'Client : '.$client->nom_entreprise;
+        $title = 'Prospect : '.$client->nom_entreprise;
 
         //$missions = $client->missions;
 
         //TODO réglé relation many to one
         $localite = Localite::find($client->localite);
 
-        return view('clients.show',[
+        return view('prospects.show',[
             'client'=>$client,
             'title' =>$title,
             'client_localite' =>$localite,
@@ -141,11 +141,11 @@ class ClientController extends Controller
     public function edit($id)
     {
         $client = Client::find($id);
-        $title = 'Modifier : '.$client->nom_entreprise;
-        $route = ['clients.update',$id];
+        $title = 'Modifier prospect';
+        $route = ['prospects.update',$id];
         $method = 'PUT';
 
-        return view('clients.create',[
+        return view('prospects.create',[
             'client'=> $client,
             'title' => $title,
             'route' => $route,
@@ -225,13 +225,13 @@ class ClientController extends Controller
         $data = Input::all();
        
         if($client->update($data)){
-            Session::put('success','Le client a bien été enregistré');
+            Session::put('success','Le prospect a bien été enregistré');
         }
         else{
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
         }
 
-        return redirect()->route('clients.show',$id);
+        return redirect()->route('prospects.show',$id);
     
     }
 
@@ -247,15 +247,15 @@ class ClientController extends Controller
 
         try {
             if(isset($client) && $client->delete()){
-                Session::put('success','Le client a bien été supprimé');
+                Session::put('success','Le prospect a bien été supprimé');
             }else {
-                Session::push('errors','Une erreur s\'est produite lors de la suppression du client!');
+                Session::push('errors','Une erreur s\'est produite lors de la suppression du prospect!');
             }
 
         } catch (\Exception $ex){
-                Session::push('errors','Impossible de supprimer ce client (supprimer les missions avant)!');
+                Session::push('errors','Impossible de supprimer ce prospect (supprimer les missions avant)!');
         }
 
-        return redirect()->route('clients.index');
+        return redirect()->route('prospects.index');
     }
 }

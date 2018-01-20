@@ -43,10 +43,10 @@
                             <a href="#"><i class="fa fa-eur fa-fw"></i> Prospects<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="{{ route('clients.index',['prospect'=>true]) }}">Rechercher <i class="fa fa-search"></i></a>
+                                    <a href="{{ route('prospects.index',['prospect'=>true]) }}">Rechercher <i class="fa fa-search"></i></a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('clients.create')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
+                                    <a href="{{ route('prospects.create')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->

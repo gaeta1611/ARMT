@@ -54,7 +54,8 @@ $(document).ready(function() {
                                         <dt>Téléphone : </dt>
                                         <dd>{{ $candidat->telephone }}</dd>
                                     </dl>
-                                    <a href="{{ $candidat->linkedin }}" target="_blank" style="margin:29px" ><i class="fa fa-linkedin-square fa-lg"></i></a>                                
+                                    <a href="{{ $candidat->linkedin }}" target="_blank" style="margin:25px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
+                                    <a href=" mailto:{{ $candidat->email }}" target="_blank" style="margin:2px"><i class="fa fa-envelope-o fa-lg"></i></a>                                
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">

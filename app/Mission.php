@@ -54,9 +54,14 @@ class Mission extends Model
      * Récuperer les job description associés à cette mission
      */
     public function job_descriptions(){
-        //Relation une mission possède un et un seul contrat
-        //Mission.contrat_id correspond à document.id
         return $this->hasMany('App\Document');
+    }
+
+    /**
+     * Récuperer les candidatures associés à cette mission
+     */
+    public function candidatures(){
+        return $this->hasMany('App\Candidature');
     }
 
 }

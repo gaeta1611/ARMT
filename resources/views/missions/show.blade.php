@@ -143,17 +143,67 @@ $(document).ready(function() {
                                                     <th>Date</th>
                                                     <th>Status</th>
                                                     <th>Avancement</th>
+                                                    <th>Média</th>
                                                     <th>Type</th>
-                                                    <th>Réponse adva</th>
-                                                    <th>Dernier contact</th>
-                                                    <th>F2F</th>
-                                                    <th>Candidat vs Client</th>
-                                                    <th>Rapport interview</th>
-                                                    <th>Remarques</th>
-                                                    <th>Supprimer</th>
+                                                    <th>Mode réponse</th>
+                                                    <th>Date réponse</th>
+                                                    <th>Date 1er F2F</th>
+                                                    <th>Date client vs candidat</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
+
+                                            @forelse($mission->candidatures as $candidature)
+                                                <tr class="odd">
+                                                    <td>
+                                                        <a href="{{ route('candidats.show',$candidature->candidat->id)}}">
+                                                            {{ $candidature->candidat->nom}}&nbsp;{{ $candidature->candidat->prenom }}
+                                                        </a>
+                                                    </td>
+                                                    <td style="white-space:nowrap">
+                                                            {{ Carbon::parse($candidature->created_at)->format('d-m-Y') }}
+                                                    </td>
+                                                    <td>{{ ucfirst($candidature->status->status) }}</td>
+                                                    <td>
+                                                        {{ ucfirst($candidature->status->avancement) }}   
+                                                    </td>
+                                                    <td>
+                                                        {{ $candidature->modeCandidature->type}} {{ $candidature->modeCandidature->mode}}
+                                                    </td>
+                                                    <td style="white-space:nowrap">
+                                                        {{ $candidature->informationCandidature->information }}
+                                                    </td>
+                                                    <td>
+                                                        {{ $candidature->modeReponse ? $candidature->modeReponse->media :'' }} 
+                                                    </td>
+                                                    <td style="white-space:nowrap">
+                                                        {{ $candidature->date_reponse ? Carbon::parse($candidature->date_reponse)->format('d-m-Y'):'' }}
+                                                    </td>
+                                                    <td style="white-space:nowrap">
+                                                        {{ $candidature->date_F2F ? Carbon::parse($candidature->date_F2F)->format('d-m-Y'):'' }}
+                                                    </td>
+                                                    <td style="white-space:nowrap">
+                                                        {{ $candidature->date_rencontre_client ? Carbon::parse($candidature->date_rencontre_client)->format('d-m-Y'):'' }}
+                                                    </td>
+                                                    <td style="text-align: center">
+                                                        <a href="{{ route('clients.show',$client->id)}}">
+                                                            <i class="fa fa-envelope-o" aria-hidden="true" title="Afficher les emails"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td style="text-align: center">
+                                                        {{Form::open([
+                                                            'route'=>['missions.destroy',$mission->id],
+                                                            'method'=>'DELETE',
+                                                            'role'=>'form',
+                                                            'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cette mission")'
+                                                        ]) }}
+                                                            <button class="fa fa-trash" aria-hidden="true" title="supprimer mission"></button>                                        
+                                                        {{ Form::close() }}
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr><td colspan="7">Aucune missions.</td></tr>
+                                            @endforelse
                                             
                                             </tbody>
                                         </table>
