@@ -41,6 +41,6 @@ class Candidat extends Model
      * Récuperer les job description associés à cette mission
      */
     public function candidatures(){
-        return $this->hasMany('App\Candidatures');
+        return $this->hasMany('App\Candidature');
     }
 }

@@ -113,15 +113,67 @@ $(document).ready(function() {
                                                 <tr>
                                                     <th>A postulé</th>
                                                     <th>Date</th>
-                                                    <th>Source</th>
+                                                    <th>Média</th>
                                                     <th>Correspond</th>
                                                     <th>Status</th>
                                                     <th>Etat d'avancement</th>
+                                                    <th>Mission</th>
+                                                    <th>Rapport interview</th>
                                                     <th>Remarques</th>
                                                     <th>Mail</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                            @forelse($candidat->candidatures as $candidature)
+                                                <tr class="odd">
+                                                    <td>
+                                                        @if($candidature->postule_mission_id)
+                                                        <a href="{{ route('missions.show',$candidature->postule_mission_id)}}">
+                                                            {{ "EC".$candidature->postule_mission_id }}
+                                                        </a>
+                                                        @else
+                                                            Aucun
+                                                        @endif
+                                                    </td>
+                                                    <td style="white-space:nowrap">
+                                                            {{ Carbon::parse($candidature->created_at)->format('d-m-Y') }}
+                                                    </td>
+                                                    <td>
+                                                        {{ $candidature->modeCandidature->type}} {{ $candidature->modeCandidature->mode}}
+                                                    </td>
+                                                    <td>
+                                                        @if($candidature->mission_id)
+                                                        <a href="{{ route('missions.show',$candidature->mission_id)}}">
+                                                            {{ "EC".$candidature->mission_id}}
+                                                        </a>
+                                                        @else
+                                                            Aucune mission
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ ucfirst($candidature->status->status) }}</td>
+                                                    <td>
+                                                        {{ ucfirst($candidature->status->avancement) }}   
+                                                    </td>
+                                                    <td>
+                                                        {{ $candidature->mission ? $candidature->mission->status:''}}
+                                                    </td>
+                                                    <td>
+                                                        @if($candidature->rapport_interview)
+                                                            <a href="{{ url(Storage::url($candidature->rapport_interview)) }}" target="_blank"> 
+                                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                            </a>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        {{ $candidature->remarques }}
+                                                    </td>
+                                                    <td>
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr><td colspan="12">Aucune candidatures.</td></tr>
+                                            @endforelse
                             
                                             </tbody>
                                         </table>

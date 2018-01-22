@@ -15,6 +15,7 @@ class Candidature extends Model
         'mission_id',
         'candidat_id',
         'date_candidature',
+        'postule_mission_id',
         'date_traitement',
         'status_id',
         'information_candidat_id',

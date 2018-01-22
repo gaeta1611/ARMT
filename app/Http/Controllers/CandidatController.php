@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 
-
 class CandidatController extends Controller
 {
     /**
@@ -124,6 +123,7 @@ class CandidatController extends Controller
 
         //TODO réglé relation many to one
         $localite = Localite::find($candidat->localite);
+
 
         return view('candidats.show',[
             'candidat'=>$candidat,
