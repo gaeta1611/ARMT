@@ -28,11 +28,14 @@ Route::get('/missions/create/{id?}','MissionController@create',['id'])
 
 
 Route::resource('candidats','CandidatController');
-Route::get('/candidats/create/{id?}','CandidatController@create',['id'])
-                        ->name('candidats.create.from.candidat');
 
 
 Route::resource('candidatures','CandidatureController');
+
+Route::resource('candidatures','CandidatureController');
+Route::get('/candidatures/create/{id?}','CandidatureController@create',['id'])
+                        ->name('candidatures.create.from.candidat');
+
 
 
 Route::resource('prospects','ProspectController');

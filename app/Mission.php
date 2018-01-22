@@ -64,4 +64,12 @@ class Mission extends Model
         return $this->hasMany('App\Candidature');
     }
 
+    // Query scopes: list des méthodes partagées
+    /**
+     * @param type $query
+     */
+    public function scopeOngoingMissions($query){
+        return $query->where(['status'=>'En cours'])->get();
+    }
+
 }

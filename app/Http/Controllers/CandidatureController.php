@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Candidature;
+use App\Mission;
+use App\ModeCandidature;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 
@@ -26,7 +28,35 @@ class CandidatureController extends Controller
      */
     public function create()
     {
+        $title = 'Ajouter candidature';
+        $route = 'candidatures.store';
+        $method = 'POST';
+
+        //Récuperer les missions en cours
+        $ongoingMissions = Mission::ongoingMissions();
+
+        $liste=[0=>'Aucun'];
+        foreach($ongoingMissions as $ongoingMission) {
+            $liste[$ongoingMission->id] = " EC{$ongoingMission->id}&nbsp;";;
+        }
+        $ongoingMissions = $liste;
+
+        //Récuperer les modes de candidatures (média)
+        $listMedias = ModeCandidature::all();
+
+        $liste=[0=>'Aucun'];
+        foreach($listMedias as $media) {
+            $liste[$media->id] = "{$media->type} {$media->mode}";;
+        }
+        $listMedias = $liste;
         
+        return view('candidatures.create',[
+                    'title' => $title,
+                    'route' => $route,
+                    'method' => $method,
+                    'ongoingMissions'=>$ongoingMissions,
+                    'listMedias'=>$listMedias,
+        ]);
     }
 
     /**

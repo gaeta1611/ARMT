@@ -23,7 +23,7 @@ class CandidatController extends Controller
         $candidats = Candidat::all();
 
         //Récuperer les missions en cours
-        $ongoingMissions = Mission::where(['status'=>'En cours'])->get();
+        $ongoingMissions = Mission::ongoingMissions();
 
         $liste=[0=>''];
         foreach($ongoingMissions as $ongoingMission) {

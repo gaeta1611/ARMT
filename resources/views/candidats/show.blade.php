@@ -74,7 +74,7 @@ $(document).ready(function() {
                             <div class="row">
                                 <div class="col-lg-12 text-right">
                                     {{Form::open([
-                                        'route'=>['candidats.create.from.candidat',$candidat->id],
+                                        'route'=>['candidatures.create.from.candidat',$candidat->id],
                                         'method'=>'GET',
                                         'role'=>'form',
                                         'style' => 'display:inline'

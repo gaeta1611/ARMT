@@ -39,41 +39,39 @@
                                         'role'=>'form'
                                     ]) }}
                                     <div class="form-group">
-                                        {{ Form::label('nom','Nom :')}}
-                                        {{ Form::text('nom',
-                                            old('nom')?? (isset($candidat) ? $candidat->nom:''),
+                                        {{ Form::label('postule_mission_id','A postulé :')}}
+                                        {{ Form::select('postule_mission_id',
+                                            $ongoingMissions,
+                                            (isset($oldPostuleMission) ? $oldPostuleMission->id : null),
+                                        [
+                                            'class'=>'form-control'
+                                        ]) }}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ Form::label('date_candidature','Date :')}}
+                                        {{ Form::date('date_candidature',
+                                            old('date_candidature')?? (isset($candidature) ? $candidat->date_candidature:''),
                                             [
-                                            'placeholder'=>'ex: Croisy',
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('prenom','Prénom:')}}
-                                        {{ Form::text('prenom',
-                                            old('prenom')?? (isset($candidat) ? $candidat->prenom:''),
-                                            [
-                                            'placeholder'=>'ex: Eric',
+                                        {{ Form::label('media','Média :')}}
+                                        {{ Form::select('media',
+                                            $listMedias,
+                                            (isset($oldMedia) ? $oldMedia->id : null),
+                                        [
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('date_naissance','Date de naissance:')}}
-                                        {{ Form::date('date_naissance',
-                                            old('date_naissance')?? (isset($candidat) ? $candidat->date_naissance:''),
-                                            [
-                                            'placeholder'=>'ex: 16/11/1992 ',
-                                            'class'=>'form-control'
-                                        ]) }}
-                                    </div>
-
-                                    <div class="form-group">
-                                        {{ Form::label('sexe','Sexe:')}}
-                                        {{ Form::text('sexe',
-                                            old('sexe')?? (isset($candidat) ? $candidat->sexe:''),
-                                            [
-                                            'placeholder'=>'ex: Mâle',
+                                        {{ Form::label('mission_id','Correspond :')}}
+                                        {{ Form::select('mission_id',
+                                            $ongoingMissions,
+                                            (isset($oldMission) ? $oldMission->id : null),
+                                        [
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
