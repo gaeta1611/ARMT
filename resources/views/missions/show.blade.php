@@ -188,10 +188,12 @@ $(document).ready(function() {
                                                         {{ $candidature->date_rencontre_client ? Carbon::parse($candidature->date_rencontre_client)->format('d-m-Y'):'' }}
                                                     </td>
                                                     <td>
-                                                        @if($candidature->rapport_interview)
-                                                            <a href="{{ url(Storage::url($candidature->rapport_interview)) }}" target="_blank"> 
+                                                        @if($candidature->rapport)
+                                                            <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
                                                                 <i class="fa fa-download" aria-hidden="true"></i>
                                                             </a>
+                                                        @else
+                                                            Aucun
                                                         @endif
                                                     </td>
                                                     <td>

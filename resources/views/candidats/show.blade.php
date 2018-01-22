@@ -158,10 +158,12 @@ $(document).ready(function() {
                                                         {{ $candidature->mission ? $candidature->mission->status:''}}
                                                     </td>
                                                     <td>
-                                                        @if($candidature->rapport_interview)
-                                                            <a href="{{ url(Storage::url($candidature->rapport_interview)) }}" target="_blank"> 
+                                                        @if($candidature->rapport)
+                                                            <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
                                                                 <i class="fa fa-download" aria-hidden="true"></i>
                                                             </a>
+                                                        @else
+                                                            Aucun
                                                         @endif
                                                     </td>
                                                     <td>

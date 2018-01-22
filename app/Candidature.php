@@ -23,7 +23,7 @@ class Candidature extends Model
         'date_reponse',
         'date_F2F',
         'date_rencontre_client',
-        'rapport_interview',
+        'rapport_interview_id',
         'remarques',
         'mode_candidature_id',
     ];
@@ -84,4 +84,12 @@ class Candidature extends Model
         //Candidature.mode_reponse_id correspond à ModeReponse.id
         return $this->hasOne('App\ModeReponse','id','mode_reponse_id');
     }
+
+    /**
+     * Récuperer les rapports d'interview associés à cette candidature
+     */
+    public function rapport(){
+        return $this->hasOne('App\Document','id','rapport_interview_id');
+    }
+
 }
