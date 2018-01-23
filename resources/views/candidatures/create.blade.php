@@ -38,6 +38,17 @@
                                         'method'=>$method,
                                         'role'=>'form'
                                     ]) }}
+
+                                    <div class="form-group">
+                                        {{ Form::label('candidat_id','Candidat :')}}
+                                        {{ Form::select('candidat_id',
+                                            $candidats,
+                                            (isset($candidatId) ? $candidatId : null),
+                                        [
+                                            'class'=>'form-control'
+                                        ]) }}
+                                    </div>
+
                                     <div class="form-group">
                                         {{ Form::label('postule_mission_id','A postulé :')}}
                                         {{ Form::select('postule_mission_id',
@@ -48,17 +59,17 @@
                                         ]) }}
                                     </div>
                                     <div class="form-group">
-                                        {{ Form::label('date_candidature','Date :')}}
-                                        {{ Form::date('date_candidature',
-                                            old('date_candidature')?? (isset($candidature) ? $candidat->date_candidature:''),
+                                        {{ Form::label('created_at','Date :')}}
+                                        {{ Form::date('created_at',
+                                            old('created_at')?? (isset($candidature) ? $candidat->created_at: Carbon::now()),
                                             [
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('media','Média :')}}
-                                        {{ Form::select('media',
+                                        {{ Form::label('mode_candidature_id','Média :')}}
+                                        {{ Form::select('mode_candidature_id',
                                             $listMedias,
                                             (isset($oldMedia) ? $oldMedia->id : null),
                                         [
@@ -70,130 +81,56 @@
                                         {{ Form::label('mission_id','Correspond :')}}
                                         {{ Form::select('mission_id',
                                             $ongoingMissions,
-                                            (isset($oldMission) ? $oldMission->id : null),
+                                            (isset($missionId) ? $missionId : null),
                                         [
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
-
-                                    <div class="form-group">
-                                    {{ Form::label('telephone','Téléphone:')}}
-                                    {{ Form::text('telephone',
-                                        old('telephone')?? (isset($candidat) ? $candidat->telephone:''),
-                                        [
-                                        'placeholder'=>'ex: 0494/23/58/74',
-                                        'class'=>'form-control'
-                                    ]) }}
-                                    </div>
-
-                                    <div class="form-group">
-                                        {{ Form::label('diplomes','Diplôme:')}}
-                                        {{ Form::text('diplome',
-                                            old('diplome')?? (isset($candidat) ? $candidat->diplome:''),
-                                            [
-                                                'placeholder'=>'ex: Bachelier',
-                                                'class'=>'form-control',
-                                                'list'=>'list-diplomes'
-                                        ]) }}
-                                        <datalist id="list-diplomes">
-                                            <option value="1">Bachelier</option>
-                                            <option value="2">Master</option>
-                                            <option value="3">Secondaire</option>
-                                        </datalist>
-                                    </div>
-
-                                    <div class="form-group">
-                                        {{ Form::label('societe_candidat','Société antérieur:')}}
-                                        {{ Form::text('societe_candidat',
-                                            old('societe_candidat')?? (isset($candidat) ? $candidat->societe_candidat:''),
-                                            [
-                                                'placeholder'=>'ex: Google',
-                                                'class'=>'form-control',
-                                                'list'=>'list-societe_candidats'
-                                        ]) }}
-                                        <datalist id="list-societe_candidats">
-                                            <option value="1">Google</option>
-                                            <option value="2">Facebook</option>
-                                            <option value="3">Nasa</option>
-                                        </datalist>
-                                    </div>
-
-                                    <div class="form-group">
-                                        {{ Form::label('societe_candidat','Société actuelle:')}}
-                                        {{ Form::text('societe_candidat',
-                                            old('societe_candidat')?? (isset($candidat) ? $candidat->societe_candidat:''),
-                                            [
-                                                'placeholder'=>'ex: Google',
-                                                'class'=>'form-control',
-                                                'list'=>'list-societe_candidats'
-                                        ]) }}
-                                        <datalist id="list-societe_candidats">
-                                            <option value="1">Google</option>
-                                            <option value="2">Facebook</option>
-                                            <option value="3">Nasa</option>
-                                        </datalist>
-                                    </div>
-
-                                    <div class="form-group">
-                                        {{ Form::label('fonction','Fonctione exercée:')}}
-                                        {{ Form::text('fonction',
-                                            old('fonction')?? (isset($candidat) ? $candidat->fonction:''),
-                                            [
-                                                'placeholder'=>'ex: Manager',
-                                                'class'=>'form-control',
-                                                'list'=>'list-fonctions'
-                                        ]) }}
-                                        <datalist id="list-fonctions">
-                                            <option value="1">Manager</option>
-                                            <option value="2">Responsable marketing</option>
-                                            <option value="3">Commercial</option>
-                                        </datalist>
-                                    </div>
-                            </div>
+                                </div>
 
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        {{ Form::label('localite','Localité:')}}
-                                        {{ Form::text('localite',
-                                            old('localite')?? (isset($candidat) ? $candidat->localite:''),
-                                            [
-                                                'placeholder'=>'ex: Nivelles',
-                                                'class'=>'form-control',
-                                                'list'=>'list-localites'
-                                        ]) }}
-                                        <datalist id="list-localites">
-                                            <option value="1">1000 Bruxelles</option>
-                                            <option value="2">1050 Ixelles</option>
-                                        </datalist>
-                                    </div>
-
-                                    <div class="form-group">
-                                        {{ Form::label('Email','Email:')}}
-                                        <div class="form-group input-group">
-                                            <span class="input-group-addon">@</span>
-                                            {{ Form::text('email',
-                                                old('email')?? (isset($candidat) ? $candidat->email:''),
-                                                [
-                                                'placeholder'=>'mail@example.com',
-                                                'class'=>'form-control'
-                                            ]) }}
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        {{ Form::label('linkedin','LinkedIn:')}}
-                                        {{ Form::text('linkedin',
-                                            old('linkedin')?? (isset($candidat) ? $candidat->linkedin:''),
-                                            [
-                                            'placeholder'=>'ex: https://www.linkedin.com/in/example',
+                                        {{ Form::label('status_id','Etat d\'avancement :') }}
+                                        {{ Form::select('status_id',
+                                            $listStatus,
+                                            (isset($oldStatus) ? $oldStatus->id : null),
+                                        [
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
 
                                     <div class="form-group">
+                                        {{ Form::label('rapport_interview_id','Charger rapport interview:') }}
+                                        @if(isset($candidature) && $candidature->rapport_interview_id)
+                                            <a href="{{ url(Storage::url($candidature->rapport_interview->url_document)) }}" target="_blank"> 
+                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                {{ $candidature->rapport_interview->filename }}
+                                            </a>
+                                            <i class="fa fa-times" aria-hidden="true" 
+                                                style="margin-top:10px;font-size: 1.5em;color:orangered"
+                                                onmouseover="$(this).css('cursor','pointer')"
+                                                onclick="$(this).parent().find('a:first-of-type').remove();
+                                                        $(this).parent().find('input[type=file]')
+                                                                .css('display','block')
+                                                                .attr('disabled',false);
+                                                        $(this).parent().append('<input type=hidden name=delete value=1>')                               
+                                                        $(this).remove();">
+                                            </i>
+                                            {{ Form::hidden('rapport_interview_id', $candidature->rapport_interview_id) }}
+                                            {{ Form::file('rapport_interview_id',
+                                            [
+                                                'style'=>'display:none',
+                                                'disabled'=>'disabled'
+                                            ]) }}
+                                        @else
+                                            {{ Form::file('rapport_interview_id') }}
+                                        @endif
+                                    </div>
+                            
+                                    <div class="form-group">
                                         {{ Form::label('remarques','Remarques:')}}
                                         {{ Form::textarea('remarques',
-                                            old('remarques')?? (isset($candidat) ? $candidat->remarques:''),
+                                            old('remarques')?? (isset($candidature) ? $candidature->remarques:''),
                                             [
                                             'class'=>'form-control'
                                         ]) }}

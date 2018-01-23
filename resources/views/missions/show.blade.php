@@ -102,11 +102,12 @@ $(document).ready(function() {
                             <div class="row">
                                 <div class="col-lg-12 text-right">
                                     {{Form::open([
-                                        'route'=>['missions.create',$client->id],
+                                        'route'=>['candidatures.create.from.candidat',0],
                                         'method'=>'GET',
                                         'role'=>'form',
                                         'style' => 'display:inline'
                                     ]) }}
+                                        {{ Form::hidden('mission',$mission->id) }}
 
                                     {{ Form::submit('Ajouter un candidat',['class'=>'btn btn-primary'])}}
                                     {{ Form::close() }}

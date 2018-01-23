@@ -8,6 +8,7 @@ use App\Localite;
 use App\Mission;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Rule;
 
 class CandidatController extends Controller
@@ -24,10 +25,11 @@ class CandidatController extends Controller
 
         //Récuperer les missions en cours
         $ongoingMissions = Mission::ongoingMissions();
+        $prefix = Config::get('constants.options.PREFIX_MISSION');
 
         $liste=[0=>''];
         foreach($ongoingMissions as $ongoingMission) {
-            $liste[$ongoingMission->id] = " EC{$ongoingMission->id}&nbsp;";;
+            $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id}&nbsp;";;
         }
         $ongoingMissions = $liste;
 

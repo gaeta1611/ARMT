@@ -6,8 +6,12 @@ use Illuminate\Http\Request;
 use App\Candidature;
 use App\Mission;
 use App\ModeCandidature;
+use App\Status;
+use App\Candidat;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Config;
+
 
 class CandidatureController extends Controller
 {
@@ -24,31 +28,66 @@ class CandidatureController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param $id Identifiant du candidat
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id=NULL)
     {
-        $title = 'Ajouter candidature';
+        //Récuperer le candidat
+        $candidatId = $id;
+        
+        //Récuperer la mission
+        $missionId = Input::get('mission');
+        $prefix = Config::get('constants.options.PREFIX_MISSION');
+
+        $title = 'Ajouter une candidature';
+        if($id) {
+            $candidat = Candidat::find($id);
+            $title .= " à {$candidat->nom} {$candidat->prenom}";
+        } elseif($missionId) {
+            $prefix = Config::get('constants.options.PREFIX_MISSION');
+            $title .= " à la mission $prefix$missionId";
+        }
         $route = 'candidatures.store';
         $method = 'POST';
 
+    
         //Récuperer les missions en cours
         $ongoingMissions = Mission::ongoingMissions();
 
-        $liste=[0=>'Aucun'];
+        $liste=[null =>'Aucun'];
         foreach($ongoingMissions as $ongoingMission) {
-            $liste[$ongoingMission->id] = " EC{$ongoingMission->id}&nbsp;";;
+            $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id}&nbsp;";;
         }
         $ongoingMissions = $liste;
+
 
         //Récuperer les modes de candidatures (média)
         $listMedias = ModeCandidature::all();
 
-        $liste=[0=>'Aucun'];
+        $liste=[null =>'Aucun'];
         foreach($listMedias as $media) {
             $liste[$media->id] = "{$media->type} {$media->mode}";;
         }
         $listMedias = $liste;
+
+        //Récuperer les status
+        $listStatus = Status::all();
+        
+        $liste=[];
+        foreach($listStatus as $status) {
+            $liste[$status->status] [$status->id] = $status->avancement;
+        }
+        $listStatus = $liste;
+
+        //Récuperer les modes de candidatures (média)
+        $candidats = Candidat::orderBy('nom')->get();
+        
+        $liste=[null=>'Aucun'];
+        foreach($candidats as $candidat) {
+            $liste[$candidat->id] = "{$candidat->nom} {$candidat->prenom}";;
+        }
+        $candidats = $liste;
         
         return view('candidatures.create',[
                     'title' => $title,
@@ -56,6 +95,11 @@ class CandidatureController extends Controller
                     'method' => $method,
                     'ongoingMissions'=>$ongoingMissions,
                     'listMedias'=>$listMedias,
+                    'listStatus'=>$listStatus,
+                    'candidats'=>$candidats,
+                    'candidatId'=>$candidatId,
+                    'missionId'=>$missionId,
+
         ]);
     }
 
@@ -72,12 +116,13 @@ class CandidatureController extends Controller
                 'mission_id'=>'required',
                 'candidat_id'=>'required',
             ]);
-        
+                
+            $modeCandidature_id = ModeCandidature::where('media','LIKE','%chasse%DB adva%')->first()->id;
+
             $candidature = new Candidature(Input::all());
-            $candidature->date_candidature = now()->format('Y-m-d');
-            $candidature->date_traitement = NULL;//TODO verifier l'utilité de ce champs
+            $candidature->created_at = now()->format('Y-m-d');
             $candidature->status_id = 1;//1=>ouvert, à prevalider
-            $candidature->mode_candidature_id = 3;//3=> par chasse, base de donnée
+            $candidature->mode_candidature_id =  $modeCandidature_id;
 
             if($candidature->save()){
                 Session::put('success','La candidature a bien été enregistré');
@@ -90,61 +135,48 @@ class CandidatureController extends Controller
 
         } else {
             $validatorData = $request->validate([
-                'mission_id'=>'required',
-                'candidat_id'=>'required',
-                'date_candidature'=>'nullable|date',
-                'date_traitement'=>'nullable|date',
+                'mission_id'=>'nullable|numeric',
+                'candidat_id'=>'required|numeric|min:1',
+                'created_at'=>'required|date',
+                'postule_mission_id'=>'nullable|numeric',
+                'mode_candidature_id'=>'required|numeric',
                 'status_id'=>'required|numeric',
-                'information_candidature_id'=>'required|numeric',
-                'mode_reponse_id'=>'required|numeric',
+                'mode_reponse_id'=>'nullable|numeric',
                 'date_reponse'=>'nullable|date',
                 'date_F2F'=>'nullable|date',
                 'date_rencontre_client'=>'nullable|date',
-                'rapport_interview'=>'required|max:255',
-                'mode_candidature_id'=>'required|numeric',
+                'rapport_interview_id'=>'nullable|numeric',
+                
     
-            ]/*,[
-                'nom_entreprise.required'=>'Veuillez entrer le nom d\'une entreprise',
-                'nom_entreprise.unique'=>'Ce nom d\'une entreprise existe déjà',
-                'nom_entreprise.max'=>'Le nom de l\'entreprise ne peut pas dépasser 60 caractères',
-    
-                'personne_contact.max'=>'La personne de contact ne peut pas dépasser 100 caractères',
-                'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 chiffres',
-    
-                'email.email'=>'Veuillez entrer un email valide',
-                'email.unique'=>'Cet email existe déjà',
-                'email.max'=>'L\email ne peut pas dépasser 100 caractères',
-    
-                'adresse.required'=>'Veuillez entrer une adresse',
-                'adresse.max'=>'L\'adresse ne peut pas dépasser 255 caractères',
-    
-                'localite.required'=>'Veuillez entrer une localité',
-                'localite.numeric'=>'Type de valeur incorrecte pour la localité',
-    
-                'tva.required'=>'Veuillez entrer un numéro de TVA',
-                'tva.max'=>'Le numéro de TVA ne peut pas dépasser 15 caractères',
-    
-                'site.url'=>'Veuillez entrer une URL valide pour le site',
-                'site.unique'=>'Ce site existe déjà',
-                'site.max'=>'L\' URL du site ne peut pas dépasser 255 caractères',
-    
-                'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin',
-                'linkedin.unique'=>'Ce Linkedin existe déjà',
-                'linkedin;max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères'
-            ]*/);
+            ],[
+                'mission_id.numeric'=>'Le type du champ mission_id est incorrect',
+                'candidat_id.required'=>'Veuillez spécifier le candidat',
+                'candidat_id.min'=>'Valeur incorrecte pour le candidat',
+                'created_at.required'=>'Veuillez spécifier la date de candidature',
+                'created_at.date'=>'Le type du champ created_at est incorrecte',
+                'postule_mission_id.numeric'=>'Le type du champ postule_mission_id est incorrect',
+                'mode_candidature_id.required'=>'Veuillez spécifier le mode de candidature',
+                'status_id.required'=>'Veuillez spécifier le status',
+                'mode_reponse_id.numeric'=>'Le type du champ mode_reponse_id est incorrecte',
+                'date_reponse.date'=>'Le type du champ date_reponse est incorrecte',
+                'date_F2F.date'=>'Le type du champ date_F2F est incorrecte',
+                'date_rencontre_client.date'=>'Le type du champ date_rencontre_client est incorrecte',
+                'rapport_interview_id.numeric'=>'Le type du champ rapport_interview_id est incorrecte',
+            ]);
 
             $candidature = new Candidature(Input::all());
-            //$candidature->date_candidature = now()->format('Y-m-d');
-            //$candidature->date_traitement = NULL;//TODO verifier l'utilité de ce champs
 
             if($candidature->save()){
                 Session::put('success','La candidature a bien été enregistré');
+
+                $candidatId = Input::get('candidat_id');
+
+                return redirect()->route('candidats.show',$candidatId);
             }
             else{
                 Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
             }
             
-            return redirect()->route('missions.show',$mission->client_id);
         }
         
 

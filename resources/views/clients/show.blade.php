@@ -127,7 +127,7 @@ $(document).ready(function() {
                                                 <tr class="odd">
                                                     <td>
                                                         <a href="{{ route('missions.show',$mission->id)}}">
-                                                            {{ $mission->id}}
+                                                            {{ Config('constants.options.PREFIX_MISSION').$mission->id}}
                                                         </a>
                                                     </td>
                                                     <td>

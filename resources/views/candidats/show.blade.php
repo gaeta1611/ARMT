@@ -129,7 +129,7 @@ $(document).ready(function() {
                                                     <td>
                                                         @if($candidature->postule_mission_id)
                                                         <a href="{{ route('missions.show',$candidature->postule_mission_id)}}">
-                                                            {{ "EC".$candidature->postule_mission_id }}
+                                                            {{ Config('constants.options.PREFIX_MISSION').$candidature->postule_mission_id }}
                                                         </a>
                                                         @else
                                                             Aucun
@@ -144,7 +144,7 @@ $(document).ready(function() {
                                                     <td>
                                                         @if($candidature->mission_id)
                                                         <a href="{{ route('missions.show',$candidature->mission_id)}}">
-                                                            {{ "EC".$candidature->mission_id}}
+                                                            {{ Config('constants.options.PREFIX_MISSION').$candidature->mission_id}}
                                                         </a>
                                                         @else
                                                             Aucune mission
