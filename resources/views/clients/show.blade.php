@@ -21,7 +21,7 @@
 $(document).ready(function() {
     $('#dataTables-missions').DataTable({
         responsive: true,
-        order: [[0,'Fiches']]
+        order: [[4,'desc'],[0,'desc']]
     });
 });
 </script>
@@ -82,7 +82,7 @@ $(document).ready(function() {
                                         'style' => 'display:inline'
                                     ]) }}
 
-                                    {{ Form::submit('Ajouter une fiche',['class'=>'btn btn-primary'])}}
+                                    {{ Form::submit('Ajouter une mission',['class'=>'btn btn-primary'])}}
                                     {{ Form::close() }}
 
                                     {{Form::open([

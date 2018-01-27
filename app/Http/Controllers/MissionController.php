@@ -95,6 +95,7 @@ class MissionController extends Controller
             //'contrat_id'=>'nullable',
             //'job_description_id'=>'nullable',
             
+            
         ],[
             'client_id.required'=>'Veuillez entrer le nom du client',
             
@@ -139,7 +140,7 @@ class MissionController extends Controller
         if($mission->save()){
             Session::put('success','La mission a bien été enregistrée');
             
-            //Déplacer le contrat dans le dossier uploads
+            //Déplacer le job description dans le dossier uploads
              $jobFiles = $request->file('job_description_ids');
         
             if($jobFiles){
@@ -158,7 +159,7 @@ class MissionController extends Controller
                     //Enregistrer le document dans la base de donnée
                     $job_desc = new Document ();
                     $job_desc-> type ='Job description';
-                    $job_desc-> description = $request->input('descriptions') [$i];
+                    $job_desc-> description = $request->input('descriptionsForJob') [$i];
                     $job_desc->url_document = $url;
                     $job_desc->filename = $jobFiles[$i]->getClientOriginalName();
                     $job_desc->mission_id = $mission->id;
@@ -168,6 +169,36 @@ class MissionController extends Controller
                     }
                 }
             }
+
+            //Déplacer l'offre dans le dossier uploads
+            $offreFiles = $request->file('offre_ids');
+            
+                if($offreFiles){
+                    for($i=0;$i<count($offreFiles);$i++){
+            
+                        //Déplacer le fichier dans le dossier de téléchargement public
+                        $filename = Storage::putFile('public/uploads/offres',$offreFiles[$i]);
+            
+                        //Récuperer le nouveau nom de fichier
+                        $filename = strrchr($filename,"/");
+            
+                        //Récuperer l'url du dossier de téléchargement
+                        //à partir du fichier de config config/filesystems.php
+                        $url = '/uploads/offres'.$filename;
+            
+                        //Enregistrer le document dans la base de donnée
+                        $offre = new Document ();
+                        $offre-> type ='Offre';
+                        $offre-> description = $request->input('descriptionsForOffre') [$i];
+                        $offre->url_document = $url;
+                        $offre->filename = $offreFiles[$i]->getClientOriginalName();
+                        $offre->mission_id = $mission->id;
+            
+                        if(!$offre->save()){
+                            Session::push('errors','Erreur lors de l\'enregristrement du document (offre)!');
+                        }
+                    }
+                }
         } else {
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
         }
@@ -185,7 +216,23 @@ class MissionController extends Controller
     {   
         $mission = Mission::find($id);
         $client = Client::find($mission->client_id);
-        $title = 'Mission : ' .($mission->id);
+        $title = 'Mission : ' .Config('constants.options.PREFIX_MISSION').($mission->id);
+
+        foreach($mission->candidatures as $candidature) {
+            $candidature->F2F = null;
+            $candidature->rencontreClient = null;
+            $candidature->rencontre3 = null;
+            foreach($candidature->interviews as $interview)
+                switch($interview->type){
+                    case 'F2F':
+                        $candidature->F2F = $interview->date_interview;break;
+                    case 'rencontre client':
+                        $candidature->rencontreClient  = $interview->date_interview;break;
+                    case '3e rencontre':
+                        $candidature->rencontre3  = $interview->date_interview;break;
+
+            }
+        }
 
         return view('missions.show',[
             'mission'=>$mission,
@@ -244,9 +291,6 @@ class MissionController extends Controller
             $listeStatus = array_add($listeStatus, $v, $v);
         }
 
-        //Récuperer les jobs descriptions
-        $mission->job_description_ids = [4,14,20];
-
         return view('missions.create',[
                     'mission'=> $mission,
                     'title' => $title,
@@ -275,6 +319,7 @@ class MissionController extends Controller
             'status'=>'required',
             //'contrat_id'=>'nullable',
             //'job_description_id'=>'nullable',
+            
             
         ],[
             'client_id.required'=>'Veuillez entrer le nom du client',
@@ -319,8 +364,13 @@ class MissionController extends Controller
                 //Suppression de l'ancien contrat
                 if($request->get('delete')) {
                     $oldContrat = Document::find($oldContratId);
-                    if($oldContrat->delete()) {
-                        Session::push('errors','L\ancien contrat n\'a pas pu être supprimé !');
+                    
+                    if(!Storage::disk('public')->delete($oldContrat->url_document)){
+                        Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                    } else {
+                        if($oldContrat->delete()) {
+                            Session::push('errors','L\ancien contrat n\'a pas pu être supprimé de la DB !');
+                        }
                     }
                 }
             } else{
@@ -328,11 +378,18 @@ class MissionController extends Controller
             }
         //Il n'y a pas de nouveau contrat => sauver OU supprimer ancien contrat
         } elseif(empty($file) && !empty($request->get('contrat_id'))) {
+            //Suppression de l'ancien contrat
             if($request->get('delete')) {
                 $oldContrat = Document::find($request->get('contrat_id'));
-                if(!$oldContrat->delete()) {
-                    Session::push('errors','L\ancien contrat n\'a pas pu être supprimé !');
+
+                if(!Storage::disk('public')->delete($oldContrat->url_document)){
+                    Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                } else {
+                    if(!$oldContrat->delete()) {
+                        Session::push('errors','L\ancien contrat n\'a pas pu être supprimé !');
+                    }
                 }
+
                 $mission->contrat_id = null;
             } else {  //Sauver ancien contrat
                 $mission->contrat_id = $request->get('contrat_id');
@@ -367,7 +424,7 @@ class MissionController extends Controller
                     //Enregistrer le document dans la base de donnée
                     $job_desc = new Document ();
                     $job_desc-> type ='Job description';
-                    $job_desc-> description = $request->input('descriptions') [$i];
+                    $job_desc-> description = $request->input('descriptionsForJob') [$i];
                     $job_desc->url_document = $url;
                     $job_desc->filename = $jobFiles[$i]->getClientOriginalName();
                     $job_desc->mission_id = $mission->id;
@@ -378,17 +435,69 @@ class MissionController extends Controller
                 }
             }
 
-        //Suppresion des anciens documents
-            $deleteFileIds = $request->get('deleteFileIds');
+        //Suppression des anciens documents (job description)
+            $deleteJobFileIds = $request->get('deleteJobFileIds');
 
-            if($deleteFileIds){
-                foreach($deleteFileIds as $deleteFileId){
+            if($deleteJobFileIds){
+                foreach($deleteJobFileIds as $deleteFileId){
                     $oldJobDesc = Document::find($deleteFileId);
-                    if(!$oldJobDesc->delete()) {
-                        Session::push('errors','L\ancien job description n\'a pas pu être supprimé !');
+                    if(!Storage::disk('public')->delete($oldJobDesc->url_document)){
+                        Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                    } else {
+                        if(!$oldJobDesc->delete()) {
+                            Session::push('errors','L\ancien job description n\'a pas pu être supprimé !');
+                        }
                     }
                 }
             }
+        
+        //Mise a jour des documents(offre)
+        //Ajout des nouveaux documents
+            //Déplacer l'offre dans le dossier uploads
+            $offreFiles = $request->file('offre_ids');
+            
+                if($offreFiles){
+                    for($i=0;$i<count($offreFiles);$i++){
+            
+                        //Déplacer le fichier dans le dossier de téléchargement public
+                        $filename = Storage::putFile('public/uploads/offres',$offreFiles[$i]);
+            
+                        //Récuperer le nouveau nom de fichier
+                        $filename = strrchr($filename,"/");
+            
+                        //Récuperer l'url du dossier de téléchargement
+                        //à partir du fichier de config config/filesystems.php
+                        $url = '/uploads/offres'.$filename;
+            
+                        //Enregistrer le document dans la base de donnée
+                        $offre = new Document ();
+                        $offre-> type ='Offre';
+                        $offre-> description = $request->input('descriptionsForOffre') [$i];
+                        $offre->url_document = $url;
+                        $offre->filename = $offreFiles[$i]->getClientOriginalName();
+                        $offre->mission_id = $mission->id;
+            
+                        if(!$offre->save()){
+                            Session::push('errors','Erreur lors de l\'enregristrement du document (offre)!');
+                        }
+                    }
+                }
+    
+            //Suppression des anciens documents (offre)
+                $deleteOffreFileIds = $request->get('deleteOffreFileIds');
+    
+                if($deleteOffreFileIds){
+                    foreach($deleteOffreFileIds as $deleteFileId){
+                        $oldOffre = Document::find($deleteFileId);
+                        if(!Storage::disk('public')->delete($oldOffre->url_document)){
+                            Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                        } else {
+                            if(!$oldOffre->delete()) {
+                                Session::push('errors','L\ancienne offre n\'a pas pu être supprimée !');
+                            }
+                        }
+                    }
+                }
         } else {
             Session::push('errors','Une erreur s\'est produite lors de la modification!');
         }

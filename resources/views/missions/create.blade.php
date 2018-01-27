@@ -85,6 +85,14 @@
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
+                                    <div class="form-group">
+                                        {{ Form::label('remarques','Remarques:')}}
+                                        {{ Form::textarea('remarques',
+                                            old('remarques')?? (isset($mission) ? $mission->remarques:''),
+                                            [
+                                            'class'=>'form-control'
+                                        ]) }}
+                                    </div>
                                 </div>
 
                                 <div class="col-lg-6">
@@ -131,7 +139,7 @@
                                                         style="margin-top:10px;font-size: 1.1em;color:orangered"
                                                         onmouseover="$(this).css('cursor','pointer')"
                                                         onclick="$(this).prev('a').remove();
-                                                                $(this).parent().parent('dd').append('<input type=hidden name=deleteFileIds[] value={{ $job_description->id }}>')  
+                                                                $(this).parent().parent('dd').append('<input type=hidden name=deleteJobFileIds[] value={{ $job_description->id }}>')  
                                                                 $(this).parent('p').remove();">
                                                         </i>
                                                 </p>
@@ -141,9 +149,9 @@
                                         </dl>
                                         <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
                                             <div>
-                                                {{ Form::label('descriptions[]','Description:')}}
-                                                {{ Form::text('descriptions[]',
-                                                    old('descriptions[]')?? (isset($mission) ? $mission->description:''),
+                                                {{ Form::label('descriptionsForJob[]','Description:')}}
+                                                {{ Form::text('descriptionsForJob[]',
+                                                    old('descriptionsForJob[]')?? (isset($mission) ? $mission->description:''),
                                                     [
                                                         'placeholder'=>'ex: Français',
                                                         'class'=>'form-control',
@@ -151,11 +159,7 @@
                                                 ]) }}
 
 
-                                                {{ Form::file('job_description_ids[]',[ 1 => 
-                                                    old('job_description_id')?? (isset($mission) ? $mission->job_description_id:'1')],
-                                                    [
-                                                    'class'=>'form-control'
-                                                ]) }}
+                                                {{ Form::file('job_description_ids[]') }}
                                             </div>
 
                                             <i class="fa fa-plus-square" aria-hidden="true" 
@@ -192,17 +196,82 @@
                                                          $div.last().find('input[type=text]').val('');
                                                      }">
                                             </i>
-                                        </div>
-                                        
+                                        </div>    
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('remarques','Remarques:')}}
-                                        {{ Form::textarea('remarques',
-                                            old('remarques')?? (isset($mission) ? $mission->remarques:''),
-                                            [
-                                            'class'=>'form-control'
-                                        ]) }}
+                                        <dl>
+                                            <dt>{{ Form::label('offre_ids','Charger le/les offres:') }}</dt>
+                                        @if(isset($mission) && $mission->offres)
+                                            <dd style="margin-left:15px">
+                                            @foreach($mission->offres as $offre)
+                                                <p style="margin:0">
+                                                    <a href="{{ url(Storage::url($offre->url_document)) }}" target="_blank"> 
+                                                        <i class="fa fa-download" aria-hidden="true"></i>
+                                                        {{ $offre->description }}
+                                                        </a>
+                                                        <i class="fa fa-times" aria-hidden="true" 
+                                                        style="margin-top:10px;font-size: 1.1em;color:orangered"
+                                                        onmouseover="$(this).css('cursor','pointer')"
+                                                        onclick="$(this).prev('a').remove();
+                                                                $(this).parent().parent('dd').append('<input type=hidden name=deleteOffreFileIds[] value={{ $offre->id }}>')  
+                                                                $(this).parent('p').remove();">
+                                                        </i>
+                                                </p>
+                                            @endforeach
+                                            <dd>
+                                        @endif
+                                        </dl>
+                                        <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
+                                            <div>
+                                                {{ Form::label('descriptionsForOffre[]','Description:')}}
+                                                {{ Form::text('descriptionsForOffre[]',
+                                                    old('descriptionsForOffre[]')?? (isset($mission) ? $mission->description:''),
+                                                    [
+                                                        'placeholder'=>'ex: à confirmer',
+                                                        'class'=>'form-control',
+                                                        'style'=>'display:inline;width:auto;height:1.8em;margin-bottom:5px'
+                                                ]) }}
+
+
+                                                {{ Form::file('offre_ids[]') }}
+                                            </div>
+
+                                            <i class="fa fa-plus-square" aria-hidden="true" 
+                                            style="margin-top:10px;font-size: 1.5em;color:blue"
+                                            onmouseover="$(this).css({'cursor':'pointer','color':'Darkblue'})"
+                                            onmouseout="$(this).css({'cursor':'pointer','color':'blue'})"
+                                            onclick="$divs = $(this).parent().find('div')
+                                                    $lastDiv = $divs.last();
+                                                    if($divs.length==1 && $lastDiv.find('input[type=file]').attr('disabled')){
+                                                        $lastDiv.css('display','block');
+                                                        $lastDiv.find('input[type=file]').attr('disabled',false);                      
+                                                     }
+                                                     else{
+                                                        $div = $lastDiv.clone();
+                                                        $div.insertBefore($(this));
+                                                        $div.parent().find('input[type=file]').last().val('');
+                                                        $div.parent().find('input[type=text]').last().val('');
+                                                         
+                                                     }">
+                                            </i>
+                                            <i class="fa fa-minus-square" aria-hidden="true" 
+                                            style="margin-top:10px;font-size: 1.5em;color:orangered"
+                                            onmouseover="$(this).css({'cursor':'pointer','color':'darkred'})"
+                                            onmouseout="$(this).css({'cursor':'pointer','color':'orangered'})"
+                                            onclick="$divs = $(this).parent().find('div');
+                                                     if($divs.length>1){
+                                                        $divs.last().remove();
+                                                     }
+                                                     else{
+                                                         $divs.last().css('display','none');
+                                                         $divs.last().find('input[type=file]')
+                                                                    .attr('disabled',true)
+                                                                    .val('');
+                                                         $div.last().find('input[type=text]').val('');
+                                                     }">
+                                            </i>
+                                        </div>    
                                     </div>
 
                                     <div style="margin-top:35px">

@@ -49,7 +49,6 @@
                                     <tr>
                                         <th>Clients</th>
                                         <th>Date</th>
-                                        <th>Profil client</th>
                                         <th>Supprimer</th>
                                         <th>Ajouter fiche</th>
                                     </tr>
@@ -63,11 +62,6 @@
                                             </a>
                                         </td>
                                         <td>{{ Carbon::parse($client->created_at)->format('d-m-Y') }}</td>
-                                        <td style="text-align: center">
-                                            <a href="{{ route('clients.show',$client->id)}}">
-                                                <i class="fa fa-eye" aria-hidden="true" title="afficher client"></i>
-                                            </a>
-                                        </td>
                                         <td style="text-align: center">
                                             {{Form::open([
                                                 'route'=>['clients.destroy',$client->id],

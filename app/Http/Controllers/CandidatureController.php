@@ -57,7 +57,7 @@ class CandidatureController extends Controller
 
         $liste=[null =>'Aucun'];
         foreach($ongoingMissions as $ongoingMission) {
-            $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id}&nbsp;";;
+            $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id}&nbsp;{$ongoingMission->client->nom_entreprise} - {$ongoingMission->fonction}";
         }
         $ongoingMissions = $liste;
 

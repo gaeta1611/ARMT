@@ -50,11 +50,18 @@ class Mission extends Model
         return $this->hasOne('App\Document','id','contrat_id');
     }
 
-     /**
-     * Récuperer les job description associés à cette mission
-     */
+    /**
+    * Récuperer les job description associés à cette mission
+    */
     public function job_descriptions(){
-        return $this->hasMany('App\Document');
+        return $this->hasMany('App\Document')->where(['type'=>'Job description']);
+    }
+
+    /**
+    * Récuperer les offres associés à cette mission
+    */
+    public function offres(){
+        return $this->hasMany('App\Document')->where(['type'=>'Offre']);
     }
 
     /**

@@ -53,7 +53,7 @@ $(document).ready(function() {
                                         <dt>Fonction : </dt>
                                         <dd>{{ $mission->fonction }}</dd>
                                         <dt>Référence : </dt>
-                                        <dd>{{ $mission->id }}</dd>
+                                        <dd>{{ Config('constants.options.PREFIX_MISSION').$mission->id }}</dd>
                                         <dt>Date : </dt>
                                         <dd>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</dd>
                                         <dt>Type de contrat : </dt>
@@ -86,6 +86,19 @@ $(document).ready(function() {
                                             @endforeach
                                         @else
                                             Aucun job description
+                                        @endif
+                                        </dd>
+                                        <dt>Offres : </dt>
+                                        <dd>
+                                        @if(count($mission->offres))
+                                            @foreach($mission->offres as $offre)
+                                               <a href="{{ url(Storage::url($offre->url_document)) }}" target="_blank"> 
+                                                   <i class="fa fa-download" aria-hidden="true"></i>
+                                                   {{ $offre->description }}
+                                                </a></br>
+                                            @endforeach
+                                        @else
+                                            Aucune offre
                                         @endif
                                         </dd>
                                     </dl>
@@ -150,6 +163,7 @@ $(document).ready(function() {
                                                     <th>Date réponse</th>
                                                     <th>Date 1er F2F</th>
                                                     <th>Date client vs candidat</th>
+                                                    <th>Date 3e interview</th>
                                                     <th>Rapport interview</th>
                                                     <th>Remarques</th>
                                                 </tr>
@@ -183,10 +197,13 @@ $(document).ready(function() {
                                                         {{ $candidature->date_reponse ? Carbon::parse($candidature->date_reponse)->format('d-m-Y'):'' }}
                                                     </td>
                                                     <td style="white-space:nowrap">
-                                                        {{ $candidature->date_F2F ? Carbon::parse($candidature->date_F2F)->format('d-m-Y'):'' }}
+                                                        {{ $candidature->F2F ? Carbon::parse($candidature->F2F)->format('d-m-Y'):'' }}
                                                     </td>
                                                     <td style="white-space:nowrap">
-                                                        {{ $candidature->date_rencontre_client ? Carbon::parse($candidature->date_rencontre_client)->format('d-m-Y'):'' }}
+                                                        {{ $candidature->rencontreClient ? Carbon::parse($candidature->rencontreClient)->format('d-m-Y'):'' }}
+                                                    </td>
+                                                    <td style="white-space:nowrap">
+                                                        {{ $candidature->rencontre3 ? Carbon::parse($candidature->rencontre3)->format('d-m-Y'):'' }}
                                                     </td>
                                                     <td>
                                                         @if($candidature->rapport)
