@@ -52,16 +52,7 @@
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-code-fork fa-fw"></i> Missions<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li>
-                                    <a href="{{ route('clients.index')}}">En cours <i class="fa fa-search"></i></a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('clients.create')}}">Effectuées <i class="fa fa-plus-circle"></i></a>
-                                </li>
-                            </ul>
-                            <!-- /.nav-second-level -->
+                            <a href="{{ route('missions.index',['status'=>'En cours']) }}"><i class="fa fa-code-fork fa-fw"></i> Missions</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-center" id="sidenavToggler" color="dark">

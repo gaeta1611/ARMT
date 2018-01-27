@@ -19,9 +19,17 @@ class MissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        
+        //Récuperer les données
+        $missions = Mission::all();
+        
+        //Traiter les données
+        
+        //Envoyer les données à la vue ou rediriger
+        return view ('missions.index')->with('missions',$missions);
+        
     }
 
     /**
