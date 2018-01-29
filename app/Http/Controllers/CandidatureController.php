@@ -215,8 +215,17 @@ class CandidatureController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $candidature = Candidature::find($id);
+        $data = Input::post();
+        
+        if($candidature->update($data)) {
+            return response()->json(true);
+        } else {
+            return response()->json([0=>false,"message"=>"Erreur Ajax"]);
+        }
         
     }
+
 
     /**
      * Remove the specified resource from storage.

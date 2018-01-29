@@ -37,4 +37,4 @@ Route::get('/candidatures/create/{id?}','CandidatureController@create',['id'])
                         ->name('candidatures.create.from.candidat');
 
 
-Route::resource('prospects','ProspectController');
+

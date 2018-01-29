@@ -23,6 +23,79 @@ $(document).ready(function() {
         responsive: true,
         order: [[0,'Candidats']]
     });
+
+    //Récuperer les valeurs
+    const APP_URL = '{{ Config::get('app.url') }}';
+    var liste = [];
+
+    $.getJSON(APP_URL + '/public/api/status',function(data) {
+        $.each(data, function(key, value) {
+            liste[key] = value;
+        });
+    });
+
+
+    $('body').on('click',function() {
+
+        $('#dataTables-candidats select').each(function(){
+            $(this).parent().append($(this).find('option:selected').text());
+            $(this).remove();
+        });
+    });
+    
+    //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
+    $('#dataTables-candidats > tbody > tr > td').each(function(index) {
+        $(this).on('dblclick',function() {
+            //Mémoriser l'ancienne valeur en cas d'annulation
+            $oldValue = $(this).text().trim();
+
+            //Vider la cellule (td) et y mettre une liste déroulante (select)
+            $(this).empty().append('<select>');
+
+            //Ajouter dans la liste déroulante (select) les valeurs issue de la DB (liste)
+            var $select = $(this).find('select');
+            for (key in liste){
+                if(liste[key].avancement==$oldValue){ //Préselectionner l'ancienne valeur
+                    $select.append('<option value="'+liste[key].id +'" selected>'+liste[key].avancement);
+                } else {
+                    $select.append('<option value="'+liste[key].id +'">'+liste[key].avancement);
+                }
+            }
+
+            $select.on('change', function() {
+                    //Sauver dans la base de données
+                    console.log('Saving candidature, n°'+$(this).val());
+                    var idCandidature = $(this).parentsUntil('tr').parent().attr('data-id');
+
+                    $.post(APP_URL + '/public/api/candidatures/'+idCandidature,{'status_id':$(this).val()},function(data) {
+                        //Flash message
+                        $.alert('Candidature modifiée');
+                    }).fail(function(error) {
+                        //Flash message
+                        alert('Erreurs lors de la modification');
+                    });
+
+                    //Afficher la valeur séléctionnée
+                    $selectedText = $(this).find('option:selected').text();
+
+                    for(key in liste){
+                        if(liste[key].avancement==$selectedText){
+                            status = liste[key].status;
+                        }
+                    }
+
+                    $(this).parent().prev().html(status);
+                    $(this).parent().append($selectedText);
+
+                    //Supprimer la liste déroulant  
+                    $(this).remove();
+            });
+
+            //Empêcher le déclenchement de l'event click sur le body (propagation aux parents)
+            $select.on('click', function() { event.stopPropagation(); });
+        });
+    });
+
 });
 </script>
 @endsection
@@ -166,7 +239,7 @@ $(document).ready(function() {
                                             <tbody>
 
                                             @forelse($mission->candidatures as $candidature)
-                                                <tr class="odd">
+                                                <tr class="odd" data-id="{{ $candidature->id }}">
                                                     <td>
                                                         <a href="{{ route('candidats.show',$candidature->candidat->id)}}">
                                                             {{ $candidature->candidat->nom}}&nbsp;{{ $candidature->candidat->prenom }}
@@ -175,9 +248,9 @@ $(document).ready(function() {
                                                     <td style="white-space:nowrap">
                                                             {{ Carbon::parse($candidature->created_at)->format('d-m-Y') }}
                                                     </td>
-                                                    <td>{{ ucfirst($candidature->status->status) }}</td>
+                                                    <td>{{ $candidature->status->status }}</td>
                                                     <td>
-                                                        {{ ucfirst($candidature->status->avancement) }}   
+                                                        {{ $candidature->status->avancement }}   
                                                     </td>
                                                     <td>
                                                         {{ $candidature->modeCandidature->type}} {{ $candidature->modeCandidature->mode}}

@@ -320,14 +320,14 @@ class MissionController extends Controller
      */
     public function update(Request $request, $id)
     {
+        
         $validatorData = $request->validate([
             'client_id'=> 'required',
             'fonction'=> 'required|max:120',
             'type_contrat_id'=>'required|numeric',
             'status'=>'required',
             //'contrat_id'=>'nullable',
-            //'job_description_id'=>'nullable',
-            
+            //'job_description_id'=>'nullable',  
             
         ],[
             'client_id.required'=>'Veuillez entrer le nom du client',
