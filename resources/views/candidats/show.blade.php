@@ -54,8 +54,9 @@ $(document).ready(function() {
                                         <dt>Téléphone : </dt>
                                         <dd>{{ $candidat->telephone }}</dd>
                                     </dl>
-                                    <a href="{{ $candidat->linkedin }}" target="_blank" style="margin:25px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
-                                    <a href=" mailto:{{ $candidat->email }}" target="_blank" style="margin:2px"><i class="fa fa-envelope-o fa-lg"></i></a>                                
+                                    <a href="{{ $candidat->site }}" target="_blank" style="margin:15px"><i class="fa fa-internet-explorer fa-lg"></i></a>
+                                    <a href="{{ $candidat->linkedin }}" target="_blank" style="margin:15px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
+                                    <a href=" mailto:{{ $candidat->email }}" target="_blank" style="margin:15px"><i class="fa fa-envelope-o fa-lg"></i></a>                                
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
@@ -65,6 +66,8 @@ $(document).ready(function() {
                                         <dd>{{ $candidat->email }}</dd>
                                         <dt>Linkedin : </dt>
                                         <dd>{{ $candidat->linkedin }}</dd>
+                                        <dt>Site internet : </dt>
+                                        <dd>{{ $candidat->site }}</dd>
                                         <dt>Remarques : </dt>
                                         <dd>{{ $candidat->remarques }}</dd>
                                     </dl>
@@ -157,7 +160,7 @@ $(document).ready(function() {
                                                     <td>
                                                         {{ $candidature->mission ? $candidature->mission->status:''}}
                                                     </td>
-                                                    <td>
+                                                    <td style="text-align:center" >
                                                         @if($candidature->rapport)
                                                             <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
                                                                 <i class="fa fa-download" aria-hidden="true"></i>

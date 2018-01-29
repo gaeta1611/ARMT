@@ -58,13 +58,15 @@ $(document).ready(function() {
                                         <dd>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</dd>
                                         <dt>Type de contrat : </dt>
                                         <dd>{{ $mission->typeContrat->type }}</dd>
+                                        <dt>Status : </dt>
+                                        <dd>{{ $mission->status }}</dd><br \>
+                                        <dt>Remarques :</dt>
+                                        <dd>{{$mission->remarques}}</dd>
                                     </dl>
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
-                                        <dt>Status : </dt>
-                                        <dd>{{ $mission->status }}</dd>
-                                        <dt>Contrat : </dt>
+                                        <dt>Contrat :</dt>
                                         <dd>
                                             @if($mission->contrat_id)
                                                <a href="{{ url(Storage::url($mission->contrat->url_document)) }}" target="_blank"> 
@@ -73,7 +75,7 @@ $(document).ready(function() {
                                             @else
                                                 Aucun contrat
                                             @endif
-                                        </dd>
+                                        </dd><br \>
 
                                         <dt>Job description : </dt>
                                         <dd>
@@ -87,7 +89,8 @@ $(document).ready(function() {
                                         @else
                                             Aucun job description
                                         @endif
-                                        </dd>
+                                        </dd><br \>
+
                                         <dt>Offres : </dt>
                                         <dd>
                                         @if(count($mission->offres))
@@ -101,14 +104,6 @@ $(document).ready(function() {
                                             Aucune offre
                                         @endif
                                         </dd>
-                                    </dl>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <dl class="dl-horizontal">
-                                        <dt>Remarques :</dt>
-                                            <dd>{{$mission->remarques}}</dd>
                                     </dl>
                                 </div>
                             </div>
@@ -161,10 +156,10 @@ $(document).ready(function() {
                                                     <th>Type</th>
                                                     <th>Mode réponse</th>
                                                     <th>Date réponse</th>
+                                                    <th>Rapport interview</th>
                                                     <th>Date 1er F2F</th>
                                                     <th>Date client vs candidat</th>
                                                     <th>Date 3e interview</th>
-                                                    <th>Rapport interview</th>
                                                     <th>Remarques</th>
                                                 </tr>
                                             </thead>
@@ -196,6 +191,15 @@ $(document).ready(function() {
                                                     <td style="white-space:nowrap">
                                                         {{ $candidature->date_reponse ? Carbon::parse($candidature->date_reponse)->format('d-m-Y'):'' }}
                                                     </td>
+                                                    <td style="text-align:center">
+                                                        @if($candidature->rapport)
+                                                            <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
+                                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                            </a>
+                                                        @else
+                                                            Aucun
+                                                        @endif
+                                                    </td>
                                                     <td style="white-space:nowrap">
                                                         {{ $candidature->F2F ? Carbon::parse($candidature->F2F)->format('d-m-Y'):'' }}
                                                     </td>
@@ -204,15 +208,6 @@ $(document).ready(function() {
                                                     </td>
                                                     <td style="white-space:nowrap">
                                                         {{ $candidature->rencontre3 ? Carbon::parse($candidature->rencontre3)->format('d-m-Y'):'' }}
-                                                    </td>
-                                                    <td>
-                                                        @if($candidature->rapport)
-                                                            <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
-                                                                <i class="fa fa-download" aria-hidden="true"></i>
-                                                            </a>
-                                                        @else
-                                                            Aucun
-                                                        @endif
                                                     </td>
                                                     <td>
                                                         {{ $candidature->remarques }}

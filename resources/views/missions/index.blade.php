@@ -22,12 +22,19 @@
         var table = $('#dataTables-missions').DataTable({
             responsive: true
         });
- 
-        table.columns().flatten().each( function ( colIdx ) {
+
+        var $panelHeading = $('.panel-heading');
+        $panelHeading.append('<div class="row">');
+
+        var labels = ['Fonction','Contrat','Statut'];
+
+        table.columns([2,3,4]).flatten().each( function ( colIdx, index ) {
+            $panelHeading.find('.row').append('<div class="col-lg-4"><label for="'+labels[index]+'">'+labels[index]+': ');
+
             // Create the select list and search operation
-            var select = $('<select />')
+            var select = $('<select id="'+labels[index]+'" />')
                 .appendTo(
-                    table.column(colIdx).header()
+                    $panelHeading.find('label[for='+labels[index]+']')
                 )
                 .on( 'change', function () {
                     table
@@ -37,6 +44,7 @@
                 } );
         
             // Get the search data for the first column and add to the select list
+            select.append( $('<option value=""></option>') );
             table
                 .column( colIdx )
                 .cache( 'search' )
@@ -46,6 +54,13 @@
                     select.append( $('<option value="'+d+'">'+d+'</option>') );
                 } );
         });
+        //Définir le status par défaut de la mission en fonction du queryString
+        if(location.search) {
+            var queryFilter = location.search.substring(1+7).replace(/\+/g," ");
+            var activeFilter = decodeURIComponent(queryFilter).split('=')[0];
+            var activeValue = decodeURIComponent(queryFilter).split('=')[1];
+        }
+        $('label[for='+activeFilter+'] select').val(activeValue).change(); 
     });
 
 </script>
@@ -65,7 +80,7 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            Ajouter les filtres
+        
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
@@ -103,7 +118,9 @@
                                         <td>
                                             {{ $mission->status}}
                                         </td>
-                                        <td>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</td>
+                                        <td style="white-space:nowrap">
+                                            {{ Carbon::parse($mission->created_at)->format('d-m-Y') }}
+                                        </td>
                                         <td>
                                             {{ $mission->remarques}}
                                         </td>

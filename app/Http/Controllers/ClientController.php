@@ -27,6 +27,8 @@ class ClientController extends Controller
 
         //Envoyer les données à la vue ou rediriger
         return view ('clients.index')->with('clients',$clients);
+        
+        
     }
 
     /**
@@ -119,6 +121,7 @@ class ClientController extends Controller
     {
         $client = Client::find($id);
         $title = 'Client : '.$client->nom_entreprise;
+        
 
         //$missions = $client->missions;
 

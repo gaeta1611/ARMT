@@ -133,7 +133,9 @@ $(document).ready(function() {
                                                     <td>
                                                             {{ $mission->fonction}}
                                                     </td>
-                                                    <td>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</td>
+                                                    <td style="white-space:nowrap">
+                                                        {{ Carbon::parse($mission->created_at)->format('d-m-Y') }}
+                                                    </td>
                                                     <td>
                                                             {{ $mission->remarques}}
                                                     </td>

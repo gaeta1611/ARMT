@@ -191,6 +191,15 @@
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
+                                    <div class="form-group">
+                                        {{ Form::label('site','Site internet:')}}
+                                        {{ Form::text('site',
+                                            old('site')?? (isset($candidat) ? $candidat->site:''),
+                                            [
+                                            'placeholder'=>'ex: https://www.advaconsult.com',
+                                            'class'=>'form-control'
+                                        ]) }}
+                                    </div>
 
                                     <div class="form-group">
                                         {{ Form::label('remarques','Remarques:')}}
