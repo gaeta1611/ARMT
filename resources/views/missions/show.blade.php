@@ -17,82 +17,130 @@
 <script src="{{ asset('../vendor/datatables-responsive/dataTables.responsive.js') }}"></script>
 
 <script>
-
 $(document).ready(function() {
     $('#dataTables-candidats').DataTable({
         responsive: true,
         order: [[0,'Candidats']]
     });
-
-    //Récuperer les valeurs
-    const APP_URL = '{{ Config::get('app.url') }}';
-    var liste = [];
-
-    $.getJSON(APP_URL + '/public/api/status',function(data) {
-        $.each(data, function(key, value) {
-            liste[key] = value;
-        });
-    });
-
-
-    $('body').on('click',function() {
-
-        $('#dataTables-candidats select').each(function(){
+    
+    //Remplacement des listes déroulantes par leur valeur
+    $('body').on('click', function() {
+        //console.log(this);
+        $('#dataTables-candidats select').each(function() {
             $(this).parent().append($(this).find('option:selected').text());
             $(this).remove();
         });
     });
     
+    const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
+    var armtAPI = APP_URL + '/public/api/';
+        
+    function fetchDataFrom(table, liste, apiURL) {       
+        apiURL += table;
+        
+        return $.getJSON(apiURL,function(data) {
+            $.each(data, function(key, value) {
+                liste[key] = value;
+            });
+        });
+    }
+    
+    function postDataInto(table, data, apiURL, jqSelect) {
+        console.log('Saving candidature n°'+jqSelect.val());
+        var idCandidature = jqSelect.parentsUntil('tr').parent().attr('data-id');
+
+        apiURL += table + '/' + idCandidature;
+        $.post(apiURL,data,function(data) {
+            //Flash message
+            alert('Candidature modifiée');
+        }).fail(function(error) {
+            //Flash message
+            alert('Erreur lors de la modification');
+        });
+    }
+    
+    function fillSelectWith(liste, jqSelect, optionFieldValue, optionFieldText, selectedValue) {
+        for(key in liste) {
+            if(liste[key][optionFieldText]==selectedValue) {  //Préselectionner l'ancienne 
+                jqSelect.append('<option value="' + liste[key][optionFieldValue] + '" selected>' + liste[key][optionFieldText]);
+            } else {
+                jqSelect.append('<option value="' + liste[key][optionFieldValue] + '">' + liste[key][optionFieldText]);
+            }
+        }
+    }
+    
+    function replaceSelectWithSelectedValue(jqSelect) {
+        //Récupérer la valeur sélectionnée
+        var value = jqSelect.find('option:selected').text();
+
+        //Ajouter le texte dans la cellule du tableau (td)
+        jqSelect.parent().append(value);
+        
+        //Supprimer la liste déroulante (select)
+        jqSelect.remove();
+    }
+    
+    function replaceTextWithSelect(jqParent) {
+        //Mémoriser l'ancienne valeur en cas d'annulation
+        var oldValue = jqParent.text().trim();
+
+        //Vider la cellule (td) et y mettre une liste déroulante (select)
+        jqParent.empty().append('<select>');
+        
+        return oldValue;
+    }
+                    
     //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
     $('#dataTables-candidats > tbody > tr > td').each(function(index) {
         $(this).on('dblclick',function() {
-            //Mémoriser l'ancienne valeur en cas d'annulation
-            $oldValue = $(this).text().trim();
+            var tdPosition = $(this).siblings().add(this).index($(this));
+            var updateField = $('thead th:eq('+tdPosition+')').data('field');
+            var fetchTableField = $('thead th:eq('+tdPosition+')').data('fetch-table').split('.');
+            var fetchTable = fetchTableField[0];
+            var fetchField = fetchTableField[1];
+            
+            //Récupérer les valeurs de la table
+            var liste = [];
+            var $activeTD = $(this);
+            
+            fetchDataFrom(fetchTable, liste, armtAPI).then(function(data) {
+                //Insérer la liste déroulante à la place du texte
+                var oldValue = replaceTextWithSelect($activeTD);
+                var $select = $activeTD.find('select');
 
-            //Vider la cellule (td) et y mettre une liste déroulante (select)
-            $(this).empty().append('<select>');
-
-            //Ajouter dans la liste déroulante (select) les valeurs issue de la DB (liste)
-            var $select = $(this).find('select');
-            for (key in liste){
-                if(liste[key].avancement==$oldValue){ //Préselectionner l'ancienne valeur
-                    $select.append('<option value="'+liste[key].id +'" selected>'+liste[key].avancement);
-                } else {
-                    $select.append('<option value="'+liste[key].id +'">'+liste[key].avancement);
-                }
-            }
-
-            $select.on('change', function() {
+                //Ajouter dans la liste déroulante (select) les valeurs issues de la DB (liste)
+                fillSelectWith(liste, $select, 'id', fetchField, oldValue); 
+                var updateData = { updateField:updateField };
+                
+                $select.on('change', null, updateData, function(event) {
+                    var formattedData = {};
+                    formattedData[event.data.updateField] = $(this).val();
                     //Sauver dans la base de données
-                    console.log('Saving candidature, n°'+$(this).val());
-                    var idCandidature = $(this).parentsUntil('tr').parent().attr('data-id');
+                    postDataInto('candidatures',formattedData, armtAPI,$select);
 
-                    $.post(APP_URL + '/public/api/candidatures/'+idCandidature,{'status_id':$(this).val()},function(data) {
-                        //Flash message
-                        $.alert('Candidature modifiée');
-                    }).fail(function(error) {
-                        //Flash message
-                        alert('Erreurs lors de la modification');
-                    });
+                    var $td = $select.parent();
 
-                    //Afficher la valeur séléctionnée
-                    $selectedText = $(this).find('option:selected').text();
+                    //Remplacer la liste déroulante par la valeur sélectionnée
+                    replaceSelectWithSelectedValue($select);
 
-                    for(key in liste){
-                        if(liste[key].avancement==$selectedText){
-                            status = liste[key].status;
+                    if(event.data.updateField=='status_id') {
+                        //Rechercher le statut correspondant à l'avancement sélectionné
+                        var $selectedText = $select.find('option:selected').text();
+
+                        for(key in liste) {
+                            if(liste[key].avancement==$selectedText) {
+                                status = liste[key].status;
+                            } 
                         }
+
+                        //Afficher le statut correspondant
+                        $td.prev().html(status);
                     }
-
-                    $(this).parent().prev().html(status);
-                    $(this).parent().append($selectedText);
-
-                    //Supprimer la liste déroulant  
-                    $(this).remove();
-            });
-
-            //Empêcher le déclenchement de l'event click sur le body (propagation aux parents)
-            $select.on('click', function() { event.stopPropagation(); });
+                });
+                
+                //Empêcher le déclenchemt de l'event click sur le body (propagation aux parents)
+                $select.on('click', function() { event.stopPropagation(); });
+            }).fail(function() { console.log('Erreur d\'accès à l\'API!'); });
         });
     });
 
@@ -224,10 +272,10 @@ $(document).ready(function() {
                                                     <th>Candidats</th>
                                                     <th>Date</th>
                                                     <th>Status</th>
-                                                    <th>Avancement</th>
+                                                    <th data-field="status_id" data-fetch-table="status.avancement">Avancement</th>
                                                     <th>Média</th>
-                                                    <th>Type</th>
-                                                    <th>Mode réponse</th>
+                                                    <th data-field="information_candidature_id" data-fetch-table="information_candidature.information">Type</th>
+                                                    <th data-field="mode_reponse_id" data-fetch-table="mode_reponse.media">Mode réponse</th>
                                                     <th>Date réponse</th>
                                                     <th>Rapport interview</th>
                                                     <th>Date 1er F2F</th>

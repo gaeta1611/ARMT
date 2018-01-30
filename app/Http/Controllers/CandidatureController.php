@@ -7,6 +7,7 @@ use App\Candidature;
 use App\Mission;
 use App\ModeCandidature;
 use App\Status;
+use App\InformationCandidature;
 use App\Candidat;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
@@ -217,7 +218,7 @@ class CandidatureController extends Controller
     {
         $candidature = Candidature::find($id);
         $data = Input::post();
-        
+
         if($candidature->update($data)) {
             return response()->json(true);
         } else {

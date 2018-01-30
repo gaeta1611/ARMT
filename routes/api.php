@@ -19,7 +19,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::get('/status', 'StatusController@getAll');
 
+Route::get('/information_candidature', 'InformationCandidatureController@getAll');
 
+Route::get('/mode_reponse', 'ModeReponseController@getAll');
 
 Route::post('/candidatures/{id}','CandidatureController@update',['id']);
 
