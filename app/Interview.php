@@ -26,6 +26,13 @@ class Interview extends Model
     protected $table = 'interviews';
 
     /**
+     * Gestion automatique des champs automatique created_at et updated_at
+     *
+     * @var boolean
+     */
+    public $timestamps = false;
+
+    /**
      * Récuperer la candidature associée à cette interview
      */
     public function candidature (){

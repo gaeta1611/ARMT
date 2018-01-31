@@ -25,3 +25,7 @@ Route::get('/mode_reponse', 'ModeReponseController@getAll');
 
 Route::post('/candidatures/{id}','CandidatureController@update',['id']);
 
+Route::post('/interviews/{idCandidature}','InterviewController@updateStoreFor',['idCandidature']);
+
+
+
