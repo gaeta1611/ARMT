@@ -54,15 +54,16 @@
                                     <div class="form-group">
                                         {{ Form::label('fonction','Fonction:')}}
                                         {{ Form::text('fonction',
-                                            old('fonction')?? (isset($mission) ? $mission->fonction:''),
+                                            old('fonction')?? (isset($mission) ? $mission->fonction->fonction: ''),
                                             [
                                                 'placeholder'=>'ex: Ingénieur construction',
                                                 'class'=>'form-control',
                                                 'list'=>'list-fonctions',
                                         ]) }}
                                         <datalist id="list-fonctions">
-                                            <option value="1">Ingénieur</option>
-                                            <option value="2">traducteur</option>
+                                            @foreach($fonctions as $fonction)
+                                                <option value="{{ $fonction->fonction }}">{{ $fonction->id }}</option>
+                                            @endforeach
                                         </datalist>
                                     </div>
 

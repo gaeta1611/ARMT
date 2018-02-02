@@ -110,7 +110,7 @@
                                             </a>
                                         </td>
                                         <td>
-                                            {{ $mission->fonction}}
+                                            {{ $mission->fonction->fonction }}
                                         </td>
                                         <td>
                                             {{ $mission->typeContrat->type}}

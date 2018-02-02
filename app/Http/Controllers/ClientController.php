@@ -16,12 +16,14 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         //Vérifier les permission d'accès
        
+        $prospect = $request->query('prospect');
+
         //Récuperer les données
-        $clients = Client::all()->where('prospect',0);
+        $clients = Client::all()->where('prospect',$prospect);
 
         //Traiter les données
 

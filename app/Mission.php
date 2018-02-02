@@ -14,7 +14,7 @@ class Mission extends Model
      */
     protected $fillable = [
         'client_id',
-        'fonction',
+        'fonction_id',
         'type_contrat_id',
         'status',
         'remarques',
@@ -69,6 +69,15 @@ class Mission extends Model
      */
     public function candidatures(){
         return $this->hasMany('App\Candidature');
+    }
+
+    /**
+     * Récuperer le contrat associés à cette mission
+     */
+    public function fonction(){
+        //Relation une mission possède un et une seul fonction
+        //Mission.fonction_id correspond à Fonctions.id
+        return $this->hasOne('App\Fonction','id','fonction_id');
     }
 
     // Query scopes: list des méthodes partagées

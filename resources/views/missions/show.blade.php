@@ -263,7 +263,7 @@ $(document).ready(function() {
                                             </a>
                                         </dd>
                                         <dt>Fonction : </dt>
-                                        <dd>{{ $mission->fonction }}</dd>
+                                        <dd>{{ $mission->fonction->fonction }}</dd>
                                         <dt>Référence : </dt>
                                         <dd>{{ Config('constants.options.PREFIX_MISSION').$mission->id }}</dd>
                                         <dt>Date : </dt>
@@ -287,7 +287,7 @@ $(document).ready(function() {
                                             @else
                                                 Aucun contrat
                                             @endif
-                                        </dd>
+                                        </dd><br \>
 
                                         <dt>Job description : </dt>
                                         <dd>
@@ -301,7 +301,7 @@ $(document).ready(function() {
                                         @else
                                             Aucun job description
                                         @endif
-                                        </dd>
+                                        </dd><br \>
 
                                         <dt>Offres : </dt>
                                         <dd>

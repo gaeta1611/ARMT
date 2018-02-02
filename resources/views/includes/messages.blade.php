@@ -1,7 +1,7 @@
 @if(Session::has('success'))
 
 <div class="alert alert-success">
-    {{ Session::pull('success') }}
+    {!! Session::pull('success') !!}
 </div>
 
 @elseif(Session::has('errors'))

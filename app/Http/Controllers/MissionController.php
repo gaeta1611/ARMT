@@ -7,6 +7,7 @@ use App\Client;
 use App\Mission;
 use App\TypeContrat;
 use App\Document;
+use App\Fonction;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +65,9 @@ class MissionController extends Controller
             $typesContrat[$type->id] = $type->type;
         }
 
+        //Récuperer la liste des fonctions  pour le formulaire(datalist)
+        $fonctions = Fonction::all();
+
         //Récuperer la liste des status pour le formulaire(select)
         $listStatus = DB::select(
             DB::raw("SHOW COLUMNS FROM mission WHERE FIELD = 'status'")
@@ -83,7 +87,9 @@ class MissionController extends Controller
                     'clients' =>$clients,
                     'oldClient' => $oldClient,
                     'typesContrat' => $typesContrat,
-                    'listeStatus' => $listeStatus
+                    'listeStatus' => $listeStatus,
+                    'fonctions' => $fonctions,
+
         ]);
     }
 
@@ -97,7 +103,7 @@ class MissionController extends Controller
     {
         $validatorData = $request->validate([
             'client_id'=> 'required',
-            'fonction'=> 'required|max:120',
+            'fonction'=> 'required|max:80',
             'type_contrat_id'=>'required|numeric',
             'status'=>'required',
             //'contrat_id'=>'nullable',
@@ -108,13 +114,27 @@ class MissionController extends Controller
             'client_id.required'=>'Veuillez entrer le nom du client',
             
             'fonction.required'=>'Veuillez entrer la fonction recherchée',
-            'fonction.max'=>'La fonction ne peut pas dépasser 120 caractères',
+            'fonction.numeric'=>'La fonction ne peut dépasser 80 caractères',
 
             'type_contrat_id.required'=>'Veuillez entrer le type de contrat',
             'type_contrat_id.numeric'=>'Le type du contrat est incorrecte',
 
             'status.required'=>'Veuillez entrer le type de status'
         ]);
+
+        $extraSuccessMsg = '';
+
+        $mission = new Mission(Input::all());
+        $data = Input::all('fonction');
+
+        //Retrouver la fonction correspondante ou l'ajouter dans la table Fonctions
+        $fonction = Fonction::where(['fonction'=>$data['fonction']])
+                                ->firstOrCreate(['fonction'=>$data['fonction']]);
+        if($fonction->wasRecentlyCreated) {
+            $extraSuccessMsg = 'Une nouvelle fonction a bien été ajoutée.';
+        }
+
+        $mission->fonction_id = $fonction->id;
         
         //Récuperer le fichier chargé dans le formulaire
         $file = $request->file('contrat_id');
@@ -142,11 +162,10 @@ class MissionController extends Controller
             }
         }
         
-        $mission = new Mission(Input::all());
         $mission->contrat_id = $file ? $contrat->id:null;
         
         if($mission->save()){
-            Session::put('success','La mission a bien été enregistrée');
+            Session::put('success','La mission a bien été enregistrée'.'<br \>'.$extraSuccessMsg);
             
             //Déplacer le job description dans le dossier uploads
              $jobFiles = $request->file('job_description_ids');
@@ -299,6 +318,9 @@ class MissionController extends Controller
             $listeStatus = array_add($listeStatus, $v, $v);
         }
 
+        //Récuperer la liste des fonctions  pour le formulaire(datalist)
+        $fonctions = Fonction::all();
+
         return view('missions.create',[
                     'mission'=> $mission,
                     'title' => $title,
@@ -307,7 +329,8 @@ class MissionController extends Controller
                     'clients' =>$clients,
                     'oldClient' => $oldClient,
                     'typesContrat' => $typesContrat,
-                    'listeStatus' => $listeStatus
+                    'listeStatus' => $listeStatus,
+                    'fonctions' => $fonctions
         ]);
     }
 
@@ -323,7 +346,7 @@ class MissionController extends Controller
         
         $validatorData = $request->validate([
             'client_id'=> 'required',
-            'fonction'=> 'required|max:120',
+            'fonction'=> 'required|max:80',
             'type_contrat_id'=>'required|numeric',
             'status'=>'required',
             //'contrat_id'=>'nullable',
@@ -333,16 +356,26 @@ class MissionController extends Controller
             'client_id.required'=>'Veuillez entrer le nom du client',
             
             'fonction.required'=>'Veuillez entrer la fonction recherchée',
-            'fonction.max'=>'La fonction ne peut pas dépasser 120 caractères',
+            'fonction.max'=>'La fonction ne peut pas dépasser 80 caractères',
 
             'type_contrat_id.required'=>'Veuillez entrer le type de contrat',
             'type_contrat_id.numeric'=>'Le type du contrat est incorrecte',
 
             'status.required'=>'Veuillez entrer le type de status'
         ]);
-        
+
+        $extraSuccessMsg = '';
         $mission = Mission::find($id);
         $data = Input::all();
+
+        //Retrouver la fonction correspondante ou l'ajouter dans la table Fonctions
+        $fonction = Fonction::where(['fonction'=>$data['fonction']])
+                                ->firstOrCreate(['fonction'=>$data['fonction']]);
+        if($fonction->wasRecentlyCreated) {
+            $extraSuccessMsg = 'Une nouvelle fonction a bien été ajoutée.';
+        }
+
+        $mission->fonction_id = $fonction->id;
 
         //Récuperer le  nouveau contrat chargé dans le formulaire
         $file = $request->file('contrat_id');
@@ -409,7 +442,7 @@ class MissionController extends Controller
     
         
         if($mission->update($data)) {
-            Session::put('success','La mission a bien été modifiée');
+            Session::put('success','La mission a bien été modifiée'.'<br \>'.$extraSuccessMsg);
 
         //Mise a jour des documents(job description)
         //Ajout des nouveaux documents

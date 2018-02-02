@@ -118,7 +118,7 @@ $(document).ready(function() {
                                                     <th>Date</th>
                                                     <th>Remarques</th>
                                                     <th>Status</th>
-                                                    <th>Mail</th>
+                                                    <th>Mails échangés</th>
                                                     <th>Supprimer</th>
                                                 </tr>
                                             </thead>
@@ -131,7 +131,7 @@ $(document).ready(function() {
                                                         </a>
                                                     </td>
                                                     <td>
-                                                            {{ $mission->fonction}}
+                                                            {{ $mission->fonction->fonction}}
                                                     </td>
                                                     <td style="white-space:nowrap">
                                                         {{ Carbon::parse($mission->created_at)->format('d-m-Y') }}
