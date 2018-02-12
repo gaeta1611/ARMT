@@ -21,7 +21,7 @@
     <link href="{{ asset('css/sb-admin-2.css')}}" rel="stylesheet">
 
     <!-- Morris Charts CSS -->
-    <link href="{{ asset('../vendor/morrisjs/morris.css')}}" rel="stylesheet">
+    <!--<link href="{{ asset('../vendor/morrisjs/morris.css')}}" rel="stylesheet">-->
 
     <!-- Custom Fonts -->
     <link href="{{ asset('../vendor/font-awesome/css/font-awesome.min.css')}}" rel="stylesheet" type="text/css">
@@ -292,9 +292,11 @@
     <script src="{{ asset('../vendor/metisMenu/metisMenu.min.js') }}"></script>
 
     <!-- Morris Charts JavaScript -->
+    <!-- 
     <script src="{{ asset('../vendor/raphael/raphael.min.js') }}"></script>
     <script src="{{ asset('../vendor/morrisjs/morris.min.js') }}"></script>
     <script src="{{ asset('js/data/morris-data.js') }}"></script>
+    -->
 
     <!-- Custom Theme JavaScript -->
     <script src="{{ asset('js/sb-admin-2.js') }}"></script>

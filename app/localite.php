@@ -21,11 +21,12 @@ class Localite extends Model
      *
      * @var string
      */
-    protected $table = 'localite';
+    protected $table = 'localites';
 
-     /**
-     * Récuperer les clients associés à la localité
-     */
+    
+    /**
+    * Récuperer les clients associés à la localité
+    */
     public function mission (){
         return $this->hasMany('App\Client');
     }
@@ -36,5 +37,6 @@ class Localite extends Model
     public function candidat (){
         return $this->hasMany('App\Candidat');
     }
+
     
 }

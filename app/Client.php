@@ -17,7 +17,7 @@ class Client extends Model
         'telephone',
         'email',
         'adresse',
-        'localite',
+        'localite_id',
         'site',
         'linkedin',
         'tva',
@@ -44,5 +44,6 @@ class Client extends Model
     public function missions(){
         return $this->hasMany('App\Mission');
     }
+
     
 }

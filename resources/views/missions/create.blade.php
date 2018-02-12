@@ -276,7 +276,10 @@
                                     </div>
 
                                     <div style="margin-top:35px">
-                                    {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
+                                        {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
+                                    </div>
+                                    <div style="margin-top:20px">
+                                        {{ Form::submit('Annuler',['class'=>'btn btn-danger pull-right'])}}
                                     </div>
 
                                 </div>

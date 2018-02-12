@@ -12,7 +12,9 @@ class Diplome extends Model
      * @var array
      */
     protected $fillable = [
+        'code_diplome',
         'designation',
+        'finalite',
         'niveau',
     ];
 
@@ -22,4 +24,11 @@ class Diplome extends Model
      * @var string
      */
     protected $table = 'diplomes';
+
+    /**
+     * Récuperer l'ecole associés à ce diplome
+     */
+    public function ecoles (){
+        return $this->belongsToMany('App\Ecole','diplomes_ecoles','diplome_id','ecole_id');
+    }
 }

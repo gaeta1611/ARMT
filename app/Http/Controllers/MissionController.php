@@ -284,7 +284,7 @@ class MissionController extends Controller
         $oldClient = Client::find($mission->client_id);
         
         //Définir le titre de la page
-        $title = 'Modifier mission';
+        $title = 'Modifier la mission: '.Config('constants.options.PREFIX_MISSION').($mission->id);
 
         //Définir les paramètres du formulaire
         $route = ['missions.update',$id];

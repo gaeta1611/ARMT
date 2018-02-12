@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Candidat;
 use App\Localite;
 use App\Mission;
+use App\Langue;
+use App\Diplome;
+use App\Ecole;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
@@ -39,6 +42,7 @@ class CandidatController extends Controller
             'ongoingMissions'=>$ongoingMissions,
         ]);
     }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -50,10 +54,40 @@ class CandidatController extends Controller
         $route = 'candidats.store';
         $method = 'POST';
         
+        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();   //TODO get only 5 best
+        $listeLangues = Langue::all();                 //TODO get only 5 best
+        $listeLangues = $listeLangues->diff($bestLangues);
+        
+        $langues = [0=>''];
+        foreach($listeLangues as $langue) {
+            $langues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
+        }
+
+        $diplomes = Diplome::all();
+
+        $designations = Diplome::select('designation')->distinct('designation')->get()->toArray();
+        array_walk($designations, function(&$item) { $item= $item['designation']; });
+
+        $finalites = Diplome::select('finalite')->distinct('finalite')->get()->toArray();
+        array_walk($finalites, function(&$item) { $item= $item['finalite']; });
+
+
+        $niveaux = Diplome::select('niveau')->distinct('niveau')->get()->toArray();
+        array_walk($niveaux, function(&$item) { $item= $item['niveau']; });
+
+        $ecoles = Ecole::all();
+
         return view('candidats.create',[
                     'title' => $title,
                     'route' => $route,
-                    'method' => $method
+                    'method' => $method,
+                    'langues' => $langues,
+                    'bestLangues' => $bestLangues,
+                    'diplomes' => $diplomes,
+                    'designations' => $designations,
+                    'finalites' => $finalites,
+                    'niveaux' => $niveaux,
+                    'ecoles' => $ecoles,
         ]);
     }
 
@@ -147,11 +181,14 @@ class CandidatController extends Controller
         $route = ['candidats.update',$id];
         $method = 'PUT';
 
+        $langues = Langue::limit(5)->get();
+
         return view('candidats.create',[
             'candidat'=> $candidat,
             'title' => $title,
             'route' => $route,
-            'method' => $method
+            'method' => $method,
+            'langues' => $langue,
             ]);
     }
 

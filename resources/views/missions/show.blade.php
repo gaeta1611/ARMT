@@ -426,7 +426,7 @@ $(document).ready(function() {
                                                     </td>
                                                 </tr>
                                             @empty
-                                                <tr><td colspan="12">Aucune candidatures.</td></tr>
+                                                <tr><td colspan="12">Aucun candidat pour cette mission.</td></tr>
                                             @endforelse
                                             
                                             </tbody>

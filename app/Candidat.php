@@ -20,6 +20,7 @@ class Candidat extends Model
         'telephone',
         'email',
         'linkedin',
+        'site',
         'remarques',
     ];
 
@@ -44,6 +45,11 @@ class Candidat extends Model
         return $this->hasMany('App\Candidature');
     }
 
-    
+    /**
+     * Récupere toute les langues du candidat
+     */
+    public function langues(){
+        return $this->belongsToMany('App\Langue','candidat_langues','candidat_id','langues_id');
+    }
     
 }

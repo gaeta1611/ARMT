@@ -7,11 +7,55 @@
 
 @section('js')
 <script>
-    $('#date-creation input').datepicker({
-        weekStart: 1,
-        todayBtn: "linked",
-        language: "fr",
-        multidateSeparator: "."
+    //$('#date-creation input').datepicker({
+        //weekStart: 1,
+        //todayBtn: "linked",
+        //language: "fr",
+        //multidateSeparator: "."
+    //});
+
+    $(function() {
+        $('select[name="autres"]').on('change',function(){
+            $selected = $(this).find('option:selected')
+
+            if($(this).val()!=0) {
+                tValues = $(this).val().split('-');
+                id = tValues[0];
+                code_langue = tValues[1];
+                texte = $selected.text();
+                $selected.remove();
+                
+                tr = '<tr><td style="padding:0 15px"><label for="langue-'+code_langue+'">'
+                        +texte[0].toUpperCase()+texte.substring(1)+'</td><td>';
+                
+                for(var i=0;i<=5;i++) {
+                    tr += '<input id="langue-'+i+'" name="langue-'+code_langue+'" type="radio" value="'+i+'"> \
+                        <label for="langue-'+i+'">'+i+'</label>\n';
+                }
+                
+                tr += '</td></tr>';
+
+                $('#tbl-langues tbody').append(tr);
+            }
+        });
+
+        $('#diplome').on('input',function() {
+            var diplome  = $(this).val();
+
+            //le texte entré fait-il partie des diplomes de la liste ?
+            if($('#list-diplomes option[value="'+diplome+'"]').length) {
+
+                //le diplome est-il déj ajouté?
+                if($ ('#selected-diplomes:contains("'+diplome+'")').length==0) {
+                    diplome = '<p>'+diplome+' <i class="fa fa-minus-square" onclick="$(this).parent().remove()" style="color:red; cursor:pointer"></i></p>';
+                    
+                    $('#selected-diplomes').append(diplome);
+                   
+                }
+
+                $(this).val('');
+            }
+        });
     });
 </script>
 
@@ -70,12 +114,18 @@
 
                                     <div class="form-group">
                                         {{ Form::label('sexe','Sexe:')}}
-                                        {{ Form::text('sexe',
-                                            old('sexe')?? (isset($candidat) ? $candidat->sexe:''),
+                                        {{ Form::radio('sexe','m',
+                                            old('sexe')=='m'|| (isset($candidat) && $candidat->sexe=='m'),
                                             [
-                                            'placeholder'=>'ex: Mâle',
-                                            'class'=>'form-control'
-                                        ]) }}
+                                            'id'=>'sexe-m',
+                                        ])}}
+                                        {{ Form::label('sexe-m','M')}}
+                                        {{ Form::radio('sexe','f',
+                                            old('sexe')=='f'|| (isset($candidat) && $candidat->sexe=='f'),
+                                            [
+                                            'id'=>'sexe-f',
+                                        ])}}
+                                        {{ Form::label('sexe-f','F')}} 
                                     </div>
 
                                     <div class="form-group">
@@ -89,19 +139,123 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('diplomes','Diplôme:')}}
+                                        {{ Form::label('langues','Langues:')}}
+                                        <table id="tbl-langues">
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="2" style="padding:0 15px">
+                                                        {{ Form::select('autres',
+                                                            $langues,
+                                                            [
+                                                                'class'=>'form-control'
+                                                        ]) }}
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                            <tbody>
+                                            @foreach($bestLangues as $langue)
+                                            <tr>
+                                                <td style="padding:0 15px">
+                                                    {{ Form::label('langue-'.$langue->code_langue,ucfirst($langue->designation))}}
+                                                </td>
+                                                <td>
+                                                    <input id="langue-0" name="{{ 'langue-'.$langue->code_langue }}" type="radio" value="0">
+                                                    <label for="langue-0">0</label>
+                                                    @for($i=1;$i<=5;$i++)
+                                                    {{ Form::radio('langue-'.$langue->code_langue,$i,
+                                                        null,//old('langue')==$langue->designation || (isset($candidat) && $candidat->sexe=='m'),
+                                                        [
+                                                            'id'=>'langue-'.$i,
+                                                        ]) 
+                                                    }} {{ Form::label('langue-'.$i,$i)}}
+                                                    @endfor
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>           
+
+
+                                    <div class="form-group">
+                                        {{ Form::label('diplomes','Diplôme:')}} <i class="fa fa-plus-square" data-toggle="modal" data-target="#addDiplomeModal"  style="color:blue; font-size:1.7em; cursor: pointer"></i>
                                         {{ Form::text('diplome',
                                             old('diplome')?? (isset($candidat) ? $candidat->diplome:''),
                                             [
                                                 'placeholder'=>'ex: Bachelier',
                                                 'class'=>'form-control',
+                                                'id'=>'diplome',
                                                 'list'=>'list-diplomes'
                                         ]) }}
                                         <datalist id="list-diplomes">
-                                            <option value="1">Bachelier</option>
-                                            <option value="2">Master</option>
-                                            <option value="3">Secondaire</option>
+                                        @foreach($diplomes as $diplome)
+                                            <option value="{{ $diplome->designation}} ({{$diplome->niveau}} {{$diplome->finalite}}) - {{$diplome->ecoles->first()->code_ecole}}">{{$diplome->code_diplome}}}</option>
+                                        @endforeach
                                         </datalist>
+                                        <div id="selected-diplomes" style="margin:15px">
+                                        </div>
+                                        
+                                        <!-- Formulaire d'ajout d'un nouveau diplômes -->
+                                        <div class="modal fade" id="addDiplomeModal" tabindex="-1" role="dialog" aria-labelledby="addDiplomeModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">Nouveau diplôme</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form>
+                                                        <div class="form-group">
+                                                            <label for="recipient-name" class="col-form-label">Désignation:</label>
+                                                            <input type="text" class="form-control" id="recipient-name" list="list-designation">
+                                                            <datalist id="list-designation">
+                                                            @foreach($designations as $designation)
+                                                                <option value="{{ $designation}}">{{ $designation }}</option>
+                                                            @endforeach
+                                                            </datalist>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="recipient-name" class="col-form-label">Finalité:</label>
+                                                            <input type="text" class="form-control" id="recipient-name" list="list-finalites">
+                                                            <datalist id="list-finalites">
+                                                            @foreach($finalites as $finalite)
+                                                                <option value="{{ $finalite}}">{{ $finalite }}</option>
+                                                            @endforeach
+                                                            </datalist>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="recipient-name" class="col-form-label">Niveau:</label>
+                                                            <input type="text" class="form-control" id="recipient-name" list="list-niveaux">
+                                                            <datalist id="list-niveaux">
+                                                            @foreach($niveaux as $niveau)
+                                                                <option value="{{$niveau}}">{{ $niveau }}</option>
+                                                            @endforeach
+                                                            </datalist>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="message-text" class="col-form-label">Ecole:</label>
+                                                            <input type="text" class="form-control" id="recipient-name" list="list-ecoles">
+                                                            <datalist id="list-ecoles">
+                                                            @foreach($ecoles as $ecole)
+                                                                <option value="{{ $ecole->nom}}">{{ $ecole->code_ecole }}</option>
+                                                            @endforeach
+                                                            </datalist>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="recipient-name" class="col-form-label">Code Diplôme:</label>
+                                                            <input type="text" class="form-control" id="recipient-name">
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                                                    <button type="button" class="btn btn-primary">Ajouter</button>
+                                                </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
@@ -137,7 +291,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('fonction','Fonctione exercée:')}}
+                                        {{ Form::label('fonction','Fonction exercée:')}}
                                         {{ Form::text('fonction',
                                             old('fonction')?? (isset($candidat) ? $candidat->fonction:''),
                                             [
@@ -173,7 +327,7 @@
                                         {{ Form::label('Email','Email:')}}
                                         <div class="form-group input-group">
                                             <span class="input-group-addon">@</span>
-                                            {{ Form::text('email',
+                                            {{ Form::email('email',
                                                 old('email')?? (isset($candidat) ? $candidat->email:''),
                                                 [
                                                 'placeholder'=>'mail@example.com',
@@ -184,7 +338,7 @@
 
                                     <div class="form-group">
                                         {{ Form::label('linkedin','LinkedIn:')}}
-                                        {{ Form::text('linkedin',
+                                        {{ Form::url('linkedin',
                                             old('linkedin')?? (isset($candidat) ? $candidat->linkedin:''),
                                             [
                                             'placeholder'=>'ex: https://www.linkedin.com/in/example',
@@ -193,7 +347,7 @@
                                     </div>
                                     <div class="form-group">
                                         {{ Form::label('site','Site internet:')}}
-                                        {{ Form::text('site',
+                                        {{ Form::url('site',
                                             old('site')?? (isset($candidat) ? $candidat->site:''),
                                             [
                                             'placeholder'=>'ex: https://www.advaconsult.com',

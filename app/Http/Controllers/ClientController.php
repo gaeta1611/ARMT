@@ -18,18 +18,13 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        //Vérifier les permission d'accès
-       
         $prospect = $request->query('prospect');
 
         //Récuperer les données
         $clients = Client::all()->where('prospect',$prospect);
 
-        //Traiter les données
-
         //Envoyer les données à la vue ou rediriger
         return view ('clients.index')->with('clients',$clients);
-        
         
     }
 
@@ -43,11 +38,15 @@ class ClientController extends Controller
         $title = 'Ajouter client';
         $route = 'clients.store';
         $method = 'POST';
+
+        //Récuperer la liste des localite pour le formulaire(datalist)
+        $localites = Localite::all();
         
         return view('clients.create',[
                     'title' => $title,
                     'route' => $route,
-                    'method' => $method
+                    'method' => $method,
+                    'localites' => $localites,
         ]);
     }
 
@@ -65,7 +64,7 @@ class ClientController extends Controller
             'telephone'=>'max:20',
             'email'=>'email|unique:client|max:100',
             'adresse'=>'required|max:255',
-            'localite'=>'required|numeric',
+            'localite'=>'required|max:120',
             'tva'=>'required|max:15',
             'site'=>'nullable|url|unique:client|max:255',
             'linkedin'=>'nullable|url|unique:client|max:255'
@@ -86,7 +85,7 @@ class ClientController extends Controller
             'adresse.max'=>'L\'adresse ne peut pas dépasser 255 caractères',
 
             'localite.required'=>'Veuillez entrer une localité',
-            'localite.numeric'=>'Type de valeur incorrecte pour la localité',
+            'localite.max'=>'La localite ne peut dépasser 120 caractères',
 
             'tva.required'=>'Veuillez entrer un numéro de TVA',
             'tva.max'=>'Le numéro de TVA ne peut pas dépasser 15 caractères',
@@ -101,6 +100,7 @@ class ClientController extends Controller
         ]);
 
         $client = new client(Input::all());
+
         $client->prospect = 0;
         if($client->save()){
             Session::put('success','Le client a bien été enregistré');
@@ -134,7 +134,7 @@ class ClientController extends Controller
             'client'=>$client,
             'title' =>$title,
             'client_localite' =>$localite,
-            ]);
+        ]);
     }
 
     /**
@@ -150,11 +150,15 @@ class ClientController extends Controller
         $route = ['clients.update',$id];
         $method = 'PUT';
 
+        //Récuperer la liste des localite pour le formulaire(datalist)
+        $localites = Localite::all();
+
         return view('clients.create',[
             'client'=> $client,
             'title' => $title,
             'route' => $route,
-            'method' => $method
+            'method' => $method,
+            'localites' => $localites
             ]);
     }
 

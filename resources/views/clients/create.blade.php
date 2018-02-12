@@ -7,12 +7,43 @@
 
 @section('js')
 <script>
-    $('#date-creation input').datepicker({
-        weekStart: 1,
-        todayBtn: "linked",
-        language: "fr",
-        multidateSeparator: "."
+    $(function() {
+        $('#code_postal')[0].onchange = function(event) { getLocaliteFromCP(this) };
+        $('#localite')[0].onchange = function(event) { getCPFromLocalite(this) };
     });
+
+    const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
+    var armtAPI = APP_URL + '/public/api/';
+
+    function getCPFromLocalite(localiteInput) {
+        var apiURL = armtAPI+'localite/ville/'+localiteInput.value;
+
+        $.get(apiURL, function(data) {
+            if(data.length>0) {
+                $('#code_postal').val(data[0].code_postal);
+                $('#code_postal').onchange = function() { getLocaliteFromCP(this) };
+            } else {
+                $('#code_postal').css('border-color','red').val('');
+                $('#code_postal').onchange = function(event) { event.preventDefault(); return false };
+            }
+        });
+
+    }
+
+    function getLocaliteFromCP(cpInput) {
+        var apiURL = armtAPI+'localite/cp/'+cpInput.value;
+        
+            $.get(apiURL, function(data) {
+            if(data.length>0) {
+                $('#localite').val(data[0].localite);
+                $('#localite').onchange = function() { getCPFromLocalite(this) };
+            } else {
+                $('#localite').css('border-color','red').val('');
+                $('#localite').onchange = function(event) { event.preventDefault(); return false };
+            }
+        });
+
+    }
 </script>
 
 @endsection
@@ -82,7 +113,7 @@
                                         {{ Form::label('Email','Email:')}}
                                         <div class="form-group input-group">
                                             <span class="input-group-addon">@</span>
-                                            {{ Form::text('email',
+                                            {{ Form::email('email',
                                                 old('email')?? (isset($client) ? $client->email:''),
                                                 [
                                                 'placeholder'=>'mail@example.com',
@@ -94,20 +125,33 @@
 
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        {{ Form::label('localite','Localité:')}}
-                                        {{ Form::text('localite',
-                                            old('localite')?? (isset($client) ? $client->localite:''),
-                                            [
-                                                'placeholder'=>'ex: Nivelles',
-                                                'class'=>'form-control',
-                                                'list'=>'list-localites'
-                                        ]) }}
-                                        <datalist id="list-localites">
-                                            <option value="1">1000 Bruxelles</option>
-                                            <option value="2">1050 Ixelles</option>
-                                        </datalist>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-4">
+                                                {{ Form::label('code_postal','Code postal:')}}
+                                                {{ Form::text('code_postal',
+                                                    old('code_postal')?? (isset($client) ? $client->localite->code_postal:''),
+                                                    [
+                                                        'placeholder'=>'ex: 1400',
+                                                        'class'=>'form-control',
+                                                ]) }}
+                                            </div>
+                                            <div class="col-lg-8 col-xs-8">
+                                                {{ Form::label('localite','Ville:')}}
+                                                {{ Form::text('localite',
+                                                    old('localite')?? (isset($client) ? $client->localite->localite:''),
+                                                    [
+                                                        'placeholder'=>'ex: Nivelles',
+                                                        'class'=>'form-control',
+                                                        'list'=>'list-localites'
+                                                ]) }}
+                                                <datalist id="list-localites">
+                                                    @foreach($localites as $localite)
+                                                        <option value="{{ $localite->localite }}">{{ $localite->id }}</option>
+                                                    @endforeach
+                                                </datalist>
+                                            </div>
+                                        </div>
                                     </div>
-
                                     <div class="form-group">
                                         {{ Form::label('adresse','Adresse:')}}
                                         {{ Form::text('adresse',
@@ -120,7 +164,7 @@
 
                                     <div class="form-group">
                                         {{ Form::label('site','Site internet:')}}
-                                        {{ Form::text('site',
+                                        {{ Form::url('site',
                                             old('site')?? (isset($client) ? $client->site:''),
                                             [
                                             'placeholder'=>'ex: https://www.advaconsult.com',
@@ -130,7 +174,7 @@
 
                                     <div class="form-group">
                                         {{ Form::label('linkedin','LinkedIn:')}}
-                                        {{ Form::text('linkedin',
+                                        {{ Form::url('linkedin',
                                             old('linkedin')?? (isset($client) ? $client->linkedin:''),
                                             [
                                             'placeholder'=>'ex: https://www.linkedin.com/in/example',

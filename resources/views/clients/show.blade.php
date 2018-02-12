@@ -62,7 +62,7 @@ $(document).ready(function() {
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
                                         <dt>Localité : </dt>
-                                        <dd>{{ $client_localite->code_postal }} {{ $client_localite->localite }}</dd>
+                                        <dd> {{ $client->localite->code_postal }}, {{ $client->localite->localite }}</dd>
                                         <dt>Adresse : </dt>
                                         <dd>{{ $client->adresse }}</dd>
                                         <dt>Site internet : </dt>
