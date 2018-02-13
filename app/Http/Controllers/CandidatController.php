@@ -9,6 +9,9 @@ use App\Mission;
 use App\Langue;
 use App\Diplome;
 use App\Ecole;
+use App\Societe;
+use App\Fonction;
+use App\SocieteCandidat;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
@@ -71,11 +74,19 @@ class CandidatController extends Controller
         $finalites = Diplome::select('finalite')->distinct('finalite')->get()->toArray();
         array_walk($finalites, function(&$item) { $item= $item['finalite']; });
 
-
         $niveaux = Diplome::select('niveau')->distinct('niveau')->get()->toArray();
         array_walk($niveaux, function(&$item) { $item= $item['niveau']; });
 
         $ecoles = Ecole::all();
+
+        $societes = Societe::all();
+        $fonctions = Fonction::all();
+
+        $actualSociety = '';
+        $lastFunction = '';
+
+        $societeCandidats = collect();
+        
 
         return view('candidats.create',[
                     'title' => $title,
@@ -88,6 +99,11 @@ class CandidatController extends Controller
                     'finalites' => $finalites,
                     'niveaux' => $niveaux,
                     'ecoles' => $ecoles,
+                    'societes' => $societes,
+                    'fonctions' => $fonctions,
+                    'actualSociety' => $actualSociety,
+                    'lastFunction' => $lastFunction,
+                    'societeCandidats' => $societeCandidats
         ]);
     }
 
@@ -183,12 +199,22 @@ class CandidatController extends Controller
 
         $langues = Langue::limit(5)->get();
 
+        $actualSociety = Societe::select('nom_entreprise')
+                ->join('societe_candidat','societe.id','=','societe_candidat.societe_id')
+                ->where();
+
+        $societeCandidats = SocieteCandidat::orderBy('date_fin','DESC')
+                ->orderBy('date_fin','DESC')
+                ->get();
+
         return view('candidats.create',[
             'candidat'=> $candidat,
             'title' => $title,
             'route' => $route,
             'method' => $method,
             'langues' => $langue,
+            'actualSociety' => $actualSociety,
+            'societeCandidats' => $societeCandidats
             ]);
     }
 

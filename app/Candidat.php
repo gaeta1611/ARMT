@@ -52,4 +52,10 @@ class Candidat extends Model
         return $this->belongsToMany('App\Langue','candidat_langues','candidat_id','langues_id');
     }
     
+    /**
+     * Récuperer les emplois associés à ce candidat
+     */
+    public function societeCandidats(){
+        return $this->hasMany('App\SocieteCandidats');
+    }
 }

@@ -35,4 +35,11 @@ class Fonction extends Model
     public function mission(){
         return $this->belongsTo('App\Mission');
     }
+
+    /**
+     * Récuperer les emplois associés à cette fonction
+     */
+    public function societeCandidats(){
+        return $this->hasMany('App\SocieteCandidats');
+    }
 }

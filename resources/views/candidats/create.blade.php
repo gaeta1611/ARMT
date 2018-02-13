@@ -56,6 +56,26 @@
                 $(this).val('');
             }
         });
+
+        $('#btnCloseSocieteDialog').on('click', function() {
+            $actualSocietyData = $('#tbl-societes tbody tr:first');
+            $actualSociety = $actualSocietyData.find('td:nth-child(1)').html().trim();
+            $lastFunction = $actualSocietyData.find('td:nth-child(2)').html().trim();
+
+            if($lastFunction =='') {
+                $trs = $actualSocietyData.siblings();
+                for(var i=0;i<$trs.length;i++) {
+                    var previousFunction = $($trs[i]).find('td:nth-child(2)').text();
+                    if($($trs[i]).text() !='') {
+                        $lastFunction = previousFunction;
+                        break;
+                    }
+                }
+            }
+
+            $('#actualSociety span').html($actualSociety);
+            $('#lastFunction span').html($lastFunction);
+        });
     });
 </script>
 
@@ -200,7 +220,7 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="exampleModalLabel">Nouveau diplôme</h5>
+                                                    <h5 class="modal-title" id="addDiplomeModalLabel">Nouveau diplôme</h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                     </button>
@@ -209,8 +229,8 @@
                                                     <form>
                                                         <div class="form-group">
                                                             <label for="recipient-name" class="col-form-label">Désignation:</label>
-                                                            <input type="text" class="form-control" id="recipient-name" list="list-designation">
-                                                            <datalist id="list-designation">
+                                                            <input type="text" class="form-control" id="recipient-name" list="list-designations">
+                                                            <datalist id="list-designations">
                                                             @foreach($designations as $designation)
                                                                 <option value="{{ $designation}}">{{ $designation }}</option>
                                                             @endforeach
@@ -259,53 +279,86 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('societe_candidat','Société antérieur:')}}
-                                        {{ Form::text('societe_candidat',
-                                            old('societe_candidat')?? (isset($candidat) ? $candidat->societe_candidat:''),
-                                            [
-                                                'placeholder'=>'ex: Google',
-                                                'class'=>'form-control',
-                                                'list'=>'list-societe_candidats'
-                                        ]) }}
-                                        <datalist id="list-societe_candidats">
-                                            <option value="1">Google</option>
-                                            <option value="2">Facebook</option>
-                                            <option value="3">Nasa</option>
-                                        </datalist>
-                                    </div>
+                                        <fieldset><legend>Sociétés</legend>
+                                            <div class="form-group">
+                                                <p id="actualSociety"><strong>Société actuelle:</strong> <span>{{$actualSociety}}</span></p>
+                                                <p id="lastFunction"><strong>Fonction exercée:</strong> <span>{{$lastFunction}}</span></p>
+                                            </div>
 
-                                    <div class="form-group">
-                                        {{ Form::label('societe_candidat','Société actuelle:')}}
-                                        {{ Form::text('societe_candidat',
-                                            old('societe_candidat')?? (isset($candidat) ? $candidat->societe_candidat:''),
-                                            [
-                                                'placeholder'=>'ex: Google',
-                                                'class'=>'form-control',
-                                                'list'=>'list-societe_candidats'
-                                        ]) }}
-                                        <datalist id="list-societe_candidats">
-                                            <option value="1">Google</option>
-                                            <option value="2">Facebook</option>
-                                            <option value="3">Nasa</option>
-                                        </datalist>
-                                    </div>
-
-                                    <div class="form-group">
-                                        {{ Form::label('fonction','Fonction exercée:')}}
-                                        {{ Form::text('fonction',
-                                            old('fonction')?? (isset($candidat) ? $candidat->fonction:''),
-                                            [
-                                                'placeholder'=>'ex: Manager',
-                                                'class'=>'form-control',
-                                                'list'=>'list-fonctions'
-                                        ]) }}
-                                        <datalist id="list-fonctions">
-                                            <option value="1">Manager</option>
-                                            <option value="2">Responsable marketing</option>
-                                            <option value="3">Commercial</option>
-                                        </datalist>
-                                    </div>
-                            </div>
+                                            <button class="btn btn-primary" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">Gérer les sociétés</button>
+                                            <!-- Formulaire d'ajout d'un nouvelle societe -->
+                                            <div class="modal fade" id="addSocieteModal" tabindex="-1" role="dialog" aria-labelledby="addSocieteModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                        <h5 class="modal-title" id="addSocieteModalLabel" style="font-size:1.5em" >Gestion des sociétés antérieurs</h5>
+                                                        <p>Veuillez ajouter chaque société en terminant par la dernière société et/ou fonction du candidat</p>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <table class="table table-striped" id="tbl-societes">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Société</th><th>Fonction exercée</th><th>Date début</th><th>Date fin</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @if($societeCandidat = $societeCandidats->first())
+                                                                <tr scope="row" class="table-sucess" style="background-color: lightgreen">
+                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>$societeCandidat->date_debut</td><td>$societeCandidat->date_fin</td>
+                                                                    <td><i class="fa fa-minus-square"  style="color:red"></i><//td>/
+                                                                </tr>
+                                                            @endif
+                                                            @foreach($societeCandidats->slice(1) as $societeCandidat)
+                                                                <tr scope="row">
+                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>$societeCandidat->date_debut</td><td>$societeCandidat->date_fin</td>
+                                                                    <td><i class="fa fa-minus-square"  style="color:red"></i><//td>/
+                                                                </tr>
+                                                            
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                        <form>
+                                                            <div class="form-group">
+                                                                <label for="recipient-name" class="col-form-label">Société:</label>
+                                                                <input type="text" class="form-control" id="recipient-name" list="list-societes">
+                                                                <datalist id="list-societes">
+                                                                @foreach($societes as $societe)
+                                                                    <option value="{{ $societe->nom_entreprise}}">{{ $societe->id }}</option>
+                                                                @endforeach
+                                                                </datalist>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="recipient-name" class="col-form-label">Fonction exercée:</label>
+                                                                <input type="text" class="form-control" id="recipient-name" list="list-fonctions">
+                                                                <datalist id="list-fonctions">
+                                                                @foreach($fonctions as $fonction)
+                                                                    <option value="{{ $fonction->fonction}}">{{ $fonction->fonction_id }}</option>
+                                                                @endforeach
+                                                                </datalist>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="recipient-name" class="col-form-label">Date début:</label>
+                                                                <input type="date" class="form-control" id="recipient-name">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="message-text" class="col-form-label">Date fin:</label>
+                                                                <input type="date" class="form-control" id="recipient-name">
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btnCloseSocieteDialog">Fermer</button>
+                                                        <button type="button" class="btn btn-primary" id="btnAddSociete">Ajouter</button>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </fieldset>  
+                                    </div>         
+                                </div>
 
                                 <div class="col-lg-6">
                                     <div class="form-group">
