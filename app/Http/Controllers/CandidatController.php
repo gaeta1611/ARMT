@@ -89,21 +89,21 @@ class CandidatController extends Controller
         
 
         return view('candidats.create',[
-                    'title' => $title,
-                    'route' => $route,
-                    'method' => $method,
-                    'langues' => $langues,
-                    'bestLangues' => $bestLangues,
-                    'diplomes' => $diplomes,
-                    'designations' => $designations,
-                    'finalites' => $finalites,
-                    'niveaux' => $niveaux,
-                    'ecoles' => $ecoles,
-                    'societes' => $societes,
-                    'fonctions' => $fonctions,
-                    'actualSociety' => $actualSociety,
-                    'lastFunction' => $lastFunction,
-                    'societeCandidats' => $societeCandidats
+            'title' => $title,
+            'route' => $route,
+            'method' => $method,
+            'langues' => $langues,
+            'bestLangues' => $bestLangues,
+            'diplomes' => $diplomes,
+            'designations' => $designations,
+            'finalites' => $finalites,
+            'niveaux' => $niveaux,
+            'ecoles' => $ecoles,
+            'societes' => $societes,
+            'fonctions' => $fonctions,
+            'actualSociety' => $actualSociety,
+            'lastFunction' => $lastFunction,
+            'societeCandidats' => $societeCandidats
         ]);
     }
 
@@ -118,12 +118,13 @@ class CandidatController extends Controller
         $validatorData = $request->validate([
             'nom'=> 'required|max:60',
             'prenom'=> 'required|max:60',
-            'sexe'=>'required|max:1',
+            'sexe'=>'required|max:1|in:m,f',
             'email'=>'email|required|unique:candidat|max:120',
-            'localite'=>'required|numeric',
-            //'date_naissance'=>'nullable|numeric',
+            'localite'=>'numeric',
+            'date_naissance'=>'nullable|date',
             'telephone'=>'max:20',
             'linkedin'=>'nullable|url|unique:candidat|max:255',
+            'site'=>'nullable|url|unique:candidat|max:255',
         ],[
             'nom.required'=>'Veuillez entrer le nom du candidat',
             'nom.max'=>'Le nom du candidat ne peut pas dépasser 60 caractères',
@@ -141,7 +142,7 @@ class CandidatController extends Controller
             'localite.required'=>'Veuillez entrer une localité',
             'localite.numeric'=>'Type de valeur incorrecte pour la localité',
 
-            //'date_naissance.numeric'=>'Type de valeur incorrecte pour la date de naissance',
+            //'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
 
             'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 caractères',
 
@@ -197,13 +198,50 @@ class CandidatController extends Controller
         $route = ['candidats.update',$id];
         $method = 'PUT';
 
-        $langues = Langue::limit(5)->get();
+        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();   //TODO get only 5 best
+        $listeLangues = Langue::all();                 //TODO get only 5 best
+        $listeLangues = $listeLangues->diff($bestLangues);
+        
+        $langues = [0=>''];
+        foreach($listeLangues as $langue) {
+            $langues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
+        }
+
+        $diplomes = Diplome::all();
+
+        $designations = Diplome::select('designation')->distinct('designation')->get()->toArray();
+        array_walk($designations, function(&$item) { $item= $item['designation']; });
+
+        $finalites = Diplome::select('finalite')->distinct('finalite')->get()->toArray();
+        array_walk($finalites, function(&$item) { $item= $item['finalite']; });
+
+        $niveaux = Diplome::select('niveau')->distinct('niveau')->get()->toArray();
+        array_walk($niveaux, function(&$item) { $item= $item['niveau']; });
+
+        $ecoles = Ecole::all();
+
+        $societes = Societe::all();
+        $fonctions = Fonction::all();
 
         $actualSociety = Societe::select('nom_entreprise')
-                ->join('societe_candidat','societe.id','=','societe_candidat.societe_id')
-                ->where();
+                ->join('societe_candidat','societes.id','=','societe_candidat.societe_id')
+                ->where('candidat_id','=',$id)
+                ->where('societe_actuelle','=',1)->get();
+            $actualSociety = isset($actualSociety->toArray()[0]['nom_entreprise']) ? 
+                    $actualSociety->toArray()[0]['nom_entreprise']:'';
+        
+        
+        $lastFunction = Fonction::select('fonction') 
+                ->join('societe_candidat','fonctions.id','=','societe_candidat.fonction_id')
+                ->where('candidat_id','=',$id)
+                ->orderBy('societe_actuelle','DESC')
+                ->orderBy('date_fin','DESC')
+                ->get();
+            $lastFunction = isset($lastFunction->toArray()[0]['fonction']) ? 
+                    $lastFunction->toArray()[0]['fonction']:'';
 
-        $societeCandidats = SocieteCandidat::orderBy('date_fin','DESC')
+        $societeCandidats = SocieteCandidat::where('candidat_id','=',$id)
+                ->orderBy('date_fin','DESC')
                 ->orderBy('date_fin','DESC')
                 ->get();
 
@@ -212,10 +250,19 @@ class CandidatController extends Controller
             'title' => $title,
             'route' => $route,
             'method' => $method,
-            'langues' => $langue,
+            'langues' => $langues,
+            'bestLangues' => $bestLangues,
+            'diplomes' => $diplomes,
+            'designations' => $designations,
+            'finalites' => $finalites,
+            'niveaux' => $niveaux,
+            'ecoles' => $ecoles,
+            'societes' => $societes,
+            'fonctions' => $fonctions,
             'actualSociety' => $actualSociety,
+            'lastFunction' => $lastFunction,
             'societeCandidats' => $societeCandidats
-            ]);
+        ]);
     }
 
     /**

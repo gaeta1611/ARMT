@@ -57,10 +57,10 @@
             }
         });
 
-        $('#btnCloseSocieteDialog').on('click', function() {
+        $('#btnSaveSocieteDialog').on('click', function() {
             $actualSocietyData = $('#tbl-societes tbody tr:first');
-            $actualSociety = $actualSocietyData.find('td:nth-child(1)').html().trim();
-            $lastFunction = $actualSocietyData.find('td:nth-child(2)').html().trim();
+            $actualSociety = $actualSocietyData.find('td:nth-child(1)').text().trim();
+            $lastFunction = $actualSocietyData.find('td:nth-child(2)').text().trim();
 
             if($lastFunction =='') {
                 $trs = $actualSocietyData.siblings();
@@ -76,7 +76,44 @@
             $('#actualSociety span').html($actualSociety);
             $('#lastFunction span').html($lastFunction);
         });
+
+        $('#btnAddSociete').on('click',function() {
+            var societe = $('#societe').val();
+            var fonction = $('#fonction').val();
+            var date_debut = $('#date_debut').val();
+            var date_fin = $('#date_fin').val();
+
+            if(societe.trim()=='') {
+                alert('Veuillez entrer une société.');
+                return;
+            }
+
+            $('#tbl-societes tbody tr:first').toggleClass('danger');
+            var row = '<tr scope="row" class="danger"> \
+                 <td>'+societe+'</td><td>'+fonction+'</td> \
+                 <td>'+date_debut+'</td><td>'+date_fin+'</td> \
+                 <td><i class="fa fa-minus-square" onclick="removeTableRow(this)" style="cursor:pointer" style="color:red"><i></td> \
+            </tr>';
+
+            $('#tbl-societes tbody').prepend(row);
+
+            $('#societe').val('');
+            $('#fonction').val('');
+            $('#date_debut').val('');
+            $('#date_fin').val('');
+        });
     });
+
+    function removeTableRow(btn) {
+        var $tbody = $(btn).parentsUntil('tbody').parent('tbody');
+
+        //retirer la ligne du tableau
+        $(btn).parentsUntil('tr').parent().remove();
+
+        //Mettre la premiere ligne du tableau en surbrillance
+        $tbody.find('tr:first').addClass('danger');
+       
+    }
 </script>
 
 @endsection
@@ -281,11 +318,11 @@
                                     <div class="form-group">
                                         <fieldset><legend>Sociétés</legend>
                                             <div class="form-group">
-                                                <p id="actualSociety"><strong>Société actuelle:</strong> <span>{{$actualSociety}}</span></p>
+                                                <p id="actualSociety"><strong>Société actuelle/précédente:</strong> <span>{{$actualSociety}}</span></p>
                                                 <p id="lastFunction"><strong>Fonction exercée:</strong> <span>{{$lastFunction}}</span></p>
                                             </div>
 
-                                            <button class="btn btn-primary" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">Gérer les sociétés</button>
+                                            <button class="btn btn-success" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">Gérer les sociétés</button>
                                             <!-- Formulaire d'ajout d'un nouvelle societe -->
                                             <div class="modal fade" id="addSocieteModal" tabindex="-1" role="dialog" aria-labelledby="addSocieteModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog" role="document">
@@ -294,7 +331,7 @@
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
-                                                        <h5 class="modal-title" id="addSocieteModalLabel" style="font-size:1.5em" >Gestion des sociétés antérieurs</h5>
+                                                        <h5 class="modal-title" id="addSocieteModalLabel" style="font-size:1.5em" >Gestion des sociétés antérieurs & actuelles</h5>
                                                         <p>Veuillez ajouter chaque société en terminant par la dernière société et/ou fonction du candidat</p>
                                                     </div>
                                                     <div class="modal-body">
@@ -306,15 +343,15 @@
                                                             </thead>
                                                             <tbody>
                                                             @if($societeCandidat = $societeCandidats->first())
-                                                                <tr scope="row" class="table-sucess" style="background-color: lightgreen">
-                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>$societeCandidat->date_debut</td><td>$societeCandidat->date_fin</td>
-                                                                    <td><i class="fa fa-minus-square"  style="color:red"></i><//td>/
+                                                                <tr scope="row" class="danger">
+                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>{{$societeCandidat->date_debut}}</td><td>{{$societeCandidat->date_fin}}</td>
+                                                                    <td><i class="fa fa-minus-square" onclick="removeTableRow($this)" style="cursor:pointer" style="color:red"></i></td>
                                                                 </tr>
                                                             @endif
                                                             @foreach($societeCandidats->slice(1) as $societeCandidat)
                                                                 <tr scope="row">
-                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>$societeCandidat->date_debut</td><td>$societeCandidat->date_fin</td>
-                                                                    <td><i class="fa fa-minus-square"  style="color:red"></i><//td>/
+                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>{{$societeCandidat->date_debut}}</td><td>{{$societeCandidat->date_fin}}</td>
+                                                                    <td><i class="fa fa-minus-square"  onclick="removeTableRow($this)" style="cursor:pointer" style="color:red"></i></td>
                                                                 </tr>
                                                             
                                                             @endforeach
@@ -323,7 +360,7 @@
                                                         <form>
                                                             <div class="form-group">
                                                                 <label for="recipient-name" class="col-form-label">Société:</label>
-                                                                <input type="text" class="form-control" id="recipient-name" list="list-societes">
+                                                                <input type="text" class="form-control" id="societe" list="list-societes">
                                                                 <datalist id="list-societes">
                                                                 @foreach($societes as $societe)
                                                                     <option value="{{ $societe->nom_entreprise}}">{{ $societe->id }}</option>
@@ -332,7 +369,7 @@
                                                             </div>
                                                             <div class="form-group">
                                                                 <label for="recipient-name" class="col-form-label">Fonction exercée:</label>
-                                                                <input type="text" class="form-control" id="recipient-name" list="list-fonctions">
+                                                                <input type="text" class="form-control" id="fonction" list="list-fonctions">
                                                                 <datalist id="list-fonctions">
                                                                 @foreach($fonctions as $fonction)
                                                                     <option value="{{ $fonction->fonction}}">{{ $fonction->fonction_id }}</option>
@@ -341,17 +378,24 @@
                                                             </div>
                                                             <div class="form-group">
                                                                 <label for="recipient-name" class="col-form-label">Date début:</label>
-                                                                <input type="date" class="form-control" id="recipient-name">
+                                                                <input type="date" class="form-control" id="date_debut">
                                                             </div>
                                                             <div class="form-group">
                                                                 <label for="message-text" class="col-form-label">Date fin:</label>
-                                                                <input type="date" class="form-control" id="recipient-name">
+                                                                <input type="date" class="form-control" id="date_fin">
                                                             </div>
                                                         </form>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btnCloseSocieteDialog">Fermer</button>
-                                                        <button type="button" class="btn btn-primary" id="btnAddSociete">Ajouter</button>
+                                                        <div class="row">
+                                                            <div class="col-lg-8 col-sm-8">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="if(!confirm('Etes vous sur de vouloir annuler ?')) { $(this).removeAttr('data-dismiss'); } else { $(this).attr('data-dismiss','modal'); }">Annuler les modifications</button>
+                                                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnSaveSocieteDialog">Sauvegarder & fermer</button>
+                                                            </div> 
+                                                            <div class="col-lg-4 col-sm-4">
+                                                                <button type="button" class="btn btn-success" id="btnAddSociete">Ajouter</button>   
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     </div>
                                                 </div>
