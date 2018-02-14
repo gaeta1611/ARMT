@@ -25,11 +25,11 @@
                 texte = $selected.text();
                 $selected.remove();
                 
-                tr = '<tr><td style="padding:0 15px"><label for="langue-'+code_langue+'">'
+                tr = '<tr><td style="padding:0 15px"><label for="langue['+code_langue+']">'
                         +texte[0].toUpperCase()+texte.substring(1)+'</td><td>';
                 
                 for(var i=0;i<=5;i++) {
-                    tr += '<input id="langue-'+i+'" name="langue-'+code_langue+'" type="radio" value="'+i+'"> \
+                    tr += '<input id="langue-'+i+'" name="langue['+code_langue+']" type="radio" value="'+i+'"> \
                         <label for="langue-'+i+'">'+i+'</label>\n';
                 }
                 
@@ -132,13 +132,13 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <div class="row">
-                                <div class="col-lg-6">
-                                    {{Form::open([
+                            {{Form::open([
                                         'route'=>$route,
                                         'method'=>$method,
                                         'role'=>'form'
-                                    ]) }}
+                            ]) }}
+                            <div class="row">
+                                <div class="col-lg-6">
                                     <div class="form-group">
                                         {{ Form::label('nom','Nom :')}}
                                         {{ Form::text('nom',
@@ -186,13 +186,13 @@
                                     </div>
 
                                     <div class="form-group">
-                                    {{ Form::label('telephone','Téléphone:')}}
-                                    {{ Form::text('telephone',
-                                        old('telephone')?? (isset($candidat) ? $candidat->telephone:''),
-                                        [
-                                        'placeholder'=>'ex: 0494/23/58/74',
-                                        'class'=>'form-control'
-                                    ]) }}
+                                        {{ Form::label('telephone','Téléphone:')}}
+                                        {{ Form::text('telephone',
+                                            old('telephone')?? (isset($candidat) ? $candidat->telephone:''),
+                                            [
+                                            'placeholder'=>'ex: 0494/23/58/74',
+                                            'class'=>'form-control'
+                                        ]) }}
                                     </div>
 
                                     <div class="form-group">
@@ -210,25 +210,25 @@
                                                 </tr>
                                             </tfoot>
                                             <tbody>
-                                            @foreach($bestLangues as $langue)
-                                            <tr>
-                                                <td style="padding:0 15px">
-                                                    {{ Form::label('langue-'.$langue->code_langue,ucfirst($langue->designation))}}
-                                                </td>
-                                                <td>
-                                                    <input id="langue-0" name="{{ 'langue-'.$langue->code_langue }}" type="radio" value="0">
-                                                    <label for="langue-0">0</label>
-                                                    @for($i=1;$i<=5;$i++)
-                                                    {{ Form::radio('langue-'.$langue->code_langue,$i,
-                                                        null,//old('langue')==$langue->designation || (isset($candidat) && $candidat->sexe=='m'),
-                                                        [
-                                                            'id'=>'langue-'.$i,
-                                                        ]) 
-                                                    }} {{ Form::label('langue-'.$i,$i)}}
-                                                    @endfor
-                                                </td>
-                                            </tr>
-                                            @endforeach
+                                                @foreach($bestLangues as $langue)
+                                                <tr>
+                                                    <td style="padding:0 15px">
+                                                        {{ Form::label('langue-'.$langue->code_langue,ucfirst($langue->designation))}}
+                                                    </td>
+                                                    <td>
+                                                        <input id="langue-0" name="langue[{{ $langue->code_langue }}]" type="radio" value="0">
+                                                        <label for="langue-0">0</label>
+                                                        @for($i=1;$i<=5;$i++)
+                                                        {{ Form::radio('langue['.$langue->code_langue.']',$i,
+                                                            null,//old('langue')==$langue->designation || (isset($candidat) && $candidat->sexe=='m'),
+                                                            [
+                                                                'id'=>'langue-'.$i,
+                                                            ]) 
+                                                        }} {{ Form::label('langue-'.$i,$i)}}
+                                                        @endfor
+                                                    </td>
+                                                </tr>
+                                                @endforeach
                                             </tbody>
                                         </table>
                                     </div>           
@@ -239,15 +239,15 @@
                                         {{ Form::text('diplome',
                                             old('diplome')?? (isset($candidat) ? $candidat->diplome:''),
                                             [
-                                                'placeholder'=>'ex: Bachelier',
+                                                'placeholder'=>'ex: Ingénieur industriel (master informatique) - ECAM',
                                                 'class'=>'form-control',
                                                 'id'=>'diplome',
                                                 'list'=>'list-diplomes'
                                         ]) }}
                                         <datalist id="list-diplomes">
-                                        @foreach($diplomes as $diplome)
-                                            <option value="{{ $diplome->designation}} ({{$diplome->niveau}} {{$diplome->finalite}}) - {{$diplome->ecoles->first()->code_ecole}}">{{$diplome->code_diplome}}}</option>
-                                        @endforeach
+                                            @foreach($diplomes as $diplome)
+                                                <option value="{{ $diplome->designation}} ({{$diplome->niveau}} {{$diplome->finalite}}) - {{$diplome->ecoles->first()->code_ecole}}">{{$diplome->code_diplome}}}</option>
+                                            @endforeach
                                         </datalist>
                                         <div id="selected-diplomes" style="margin:15px">
                                         </div>
@@ -352,8 +352,7 @@
                                                                 <tr scope="row">
                                                                     <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>{{$societeCandidat->date_debut}}</td><td>{{$societeCandidat->date_fin}}</td>
                                                                     <td><i class="fa fa-minus-square"  onclick="removeTableRow($this)" style="cursor:pointer" style="color:red"></i></td>
-                                                                </tr>
-                                                            
+                                                                </tr>                                                         
                                                             @endforeach
                                                             </tbody>
                                                         </table>
@@ -403,21 +402,43 @@
                                         </fieldset>  
                                     </div>         
                                 </div>
+                                
 
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        {{ Form::label('localite','Localité:')}}
-                                        {{ Form::text('localite',
-                                            old('localite')?? (isset($candidat) ? $candidat->localite:''),
+                                        {{ Form::hidden('localite_id',
+                                            old('localite')?? (isset($candidat) ? $candidat->localite_id:'2'),
                                             [
                                                 'placeholder'=>'ex: Nivelles',
                                                 'class'=>'form-control',
-                                                'list'=>'list-localites'
+                                                'id'=>'localite_id'
                                         ]) }}
-                                        <datalist id="list-localites">
-                                            <option value="1">1000 Bruxelles</option>
-                                            <option value="2">1050 Ixelles</option>
-                                        </datalist>
+                                        <div class="row">
+                                            <div class="col-lg-4 col-xs-4">
+                                                {{ Form::label('code_postal','Code postal:')}}
+                                                {{ Form::text('code_postal',
+                                                    old('code_postal')?? (isset($candidat) ? $candidat->localite->code_postal:''),
+                                                    [
+                                                        'placeholder'=>'ex: 1400',
+                                                        'class'=>'form-control',
+                                                ]) }}
+                                            </div>
+                                            <div class="col-lg-8 col-xs-8">
+                                                {{ Form::label('localite','Ville:')}}
+                                                {{ Form::text('localite',
+                                                    old('localite')?? (isset($candidat) ? $candidat->localite->localite:''),
+                                                    [
+                                                        'placeholder'=>'ex: Nivelles',
+                                                        'class'=>'form-control',
+                                                        'list'=>'list-localites'
+                                                ]) }}
+                                                <datalist id="list-localites">
+                                                    @foreach($localites as $localite)
+                                                        <option value="{{ $localite->localite }}">{{ $localite->id }}</option>
+                                                    @endforeach
+                                                </datalist>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
@@ -460,15 +481,14 @@
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
-
+                    
                                     <div style="margin-top:35px">
-                                    {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
+                                    {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right']) }}
                                     </div>
-
-                                    {{Form::close()}}
+                                    
                                 </div>
                             </div>
-                           
+                        {{Form::close()}}
                         </div>
                         <!-- /.panel-body -->
                     </div>

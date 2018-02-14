@@ -16,7 +16,7 @@ class Candidat extends Model
         'prenom',
         'date_naissance',
         'sexe',
-        'localite',
+        'localite_id',
         'telephone',
         'email',
         'linkedin',

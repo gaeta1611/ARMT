@@ -86,8 +86,9 @@ class CandidatController extends Controller
         $lastFunction = '';
 
         $societeCandidats = collect();
-        
 
+        $localites = Localite::all();
+        
         return view('candidats.create',[
             'title' => $title,
             'route' => $route,
@@ -103,7 +104,8 @@ class CandidatController extends Controller
             'fonctions' => $fonctions,
             'actualSociety' => $actualSociety,
             'lastFunction' => $lastFunction,
-            'societeCandidats' => $societeCandidats
+            'societeCandidats' => $societeCandidats,
+            'localites'=> $localites
         ]);
     }
 
@@ -120,7 +122,7 @@ class CandidatController extends Controller
             'prenom'=> 'required|max:60',
             'sexe'=>'required|max:1|in:m,f',
             'email'=>'email|required|unique:candidat|max:120',
-            'localite'=>'numeric',
+            'localite_id'=>'numeric',
             'date_naissance'=>'nullable|date',
             'telephone'=>'max:20',
             'linkedin'=>'nullable|url|unique:candidat|max:255',
@@ -134,22 +136,28 @@ class CandidatController extends Controller
 
             'sexe.required'=>'Veuillez entrer le sexe du candidat',
             'sexe.max'=>'Veuillez renseigner m ou f pour le sexe du candidat',
+            'sexe.in'=>'Veuillez renseigner m ou f pour le sexe du candidat',
 
             'email.required'=>'Veuillez entrer une email',
+            'email.email'=>'Type de valeur incorrecte pour l\'email',
             'email.unique'=>'L\'adresse mail existe déjà',
             'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
 
-            'localite.required'=>'Veuillez entrer une localité',
-            'localite.numeric'=>'Type de valeur incorrecte pour la localité',
+            'localite_id.numeric'=>'Type de valeur incorrecte pour la localité',
 
-            //'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
+            'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
 
             'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 caractères',
 
             'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin',
             'linkedin.unique'=>'Ce Linkedin existe déjà',
-            'linkedin;max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères'
+            'linkedin.max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
+
+            'site.url'=>'Veuillez entrer une URL valide pour le site internet',
+            'site.unique'=>'Ce site internet existe déjà',
+            'site.max'=>'L\' URL du site  ne peut pas dépasser 255 caractères'
         ]);
+
 
         $candidat = new candidat(Input::all());
         if($candidat->save()){
@@ -175,7 +183,7 @@ class CandidatController extends Controller
         $title = 'Candidat : '.($candidat->nom).' '.($candidat->prenom);
 
         //TODO réglé relation many to one
-        $localite = Localite::find($candidat->localite);
+        $localite = Localite::find($candidat->localite_id);
 
 
         return view('candidats.show',[
@@ -244,6 +252,8 @@ class CandidatController extends Controller
                 ->orderBy('date_fin','DESC')
                 ->orderBy('date_fin','DESC')
                 ->get();
+        
+        $localites = Localite::all();
 
         return view('candidats.create',[
             'candidat'=> $candidat,
@@ -261,7 +271,8 @@ class CandidatController extends Controller
             'fonctions' => $fonctions,
             'actualSociety' => $actualSociety,
             'lastFunction' => $lastFunction,
-            'societeCandidats' => $societeCandidats
+            'societeCandidats' => $societeCandidats,
+            'localites' => $localites
         ]);
     }
 
@@ -287,7 +298,7 @@ class CandidatController extends Controller
                 Rule::unique('candidat')->ignore($id),
                 'max:120'
             ],
-            'localite'=>'required|numeric',
+            'localite_id'=>'numeric',
             'sexe'=>'required|max:1',
             'linkedin'=>[
                 'nullable',
@@ -311,8 +322,8 @@ class CandidatController extends Controller
             'email.unique'=>'L\'adresse mail existe déjà',
             'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
 
-            'localite.required'=>'Veuillez entrer une localité',
-            'localite.numeric'=>'Type de valeur incorrecte pour la localité',
+            'localite_id.required'=>'Veuillez entrer une localité',
+            'localite_id.numeric'=>'Type de valeur incorrecte pour la localité',
 
             'date_naissance.numeric'=>'Type de valeur incorrecte pour la date de naissance',
 
