@@ -35,7 +35,7 @@ class Societe extends Model
      /**
      * Récuperer les emplois associés à cette société
      */
-    public function societeCandidats(){
-        return $this->hasMany('App\SocieteCandidats');
+    public function candidatSocietes(){
+        return $this->hasMany('App\CandidatSociete');
     }
 }

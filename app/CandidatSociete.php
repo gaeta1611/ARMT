@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SocieteCandidat extends Model
+class candidatSociete extends Model
 {
 
     /**
@@ -13,12 +13,18 @@ class SocieteCandidat extends Model
      * @var array
      */
     protected $fillable = [
-        'type',
-        'url_document',
-        'filename',
         'candidat_id',
-        'mission_id',
+        'societe_id',
+        'fonction_id',
+        'societe_actuelle',
     ];
+
+    /**
+     * Gestion automatique des champs created_at et updated_at
+     *
+     * @var boolean
+     */
+    public $timestamps = false;
 
     /**
      * Le nom de la table 
@@ -28,7 +34,7 @@ class SocieteCandidat extends Model
     protected $table = 'societe_candidat';
     
      /**
-     * Récuperer la sciété associés a cet emploi
+     * Récuperer la société associés a cet emploi
      */
     public function societe(){
         return $this->belongsTo('App\Societe');

@@ -12,6 +12,9 @@ use App\Ecole;
 use App\Societe;
 use App\Fonction;
 use App\SocieteCandidat;
+use App\CandidatLangue;
+use App\CandidatDiplome;
+use App\CandidatSociete;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
@@ -162,6 +165,54 @@ class CandidatController extends Controller
         $candidat = new candidat(Input::all());
         if($candidat->save()){
             Session::put('success','Le candidat a bien été enregistré');
+
+            $langues = Input::all('langue');
+            if(isset($langues['langues'])) {
+                foreach($langues['langue'] as $langueId => $langueNiveau) {
+                    $candidatLangue = new CandidatLangue();
+                    $candidatLangue->candidat_id = $candidat->id;
+                    $candidatLangue->langue_id = substr($langueId,strrpos($langueId,'|')+1);
+                    $candidatLangue->niveau = $langueNiveau;
+
+                    if(!$candidatLangue->save()) {
+                        Session::push('errors','Erreur lors de l\'enregristrement d\'une langue pour ce candidat!');
+                    }
+
+                }
+            }
+
+            $diplomes = Input::all('diplomes');
+            if(isset($diplomes['diplomes']))  {
+                foreach($diplomes['diplomes'] as $diplomeId) {
+                    $candidatDiplome = new CandidatDiplome();
+                    $candidatDiplome->candidat_id = $candidat->id;
+                    $candidatDiplome->diplome_id = $diplomeId;
+
+                    if(!$candidatDiplome->save()) {
+                        Session::push('errors','Erreur lors de l\'enregristrement d\'un diplome pour ce candidat!');
+                    }
+
+                }
+            }
+
+            $societes = Input::all('socCan');
+            if(isset($societes['socCan']) && isset($societes['socCan']['societeIds']))  {
+                foreach($societes['socCan']['societeIds'] as $key => $societeId) {
+                    $candidatSociete = new CandidatSociete();
+                    $candidatSociete->candidat_id = $candidat->id;
+                    $candidatSociete->societe_id = $societeId;
+                    $candidatSociete->fonction_id = $societes['socCan']['fonctionIds'][$key];
+                    $candidatSociete->date_debut = $societes['socCan']['dateDebuts'][$key];
+                    $candidatSociete->date_fin = $societes['socCan']['dateFins'][$key];
+                    $candidatSociete->societe_actuelle = $key==0 ? 1:0; // La premiere société
+
+                    if(!$candidatSociete->save()) {
+                        Session::push('errors','Erreur lors de l\'enregristrement de société pour ce candidat!');
+                    }
+
+                }
+            }
+
         }
         else{
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');

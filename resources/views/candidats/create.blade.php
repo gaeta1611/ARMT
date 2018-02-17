@@ -29,8 +29,8 @@
                         +texte[0].toUpperCase()+texte.substring(1)+'</td><td>';
                 
                 for(var i=0;i<=5;i++) {
-                    tr += '<input id="langue-'+i+'" name="langue['+code_langue+']" type="radio" value="'+i+'"> \
-                        <label for="langue-'+i+'">'+i+'</label>\n';
+                    tr += '<input id="langue-'+code_langue+'-'+i+'" name="langue['+code_langue+'|'+id+']" type="radio" value="'+i+'"> \
+                        <label for="langue-'+code_langue+'-'+i+'">'+i+'</label>\n';
                 }
                 
                 tr += '</td></tr>';
@@ -40,14 +40,19 @@
         });
 
         $('#diplome').on('input',function() {
-            var diplome  = $(this).val();
+            var selectedValue = $(this).val().split('|');
+            var diplomeId = selectedValue[0].trim();
+            var diplome  = selectedValue[1].trim();
 
             //le texte entré fait-il partie des diplomes de la liste ?
-            if($('#list-diplomes option[value="'+diplome+'"]').length) {
+            if($('#list-diplomes option[value="'+$(this).val()+'"]').length) {
 
                 //le diplome est-il déj ajouté?
                 if($ ('#selected-diplomes:contains("'+diplome+'")').length==0) {
-                    diplome = '<p>'+diplome+' <i class="fa fa-minus-square" onclick="$(this).parent().remove()" style="color:red; cursor:pointer"></i></p>';
+                    diplome = '<p>'+diplome+ 
+                    '<input type="hidden" name="diplomes[]" value="'+diplomeId+'"> \
+                    <i class="fa fa-minus-square" onclick="$(this).parent().remove()" style="color:red; cursor:pointer"></i>\n \
+                    </p>';
                     
                     $('#selected-diplomes').append(diplome);
                    
@@ -78,20 +83,44 @@
         });
 
         $('#btnAddSociete').on('click',function() {
-            var societe = $('#societe').val();
-            var fonction = $('#fonction').val();
+            
+
+            var selectedValue = $('#societe').val().split('|');
+            var societeId = selectedValue[0] ? selectedValue[0].trim():'';
+            var societe = selectedValue[1] ? selectedValue[1].trim():'';
+
+            selectedValue = $('#fonction').val().split('|');
+            var fonctionId = selectedValue[0] ? selectedValue[0].trim():'';
+            var fonction = selectedValue[1] ? selectedValue[1].trim():'';
+
             var date_debut = $('#date_debut').val();
             var date_fin = $('#date_fin').val();
 
-            if(societe.trim()=='') {
-                alert('Veuillez entrer une société.');
+            if(societe=='') {
+                alert('Veuillez entrer une société')
+                return;
+            }
+
+            if(societe !='recherche d\'emploi' && fonction=='') {
+                alert('Veuillez entrer une fonction')
                 return;
             }
 
             $('#tbl-societes tbody tr:first').toggleClass('danger');
+            
             var row = '<tr scope="row" class="danger"> \
-                 <td>'+societe+'</td><td>'+fonction+'</td> \
-                 <td>'+date_debut+'</td><td>'+date_fin+'</td> \
+                 <td>'+societe+'\n\
+                    <input type="hidden" name="socCan[societeIds][]" value="'+societeId+'">\n\
+                 </td>\n\
+                 <td>'+fonction+'\n\
+                    <input type="hidden" name="socCan[fonctionIds][]" value="'+fonctionId+'">\n\
+                 </td>\n\
+                 <td>'+date_debut+' \
+                    <input type="hidden" name="socCan[dateDebuts][]" value="'+date_debut+'">\n\
+                 </td> \
+                 <td>'+date_fin+' \
+                    <input type="hidden" name="socCan[dateFins][]" value="'+date_fin+'">\n\
+                 </td> \
                  <td><i class="fa fa-minus-square" onclick="removeTableRow(this)" style="cursor:pointer" style="color:red"><i></td> \
             </tr>';
 
@@ -216,15 +245,15 @@
                                                         {{ Form::label('langue-'.$langue->code_langue,ucfirst($langue->designation))}}
                                                     </td>
                                                     <td>
-                                                        <input id="langue-0" name="langue[{{ $langue->code_langue }}]" type="radio" value="0">
-                                                        <label for="langue-0">0</label>
+                                                        <input id="langue-{{$langue->code_langue}}-0" name="langue[{{ $langue->code_langue.'|'.$langue->id}}]" type="radio" value="0">
+                                                        <label for="langue-{{$langue->code_langue}}-0">0</label>
                                                         @for($i=1;$i<=5;$i++)
-                                                        {{ Form::radio('langue['.$langue->code_langue.']',$i,
+                                                        {{ Form::radio('langue['.$langue->code_langue.'|'.$langue->id.']',$i,
                                                             null,//old('langue')==$langue->designation || (isset($candidat) && $candidat->sexe=='m'),
                                                             [
-                                                                'id'=>'langue-'.$i,
+                                                                'id'=>'langue-'.$langue->code_langue.'-'.$i,
                                                             ]) 
-                                                        }} {{ Form::label('langue-'.$i,$i)}}
+                                                        }} {{ Form::label('langue-'.$langue->code_langue.'-'.$i,$i)}}
                                                         @endfor
                                                     </td>
                                                 </tr>
@@ -246,7 +275,7 @@
                                         ]) }}
                                         <datalist id="list-diplomes">
                                             @foreach($diplomes as $diplome)
-                                                <option value="{{ $diplome->designation}} ({{$diplome->niveau}} {{$diplome->finalite}}) - {{$diplome->ecoles->first()->code_ecole}}">{{$diplome->code_diplome}}}</option>
+                                                <option value="{{ $diplome->id}} | {{ $diplome->designation}} ({{$diplome->niveau}} {{$diplome->finalite}}) - {{$diplome->ecoles->first() ? $diplome->ecoles->first()->code_ecole:''}}">{{$diplome->code_diplome}} | {{$diplome->id}}</option>
                                             @endforeach
                                         </datalist>
                                         <div id="selected-diplomes" style="margin:15px">
@@ -322,7 +351,7 @@
                                                 <p id="lastFunction"><strong>Fonction exercée:</strong> <span>{{$lastFunction}}</span></p>
                                             </div>
 
-                                            <button class="btn btn-success" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">Gérer les sociétés</button>
+                                            <span class="btn btn-success" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">Gérer les sociétés</span>
                                             <!-- Formulaire d'ajout d'un nouvelle societe -->
                                             <div class="modal fade" id="addSocieteModal" tabindex="-1" role="dialog" aria-labelledby="addSocieteModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog" role="document">
@@ -344,14 +373,40 @@
                                                             <tbody>
                                                             @if($societeCandidat = $societeCandidats->first())
                                                                 <tr scope="row" class="danger">
-                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>{{$societeCandidat->date_debut}}</td><td>{{$societeCandidat->date_fin}}</td>
-                                                                    <td><i class="fa fa-minus-square" onclick="removeTableRow($this)" style="cursor:pointer" style="color:red"></i></td>
+                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}
+                                                                        <input type="hidden" name="socCan[societeIds][]" value="{{$societeCandidat->societe->id}}">
+                                                                    </td>
+                                                                    <td>{{$societeCandidat->fonction->fonction ?? ''}}
+                                                                        <input type="hidden" name="socCan[fonctionIds][]" value="{{$societeCandidat->fonction->id ?? 'null'}}">
+                                                                    </td>
+                                                                    <td>{{$societeCandidat->date_debut}}
+                                                                        <input type="hidden" name="socCan[dateDebuts][]" value="{{$societeCandidat->date_debut}}">
+                                                                    </td>
+                                                                    <td>{{$societeCandidat->date_fin}}
+                                                                        <input type="hidden" name="socCan[dateFins][]" value="{{$societeCandidat->date_fin}}">
+                                                                    </td>
+                                                                    <td>
+                                                                        <i class="fa fa-minus-square" onclick="removeTableRow($this)" style="cursor:pointer" style="color:red"></i>
+                                                                    </td>
                                                                 </tr>
                                                             @endif
                                                             @foreach($societeCandidats->slice(1) as $societeCandidat)
                                                                 <tr scope="row">
-                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}</td><td>{{$societeCandidat->fonction->fonction ?? ''}}</td><td>{{$societeCandidat->date_debut}}</td><td>{{$societeCandidat->date_fin}}</td>
-                                                                    <td><i class="fa fa-minus-square"  onclick="removeTableRow($this)" style="cursor:pointer" style="color:red"></i></td>
+                                                                    <td>{{$societeCandidat->societe->nom_entreprise}}
+                                                                        <input type="hidden" name="societeIds[]" value="{{$societeCandidat->societe->id}}">
+                                                                    </td>
+                                                                    <td>{{$societeCandidat->fonction->fonction ?? ''}}
+                                                                        <input type="hidden" name="fonctionIds[]" value="{{$societeCandidat->fonction->id ?? 'null'}}">
+                                                                    </td>
+                                                                    <td>{{$societeCandidat->date_debut}}
+                                                                        <input type="hidden" name="dateDebuts[]" value="{{$societeCandidat->date_debut}}">
+                                                                    </td>
+                                                                    <td>{{$societeCandidat->date_fin}}
+                                                                        <input type="hidden" name="dateFins[]" value="{{$societeCandidat->date_fin}}">
+                                                                    </td>
+                                                                    <td>
+                                                                        <i class="fa fa-minus-square" onclick="removeTableRow($this)" style="cursor:pointer" style="color:red"></i>
+                                                                    </td>
                                                                 </tr>                                                         
                                                             @endforeach
                                                             </tbody>
@@ -362,7 +417,7 @@
                                                                 <input type="text" class="form-control" id="societe" list="list-societes">
                                                                 <datalist id="list-societes">
                                                                 @foreach($societes as $societe)
-                                                                    <option value="{{ $societe->nom_entreprise}}">{{ $societe->id }}</option>
+                                                                    <option value="{{ $societe->id }} | {{ $societe->nom_entreprise}}">{{ $societe->id }}</option>
                                                                 @endforeach
                                                                 </datalist>
                                                             </div>
@@ -371,7 +426,7 @@
                                                                 <input type="text" class="form-control" id="fonction" list="list-fonctions">
                                                                 <datalist id="list-fonctions">
                                                                 @foreach($fonctions as $fonction)
-                                                                    <option value="{{ $fonction->fonction}}">{{ $fonction->fonction_id }}</option>
+                                                                    <option value="{{ $fonction->id}} |{{ $fonction->fonction}}">{{ $fonction->id }}</option>
                                                                 @endforeach
                                                                 </datalist>
                                                             </div>

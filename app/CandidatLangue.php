@@ -4,15 +4,18 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Fonction extends Model
+class CandidatLangue extends Model
 {
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'fonction',
+        'candidat_id',
+        'langue_id',
+        'niveau',
     ];
 
     /**
@@ -20,7 +23,7 @@ class Fonction extends Model
      *
      * @var string
      */
-    protected $table = 'fonctions';
+    protected $table = 'candidat_langues';
 
     /**
      * Gestion automatique des champs created_at et updated_at
@@ -28,18 +31,19 @@ class Fonction extends Model
      * @var boolean
      */
     public $timestamps = false;
+    
+     /**
+     * Récuperer le candidat associés a ce niveau langue
+     */
+    public function candidat(){
+        return $this->belongsTo('App\Candidat');
+    }
 
      /**
-     * Récuperer la mission associés a cette fonction
+     * Récuperer la langue associée a ce niveau de langue
      */
-    public function mission(){
-        return $this->belongsTo('App\Mission');
+    public function langue(){
+        return $this->belongsTo('App\Langue');
     }
 
-    /**
-     * Récuperer les emplois associés à cette fonction
-     */
-    public function societeCandidats(){
-        return $this->hasMany('App\SocieteCandidats');
-    }
 }

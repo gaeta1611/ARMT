@@ -49,13 +49,20 @@ class Candidat extends Model
      * Récupere toute les langues du candidat
      */
     public function langues(){
-        return $this->belongsToMany('App\Langue','candidat_langues','candidat_id','langues_id');
+        return $this->belongsToMany('App\Langue','candidat_langues','candidat_id','langue_id');
     }
     
     /**
      * Récuperer les emplois associés à ce candidat
      */
-    public function societeCandidats(){
-        return $this->hasMany('App\SocieteCandidats');
+    public function candidatSocietes(){
+        return $this->hasMany('App\CandidatSociete');
+    }
+
+    /**
+     * Récuperer tout les diplomes du candidat
+     */
+    public function diplomes(){
+        return $this->belongsToMany('App\Diplome','candidat_diplomes','candidat_id','diplome_id');
     }
 }

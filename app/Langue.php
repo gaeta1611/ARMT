@@ -29,4 +29,8 @@ class Langue extends Model
     public function candidats(){
         return $this->belongsToMany('App\Candidat','candidat_langues','candidat_id','langues_id');
     }
+
+    
+
+    
 }
