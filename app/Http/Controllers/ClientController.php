@@ -64,7 +64,7 @@ class ClientController extends Controller
             'telephone'=>'max:20',
             'email'=>'email|unique:client|max:100',
             'adresse'=>'required|max:255',
-            'localite'=>'required|max:120',
+            'localite_id'=>'required|max:120',
             'tva'=>'required|max:15',
             'site'=>'nullable|url|unique:client|max:255',
             'linkedin'=>'nullable|url|unique:client|max:255'
@@ -84,8 +84,8 @@ class ClientController extends Controller
             'adresse.required'=>'Veuillez entrer une adresse',
             'adresse.max'=>'L\'adresse ne peut pas dépasser 255 caractères',
 
-            'localite.required'=>'Veuillez entrer une localité',
-            'localite.max'=>'La localite ne peut dépasser 120 caractères',
+            'localite_id.required'=>'Veuillez entrer une localité',
+            'localite_id.max'=>'La localite ne peut dépasser 120 caractères',
 
             'tva.required'=>'Veuillez entrer un numéro de TVA',
             'tva.max'=>'Le numéro de TVA ne peut pas dépasser 15 caractères',
@@ -185,7 +185,7 @@ class ClientController extends Controller
                 'max:100'
             ],
             'adresse'=>'required|max:255',
-            'localite'=>'required|numeric',
+            'localite_id'=>'required|numeric',
             'tva'=>'required|max:15',
             'site'=>[
                 'nullable',
@@ -215,8 +215,8 @@ class ClientController extends Controller
             'adresse.required'=>'Veuillez entrer une adresse',
             'adresse.max'=>'L\'adresse ne peut pas dépasser 255 caractères',
 
-            'localite.required'=>'Veuillez entrer une localité',
-            'localite.numeric'=>'Type de valeur incorrecte pour la localité',
+            'localite_id.required'=>'Veuillez entrer une localité',
+            'localite_id.numeric'=>'Type de valeur incorrecte pour la localité',
 
             'tva.required'=>'Veuillez entrer un numéro de TVA',
             'tva.max'=>'Le numéro de TVA ne peut pas dépasser 15 caractères',

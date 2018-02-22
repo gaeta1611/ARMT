@@ -11,10 +11,9 @@ use App\Diplome;
 use App\Ecole;
 use App\Societe;
 use App\Fonction;
-use App\SocieteCandidat;
+use App\CandidatSociete;
 use App\CandidatLangue;
 use App\CandidatDiplome;
-use App\CandidatSociete;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
@@ -61,12 +60,14 @@ class CandidatController extends Controller
         $method = 'POST';
         
         $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();   //TODO get only 5 best
-        $listeLangues = Langue::all();                 //TODO get only 5 best
+        $listeLangues = Langue::all();                 
         $listeLangues = $listeLangues->diff($bestLangues);
         
-        $langues = [0=>''];
+        $showLangues = $bestLangues;
+
+        $autresLangues = [0=>''];
         foreach($listeLangues as $langue) {
-            $langues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
+            $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }
 
         $diplomes = Diplome::all();
@@ -96,8 +97,8 @@ class CandidatController extends Controller
             'title' => $title,
             'route' => $route,
             'method' => $method,
-            'langues' => $langues,
-            'bestLangues' => $bestLangues,
+            'showLangues' => $showLangues,
+            'autresLangues' => $autresLangues,
             'diplomes' => $diplomes,
             'designations' => $designations,
             'finalites' => $finalites,
@@ -167,7 +168,7 @@ class CandidatController extends Controller
             Session::put('success','Le candidat a bien été enregistré');
 
             $langues = Input::all('langue');
-            if(isset($langues['langues'])) {
+            if(isset($langues['langue'])) {
                 foreach($langues['langue'] as $langueId => $langueNiveau) {
                     $candidatLangue = new CandidatLangue();
                     $candidatLangue->candidat_id = $candidat->id;
@@ -256,16 +257,24 @@ class CandidatController extends Controller
         $title = 'Modifier candidat';
         $route = ['candidats.update',$id];
         $method = 'PUT';
-
-        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();   //TODO get only 5 best
-        $listeLangues = Langue::all();                 //TODO get only 5 best
-        $listeLangues = $listeLangues->diff($bestLangues);
         
-        $langues = [0=>''];
-        foreach($listeLangues as $langue) {
-            $langues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
+        $listeLangues = Langue::all();
+        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();      
+        $candidatLangues = $candidat->langues()->get();
+        
+        if($candidatLangues->count()) {
+            $showLangues = $bestLangues->merge($candidatLangues);
+            $listeLangues = $listeLangues->diff($bestLangues)->diff($candidatLangues);
+        } else {
+            $showLangues= $bestLangues;
+            $listeLangues = $listeLangues->diff($bestLangues);
         }
 
+        $autresLangues = [0=>''];
+        foreach($listeLangues as $langue) {
+            $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
+        }
+        
         $diplomes = Diplome::all();
 
         $designations = Diplome::select('designation')->distinct('designation')->get()->toArray();
@@ -299,20 +308,21 @@ class CandidatController extends Controller
             $lastFunction = isset($lastFunction->toArray()[0]['fonction']) ? 
                     $lastFunction->toArray()[0]['fonction']:'';
 
-        $societeCandidats = SocieteCandidat::where('candidat_id','=',$id)
+        $societeCandidats = CandidatSociete::where('candidat_id','=',$id)
                 ->orderBy('date_fin','DESC')
                 ->orderBy('date_fin','DESC')
                 ->get();
         
         $localites = Localite::all();
 
+
         return view('candidats.create',[
             'candidat'=> $candidat,
             'title' => $title,
             'route' => $route,
             'method' => $method,
-            'langues' => $langues,
-            'bestLangues' => $bestLangues,
+            'showLangues' => $showLangues,
+            'autresLangues' => $autresLangues,
             'diplomes' => $diplomes,
             'designations' => $designations,
             'finalites' => $finalites,
@@ -323,7 +333,8 @@ class CandidatController extends Controller
             'actualSociety' => $actualSociety,
             'lastFunction' => $lastFunction,
             'societeCandidats' => $societeCandidats,
-            'localites' => $localites
+            'localites' => $localites,
+    
         ]);
     }
 
@@ -337,28 +348,29 @@ class CandidatController extends Controller
     public function update(Request $request, $id)
     {
         $validatorData = $request->validate([
-            'nom'=> [
-                'required',
-                Rule::unique('candidat')->ignore($id),
-                'max:60'
-            ],
-            'prenom'=> 'max:60',
-            'telephone'=>'max:20',
+            'nom'=> 'required|max:60',
+            'prenom'=> 'required|max:60',
+            'sexe'=>'required|max:1|in:m,f',
             'email'=>[
                 'email',
                 Rule::unique('candidat')->ignore($id),
-                'max:120'
+                'max:100'
             ],
             'localite_id'=>'numeric',
-            'sexe'=>'required|max:1',
+            'date_naissance'=>'nullable|date',
+            'telephone'=>'max:20',
+            'site'=>[
+                'nullable',
+                'url',
+                Rule::unique('candidat')->ignore($id),
+                'max:255'
+            ],
             'linkedin'=>[
                 'nullable',
                 'url',
                 Rule::unique('candidat')->ignore($id),
                 'max:60'
             ]
-            //date de naissance
-
         ],[
             'nom.required'=>'Veuillez entrer le nom du candidat',
             'nom.max'=>'Le nom du candidat ne peut pas dépasser 60 caractères',
@@ -368,21 +380,26 @@ class CandidatController extends Controller
 
             'sexe.required'=>'Veuillez entrer le sexe du candidat',
             'sexe.max'=>'Veuillez renseigner m ou f pour le sexe du candidat',
+            'sexe.in'=>'Veuillez renseigner m ou f pour le sexe du candidat',
 
             'email.required'=>'Veuillez entrer une email',
+            'email.email'=>'Type de valeur incorrecte pour l\'email',
             'email.unique'=>'L\'adresse mail existe déjà',
             'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
 
-            'localite_id.required'=>'Veuillez entrer une localité',
             'localite_id.numeric'=>'Type de valeur incorrecte pour la localité',
 
-            'date_naissance.numeric'=>'Type de valeur incorrecte pour la date de naissance',
+            'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
 
             'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 caractères',
 
             'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin',
             'linkedin.unique'=>'Ce Linkedin existe déjà',
-            'linkedin;max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères'
+            'linkedin.max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
+
+            'site.url'=>'Veuillez entrer une URL valide pour le site internet',
+            'site.unique'=>'Ce site internet existe déjà',
+            'site.max'=>'L\' URL du site  ne peut pas dépasser 255 caractères'
         ]);
 
         $candidat = Candidat::find($id);

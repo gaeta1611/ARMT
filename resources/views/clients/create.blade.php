@@ -125,6 +125,11 @@
 
                                 <div class="col-lg-6">
                                     <div class="form-group">
+                                        {{ Form::hidden('localite_id',
+                                            old('localite')?? (isset($client) ? $client->localite_id:'2'),
+                                            [
+                                                'id'=>'localite_id'
+                                        ]) }}
                                         <div class="row">
                                             <div class="col-lg-4 col-xs-4">
                                                 {{ Form::label('code_postal','Code postal:')}}

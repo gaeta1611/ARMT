@@ -49,7 +49,8 @@ class Candidat extends Model
      * Récupere toute les langues du candidat
      */
     public function langues(){
-        return $this->belongsToMany('App\Langue','candidat_langues','candidat_id','langue_id');
+        return $this->belongsToMany('App\Langue','candidat_langues','candidat_id','langue_id')
+            ->withPivot('niveau');
     }
     
     /**
@@ -63,6 +64,7 @@ class Candidat extends Model
      * Récuperer tout les diplomes du candidat
      */
     public function diplomes(){
-        return $this->belongsToMany('App\Diplome','candidat_diplomes','candidat_id','diplome_id');
+        return $this->belongsToMany('App\Diplome','candidat_diplomes','candidat_id','diplome_id')
+           ->withPivot('ecole_id')->with('ecoles');
     }
 }

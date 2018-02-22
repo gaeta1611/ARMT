@@ -231,7 +231,7 @@
                                                 <tr>
                                                     <td colspan="2" style="padding:0 15px">
                                                         {{ Form::select('autres',
-                                                            $langues,
+                                                            $autresLangues,
                                                             [
                                                                 'class'=>'form-control'
                                                         ]) }}
@@ -239,25 +239,27 @@
                                                 </tr>
                                             </tfoot>
                                             <tbody>
-                                                @foreach($bestLangues as $langue)
-                                                <tr>
-                                                    <td style="padding:0 15px">
-                                                        {{ Form::label('langue-'.$langue->code_langue,ucfirst($langue->designation))}}
-                                                    </td>
-                                                    <td>
-                                                        <input id="langue-{{$langue->code_langue}}-0" name="langue[{{ $langue->code_langue.'|'.$langue->id}}]" type="radio" value="0">
-                                                        <label for="langue-{{$langue->code_langue}}-0">0</label>
-                                                        @for($i=1;$i<=5;$i++)
-                                                        {{ Form::radio('langue['.$langue->code_langue.'|'.$langue->id.']',$i,
-                                                            null,//old('langue')==$langue->designation || (isset($candidat) && $candidat->sexe=='m'),
-                                                            [
-                                                                'id'=>'langue-'.$langue->code_langue.'-'.$i,
-                                                            ]) 
-                                                        }} {{ Form::label('langue-'.$langue->code_langue.'-'.$i,$i)}}
-                                                        @endfor
-                                                    </td>
-                                                </tr>
-                                                @endforeach
+                                            @foreach($showLangues as $langue)
+                                            <tr>
+                                                <td style="padding:0 15px">
+                                                    {{ Form::label('langue-'.$langue->code_langue,ucfirst($langue->designation))}}
+                                                </td>
+                                                <td>
+                                                    <input id="langue-{{$langue->code_langue}}-0" name="langue[{{ $langue->code_langue.'|'.$langue->id}}]" 
+                                                           type="radio" value="0" {{ (isset($langue->pivot) && $langue->pivot->niveau==0)? 'checked': ''}}>
+                                                    <label for="langue-{{$langue->code_langue}}-0">0</label>
+                                                    @for($i=1;$i<=5;$i++)
+                                                    {{ Form::radio('langue['.$langue->code_langue.'|'.$langue->id.']',
+                                                        $i, //value
+                                                        (isset($langue->pivot) && $langue->pivot->niveau==$i)?true:false, //checked
+                                                        [
+                                                            'id'=>'langue-'.$langue->code_langue.'-'.$i,
+                                                        ]) 
+                                                    }} {{ Form::label('langue-'.$langue->code_langue.'-'.$i,$i)}}
+                                                    @endfor
+                                                </td>
+                                            </tr>
+                                            @endforeach
                                             </tbody>
                                         </table>
                                     </div>           
@@ -279,6 +281,13 @@
                                             @endforeach
                                         </datalist>
                                         <div id="selected-diplomes" style="margin:15px">
+                                            @foreach($candidat->diplomes()->get() as $diplome)
+                                                <p>
+                                                    {{ $diplome->designation.' '.'('.$diplome->niveau.' '.$diplome->finalite.')'.' '.'-'.' '.(isset($diplome->ecoles[0]) ? $diplome->ecoles[0]->code_ecole:'') }}
+                                                    <input type="hidden" name="diplomes[]" value="'+diplomeId+'"> 
+                                                    <i class="fa fa-minus-square" onclick="$(this).parent().remove()" style="color:red; cursor:pointer"></i>
+                                                </p>         
+                                            @endforeach()
                                         </div>
                                         
                                         <!-- Formulaire d'ajout d'un nouveau diplômes -->
@@ -464,8 +473,6 @@
                                         {{ Form::hidden('localite_id',
                                             old('localite')?? (isset($candidat) ? $candidat->localite_id:'2'),
                                             [
-                                                'placeholder'=>'ex: Nivelles',
-                                                'class'=>'form-control',
                                                 'id'=>'localite_id'
                                         ]) }}
                                         <div class="row">
