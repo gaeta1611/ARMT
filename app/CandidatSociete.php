@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class candidatSociete extends Model
+class CandidatSociete extends Model
 {
 
     /**

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Liste des clients')
+@section('title','Liste des clients et Prospects')
 
 @section('css')
 <!-- DataTables CSS -->
@@ -31,7 +31,7 @@
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Liste des clients</h1>
+                    <h1 class="page-header">Liste des clients & prospects</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>

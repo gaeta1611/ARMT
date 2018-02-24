@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CandidatDiplome extends Model
+class CandidatDiplomeEcole extends Model
 {
 
     /**
@@ -14,7 +14,7 @@ class CandidatDiplome extends Model
      */
     protected $fillable = [
         'candidat_id',
-        'diplome_id',
+        'diplome_ecole_id',
     ];
 
     /**
@@ -22,7 +22,7 @@ class CandidatDiplome extends Model
      *
      * @var string
      */
-    protected $table = 'candidat_diplomes';
+    protected $table = 'candidat_diplome_ecole';
 
     /**
      * Gestion automatique des champs created_at et updated_at
@@ -41,8 +41,10 @@ class CandidatDiplome extends Model
      /**
      * Récuperer la diplome associée a ce candidat
      */
-    public function diplome(){
-        return $this->belongsTo('App\Diplome');
+    public function diplomeEcoles(){
+        return $this->belongsTo('App\DiplomeEcole','diplome_ecole_id','id');
     }
+
+    
 
 }

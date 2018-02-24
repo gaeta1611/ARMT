@@ -13,7 +13,8 @@ use App\Societe;
 use App\Fonction;
 use App\CandidatSociete;
 use App\CandidatLangue;
-use App\CandidatDiplome;
+use App\CandidatDiplomeEcole;
+use App\DiplomeEcole;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
@@ -70,7 +71,7 @@ class CandidatController extends Controller
             $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }
 
-        $diplomes = Diplome::all();
+        $diplomes = DiplomeEcole::with(['ecole','diplome'])->get();
 
         $designations = Diplome::select('designation')->distinct('designation')->get()->toArray();
         array_walk($designations, function(&$item) { $item= $item['designation']; });

@@ -18,10 +18,10 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        $prospect = $request->query('prospect');
+        //$prospect = $request->query('prospect');
 
         //Récuperer les données
-        $clients = Client::all()->where('prospect',$prospect);
+        $clients = Client::all();//->where('prospect',$prospect);
 
         //Envoyer les données à la vue ou rediriger
         return view ('clients.index')->with('clients',$clients);

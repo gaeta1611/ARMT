@@ -64,7 +64,16 @@ class Candidat extends Model
      * Récuperer tout les diplomes du candidat
      */
     public function diplomes(){
-        return $this->belongsToMany('App\Diplome','candidat_diplomes','candidat_id','diplome_id')
-           ->withPivot('ecole_id')->with('ecoles');
+        return $this->hasManyThrough('App\DiplomeEcole','App\CandidatDiplomeEcole');
+          //->withPivot('ecole_id');
     }
+
+    /**
+     * Récuperer les association de diplome associé a ce candidat
+     */
+    public function candidatDiplomeEcoles(){
+        return $this->hasMany('App\CandidatDiplomeEcole','candidat_id');
+    }
+
+
 }

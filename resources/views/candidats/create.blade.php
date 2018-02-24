@@ -277,17 +277,21 @@
                                         ]) }}
                                         <datalist id="list-diplomes">
                                             @foreach($diplomes as $diplome)
-                                                <option value="{{ $diplome->id}} | {{ $diplome->designation}} ({{$diplome->niveau}} {{$diplome->finalite}}) - {{$diplome->ecoles->first() ? $diplome->ecoles->first()->code_ecole:''}}">{{$diplome->code_diplome}} | {{$diplome->id}}</option>
+                                                <option value="{{ $diplome->diplome_id}} | {{ $diplome->diplome['designation']}} ({{$diplome->diplome['niveau']}} {{$diplome->diplome['finalite']}}) - {{isset($diplome->ecole) ? $diplome->ecole['code_ecole']:''}}">{{$diplome->diplome['code_diplome']}} | {{$diplome->diplome_id}}</option>
                                             @endforeach
                                         </datalist>
                                         <div id="selected-diplomes" style="margin:15px">
-                                            @foreach($candidat->diplomes()->get() as $diplome)
-                                                <p>
-                                                    {{ $diplome->designation.' '.'('.$diplome->niveau.' '.$diplome->finalite.')'.' '.'-'.' '.(isset($diplome->ecoles[0]) ? $diplome->ecoles[0]->code_ecole:'') }}
-                                                    <input type="hidden" name="diplomes[]" value="'+diplomeId+'"> 
-                                                    <i class="fa fa-minus-square" onclick="$(this).parent().remove()" style="color:red; cursor:pointer"></i>
-                                                </p>         
+                                        @if(isset($candidat))
+                                            @foreach($candidat->candidatDiplomeEcoles()->get() as $candidatDiplomeEcoles)
+                                                @foreach($candidatDiplomeEcoles->diplomeEcoles()->get() as $diplomeEcole)
+                                                    <p>
+                                                        {{ $diplomeEcole->diplome()->get()[0]->designation.' '.'('.$diplomeEcole->diplome()->get()[0]->niveau.' '.$diplomeEcole->diplome()->get()[0]->finalite.')'.' '.'-'.' '.($diplomeEcole->ecole()->get()->count() ? $diplomeEcole->ecole()->get()[0]->code_ecole:'') }}
+                                                        <input type="hidden" name="diplomes[]" value="'+diplomeId+'"> 
+                                                        <i class="fa fa-minus-square" onclick="$(this).parent().remove()" style="color:red; cursor:pointer"></i>
+                                                    </p>
+                                                @endforeach()        
                                             @endforeach()
+                                        @endif
                                         </div>
                                         
                                         <!-- Formulaire d'ajout d'un nouveau diplômes -->
@@ -354,13 +358,13 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <fieldset><legend>Sociétés</legend>
+                                        <fieldset><legend>Employeurs</legend>
                                             <div class="form-group">
-                                                <p id="actualSociety"><strong>Société actuelle/précédente:</strong> <span>{{$actualSociety}}</span></p>
-                                                <p id="lastFunction"><strong>Fonction exercée:</strong> <span>{{$lastFunction}}</span></p>
+                                                <p id="actualSociety"><strong>Dernier Employeur :</strong> <span>{{$actualSociety}}</span></p>
+                                                <p id="lastFunction"><strong>Dernière Fonction exercée:</strong> <span>{{$lastFunction}}</span></p>
                                             </div>
 
-                                            <span class="btn btn-success" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">Gérer les sociétés</span>
+                                            <span class="btn btn-success" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">Gérer les employeurs</span>
                                             <!-- Formulaire d'ajout d'un nouvelle societe -->
                                             <div class="modal fade" id="addSocieteModal" tabindex="-1" role="dialog" aria-labelledby="addSocieteModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog" role="document">
@@ -369,14 +373,14 @@
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
-                                                        <h5 class="modal-title" id="addSocieteModalLabel" style="font-size:1.5em" >Gestion des sociétés antérieurs & actuelles</h5>
-                                                        <p>Veuillez ajouter chaque société en terminant par la dernière société et/ou fonction du candidat</p>
+                                                        <h5 class="modal-title" id="addSocieteModalLabel" style="font-size:1.5em" >Gestion des employeurs antérieurs & actuels</h5>
+                                                        <p>Veuillez ajouter chaque employeur en terminant par la dernièr employeur et/ou fonction du candidat</p>
                                                     </div>
                                                     <div class="modal-body">
                                                         <table class="table table-striped" id="tbl-societes">
                                                             <thead>
                                                                 <tr>
-                                                                    <th>Société</th><th>Fonction exercée</th><th>Date début</th><th>Date fin</th>
+                                                                    <th>Employeur</th><th>Fonction exercée</th><th>Date début</th><th>Date fin</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -422,7 +426,7 @@
                                                         </table>
                                                         <form>
                                                             <div class="form-group">
-                                                                <label for="recipient-name" class="col-form-label">Société:</label>
+                                                                <label for="recipient-name" class="col-form-label">Employeur:</label>
                                                                 <input type="text" class="form-control" id="societe" list="list-societes">
                                                                 <datalist id="list-societes">
                                                                 @foreach($societes as $societe)
