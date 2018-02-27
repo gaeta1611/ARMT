@@ -16,6 +16,8 @@ class CandidatSociete extends Model
         'candidat_id',
         'societe_id',
         'fonction_id',
+        'date_debut',
+        'date_fin',
         'societe_actuelle',
     ];
 

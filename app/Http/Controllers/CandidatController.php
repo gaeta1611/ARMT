@@ -71,7 +71,7 @@ class CandidatController extends Controller
             $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }
 
-        $diplomes = DiplomeEcole::with(['ecole','diplome'])->get();
+        $diplomeEcoles = DiplomeEcole::with(['ecole','diplome'])->get();
 
         $designations = Diplome::select('designation')->distinct('designation')->get()->toArray();
         array_walk($designations, function(&$item) { $item= $item['designation']; });
@@ -100,7 +100,7 @@ class CandidatController extends Controller
             'method' => $method,
             'showLangues' => $showLangues,
             'autresLangues' => $autresLangues,
-            'diplomes' => $diplomes,
+            'diplomeEcoles' => $diplomeEcoles,
             'designations' => $designations,
             'finalites' => $finalites,
             'niveaux' => $niveaux,
@@ -183,14 +183,14 @@ class CandidatController extends Controller
                 }
             }
 
-            $diplomes = Input::all('diplomes');
-            if(isset($diplomes['diplomes']))  {
-                foreach($diplomes['diplomes'] as $diplomeId) {
-                    $candidatDiplome = new CandidatDiplome();
-                    $candidatDiplome->candidat_id = $candidat->id;
-                    $candidatDiplome->diplome_id = $diplomeId;
+            $diplomes = Input::all('diplome_ecole_ids');
+            if(isset($diplomes['diplome_ecole_ids']))  {
+                foreach($diplomes['diplome_ecole_ids'] as $diplomeEcoleId) {
+                    $candidatDiplomeEcole = new CandidatDiplomeEcole();
+                    $candidatDiplomeEcole->candidat_id = $candidat->id;
+                    $candidatDiplomeEcole->diplome_ecole_id = $diplomeEcoleId;
 
-                    if(!$candidatDiplome->save()) {
+                    if(!$candidatDiplomeEcole->save()) {
                         Session::push('errors','Erreur lors de l\'enregristrement d\'un diplome pour ce candidat!');
                     }
 
@@ -276,7 +276,26 @@ class CandidatController extends Controller
             $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }
         
-        $diplomes = Diplome::all();
+        $diplomeEcoles = DiplomeEcole::with(['ecole','diplome'])->get();
+
+        $candidatDiplomeEcoles = CandidatDiplomeEcole::select('candidat_diplome_ecole.id as cde_id',
+            'candidat_diplome_ecole.candidat_id as candidat_id',
+            'candidat_diplome_ecole.diplome_ecole_id as de_id',
+            'diplomes_ecoles.diplome_id as diplome_id',
+            'diplomes_ecoles.ecole_id as ecole_id',
+            'diplomes.code_diplome as code_diplome',
+            'diplomes.designation as designation',
+            'diplomes.finalite as finalite',
+            'diplomes.niveau as niveau',
+            'ecoles.code_ecole as code_ecole',
+            'ecoles.nom as nom')
+            ->join('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','=','diplomes_ecoles.id')
+            ->join('diplomes','diplomes_ecoles.diplome_id','=','diplomes.id')
+            ->leftJoin('ecoles','diplomes_ecoles.ecole_id','=','ecoles.id')
+            ->where('candidat_id','=',$id)
+            ->orderBy('designation')
+            ->orderBy('niveau')
+            ->get();
 
         $designations = Diplome::select('designation')->distinct('designation')->get()->toArray();
         array_walk($designations, function(&$item) { $item= $item['designation']; });
@@ -310,7 +329,7 @@ class CandidatController extends Controller
                     $lastFunction->toArray()[0]['fonction']:'';
 
         $societeCandidats = CandidatSociete::where('candidat_id','=',$id)
-                ->orderBy('date_fin','DESC')
+                ->orderBy('societe_actuelle','DESC')
                 ->orderBy('date_fin','DESC')
                 ->get();
         
@@ -324,7 +343,8 @@ class CandidatController extends Controller
             'method' => $method,
             'showLangues' => $showLangues,
             'autresLangues' => $autresLangues,
-            'diplomes' => $diplomes,
+            'diplomeEcoles' => $diplomeEcoles,
+            'candidatDiplomeEcoles' => $candidatDiplomeEcoles,
             'designations' => $designations,
             'finalites' => $finalites,
             'niveaux' => $niveaux,
@@ -408,8 +428,117 @@ class CandidatController extends Controller
        
         if($candidat->update($data)){
             Session::put('success','Le candidat a bien été enregistré');
+
+            $langues = Input::all('langue');
+            if(isset($langues['langue'])) {
+                foreach($langues['langue'] as $langueId => $langueNiveau) {
+                    $candidatLangue = CandidatLangue::updateOrCreate([ 
+                        'candidat_id' => $id,
+                        'langue_id' => substr($langueId,strrpos($langueId,'|')+1)
+                    ], ['niveau' => $langueNiveau]);
+                    
+                    if(!$candidatLangue->id) {
+                        Session::push('errors','Erreur lors de l\'enregristrement d\'une langue pour ce candidat!');
+                    }
+
+                }
+            }
+            
+            //Gestion des diplomes
+            //Récuperer de la DB les diplomes du candidat
+            $cdes = CandidatDiplomeEcole::where('candidat_id','=',$id)->get()->toArray();
+            $db_de_ids = [];
+            foreach($cdes as $cde){
+                $db_de_ids[] = $cde['diplome_ecole_id'];
+            }
+            //Récuperer du formulaire les diplomes mentionnées
+            $diplomes = Input::all('diplome_ecole_ids');
+
+            $form_de_ids = [];
+            if(isset($diplomes['diplome_ecole_ids']))  {
+                $form_de_ids = $diplomes['diplome_ecole_ids'];
+            }
+                
+            //Déterminer les diplomes à ajouter dans la DB
+            $addDiplomes = array_diff($form_de_ids,$db_de_ids);
+
+            foreach($addDiplomes as $diplomeEcoleId) {
+                $candidatDiplomeEcole = new CandidatDiplomeEcole();
+                $candidatDiplomeEcole->candidat_id = $id;
+                $candidatDiplomeEcole->diplome_ecole_id = $diplomeEcoleId;
+
+                if(!$candidatDiplomeEcole->save()) {
+                    Session::push('errors','Erreur lors de l\'enregristrement d\'un diplome pour ce candidat!');
+                }
+
+            }
+            //Déterminer les diplomes à supprimer de la DB
+            $deleteDiplomes = array_diff($db_de_ids,$form_de_ids);
+            foreach($deleteDiplomes as $diplomeEcoleId) {
+                $candidatDiplomeEcole = CandidatDiplomeEcole::where([
+                    'candidat_id'=>$id,
+                    'diplome_ecole_id'=>$diplomeEcoleId
+                ])->first(); 
+             
+                if(!$candidatDiplomeEcole->delete()) {
+                    Session::push('errors','Erreur lors de la suppression d\'un diplome pour ce candidat!');
+                }
+
+            }
+            
+            //Gestion des emplois antérieurs
+            $data = Input::post();
+        
+            if(isset($data['socCan']) && !empty($data['socCan']['societeIds'])) {
+                $cptNotSaved = 0;
+                try {
+                    for($i=0;$i<sizeof($data['socCan']['socCanIds']);$i++) {
+                        $newCandidatSociete[] = CandidatSociete::updateOrCreate([
+                            'id'=> $data['socCan']['socCanIds'][$i],
+                        ],[
+                            'candidat_id'=> $id,
+                            'societe_id'=> $data['socCan']['societeIds'][$i],
+                            'fonction_id'=> $data['socCan']['fonctionIds'][$i] ? $data['socCan']['fonctionIds'][$i]:null ,
+                            'date_debut'=> $data['socCan']['dateDebuts'][$i] ? $data['socCan']['dateDebuts'][$i]:null,
+                            'date_fin'=> $data['socCan']['dateFins'][$i] ? $data['socCan']['dateFins'][$i]:null,
+                            'societe_actuelle'=>$i==0 ? 1:0,
+                        ]);
+                    } 
+                } catch (\Exception $e) {
+                    $cptNotSaved++;
+                    $message = $e->getMessage();
+                }
+    
+                if($cptNotSaved) {
+                    Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement des emplois antérieus $cptNotSaved! $message");
+                    
+                }
+
+                //Suppresion des emplois retirés
+                $cptNotDeleted = 0;
+
+                if(isset($data['socCan']['deletedIds'])){
+                    foreach($data['socCan']['deletedIds'] as $deletedSocCanId) {
+                        $deleteSocCan = CandidatSociete::where('id',$deletedSocCanId)
+                            ->where('candidat_id',$id)
+                            ->first();
+                        if($deleteSocCan) {
+                            try {
+                                $deleteSocCan->delete();
+                            } catch (\Exception $e) {
+                                $cptNotDeleted++;
+                                $message = $e->getMessage();
+                            }
+                        }                   
+                    }
+                    if($cptNotSaved) {
+                        Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement des emplois antérieus $cptNotDeleted! $message");
+                        
+                    }
+                }
+            } 
         }
-        else{
+        else {
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
         }
 

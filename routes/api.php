@@ -25,6 +25,8 @@ Route::get('/localite/ville/{localite}', 'LocaliteController@getLocaliteFromLoca
 
 Route::post('/candidatures/{id}','CandidatureController@update',['id']);
 Route::post('/interviews/{idCandidature}','InterviewController@updateStoreFor',['idCandidature']);
+Route::put('/jobs/{idCandidat}','CandidatSocieteController@storeFor',['idCandidat']);
+Route::delete('/jobs/{id}','CandidatSocieteController@storeFor',['id']);
 
 
 
