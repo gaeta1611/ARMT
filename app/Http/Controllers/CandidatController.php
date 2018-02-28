@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Rule;
+use Carbon;
 
 class CandidatController extends Controller
 {
@@ -42,11 +43,46 @@ class CandidatController extends Controller
         }
         $ongoingMissions = $liste;
 
+        //Récuperer les données du formulaire de recherche
+        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();   //TODO get only 5 best
+        $listeLangues = Langue::all();                 
+        $listeLangues = $listeLangues->diff($bestLangues);
+        
+        $showLangues = $bestLangues;
+
+        $autresLangues = [0=>''];
+        foreach($listeLangues as $langue) {
+            $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
+        }
+
+        $designations = Diplome::select('designation')->distinct('designation')->get()->toArray();
+        array_walk($designations, function(&$item) { $item= $item['designation']; });
+
+        $finalites = Diplome::select('finalite')->distinct('finalite')->get()->toArray();
+        array_walk($finalites, function(&$item) { $item= $item['finalite']; });
+
+        $niveaux = Diplome::select('niveau')->distinct('niveau')->get()->toArray();
+        array_walk($niveaux, function(&$item) { $item= $item['niveau']; });
+
+        $ecoles = Ecole::all();
+
+        $societes = Societe::all();
+        $fonctions = Fonction::all();
+
         //Envoyer les données à la vue ou rediriger
         return view ('candidats.index',[
             'candidats'=>$candidats,
             'ongoingMissions'=>$ongoingMissions,
+            'showLangues' => $showLangues,
+            'autresLangues' => $autresLangues,
+            'designations'=>$designations,
+            'finalites'=>$finalites,
+            'niveaux'=>$niveaux,
+            'ecoles'=>$ecoles,
+            'societes'=>$societes,
+            'fonctions'=>$fonctions,
         ]);
+
     }
 
     /**
@@ -529,7 +565,7 @@ class CandidatController extends Controller
                                 $cptNotDeleted++;
                                 $message = $e->getMessage();
                             }
-                        }                   
+                        }                 
                     }
                     if($cptNotSaved) {
                         Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement des emplois antérieus $cptNotDeleted! $message");
@@ -568,5 +604,74 @@ class CandidatController extends Controller
         }
 
         return redirect()->route('candidats.index');
+    }
+
+     /**
+     * Retrieve all the candidate that correspond to criteria in given form
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function search()
+    {
+      $inputs = array_diff(Input::all(),['age','in_cv']);
+      $ageMin = $inputs['age'];
+
+      $candidats = Candidat::distinct()
+                ->leftJoin('candidat_langues','candidat.id','candidat_langues.candidat_id')
+                ->leftJoin('langues','candidat_langues.langue_id','langues.id')
+                ->leftJoin('candidat_diplome_ecole','candidat.id','candidat_diplome_ecole.candidat_id')
+                ->leftJoin('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','diplomes_ecoles.id')
+                ->leftJoin('diplomes','diplomes_ecoles.diplome_id','diplomes.id')
+                ->leftJoin('ecoles','diplomes_ecoles.ecole_id','ecoles.id')
+                ->leftJoin('societe_candidat','candidat.id','societe_candidat.candidat_id')
+                ->leftJoin('societes','societe_candidat.societe_id','societes.id')
+                ->leftJoin('fonctions','societe_candidat.fonction_id','fonctions.id');
+
+                if(!empty($inputs['age'])) {
+                    $dt = Carbon::now();
+                    $dt->year -= (int) $inputs['age'];
+
+                    $candidats->where('candidat.date_naissance','<=',$dt->toDateString());
+                }
+
+                if(!empty($inputs['langue'])) {
+                    foreach($inputs['langues'] as $langueId => $langueNiveau) {
+                        $tLangue = explode('|',$langueId);
+                        $codeLangue = $tLangue[0];
+                        $langueId = $tLangue[1];
+
+                        $candidats->where([
+                            ['langues.code_langue','=', $codeLangue],
+                            ['candidat_langue.niveau','>=', $langueNiveau]
+                        ]);
+                    }   
+                }
+
+                if(!empty($inputs['designation'])) {
+                    $candidats->where('diplomes.designation','=',$inputs['designation']);
+                }
+
+                if(!empty($inputs['finalite'])) {
+                    $candidats->where('diplomes.finalite','=',$inputs['finalite']);
+                }
+
+                if(!empty($inputs['niveau'])) {
+                    $candidats->where('diplomes.niveau','=',$inputs['niveau']);
+                }
+
+                if(!empty($inputs['ecole'])) {
+                    $candidats->where('ecoles.nom','=',$inputs['ecole']);
+                }
+
+                if(!empty($inputs['societe'])) {
+                    $candidats->where('societes.nom_entreprise','=',$inputs['societe']);
+                }
+
+                if(!empty($inputs['fonction'])) {
+                    $candidats->where('fonctions.fonction','=',$inputs['fonction']);
+                }
+
+                $candidats = $candidats->get(['candidat.nom','candidat.prenom','candidat.date_naissance','candidat.created_at'])->toArray();
+    echo'<pre>';print_r($candidats);echo'</pre>';
     }
 }

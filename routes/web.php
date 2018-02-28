@@ -27,10 +27,10 @@ Route::get('/missions/create/{id?}','MissionController@create',['id'])
                         ->name('missions.create.from.client');
 
 
+Route::get('candidats/search','CandidatController@search')
+                        ->name('candidats.search');
 Route::resource('candidats','CandidatController');
 
-
-Route::resource('candidatures','CandidatureController');
 
 Route::resource('candidatures','CandidatureController');
 Route::get('/candidatures/create/{id?}','CandidatureController@create',['id'])
