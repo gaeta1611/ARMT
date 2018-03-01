@@ -47,16 +47,24 @@
                             'id' =>'frmSearchCandidat'
                         ]) }}
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="recipient-name" class="col-form-label">Age:</label>
+                                    {{ Form::label('age','Age :',[ 
+                                        'class'=>'col-form-label',
+                                    ]) }}
                                     <div class="input-group">
                                         <span class="input-group-addon" id="age-addon">+ de</span>
-                                        <input type="number" class="form-control" id="age" name="age" aria-describedby="age-addon">
+                                        {{ Form::number('age',null,[ 
+                                            'class'=>'form-control',
+                                            'id'=>'age',
+                                            'aria-describedby'=>'age-addon'
+                                        ]) }}
+
                                     </div>
                                 </div>
                                 <div class="form-group">
                                 {{ Form::label('langues','Langues:')}}
+                                <p>(0=>langue inconnue | 1=>connais quelques mot | 2=>Notion | 3=>se debrouille | 4=>bilingue | 5=>langue maternelle)<p>
                                 <table id="tbl-langues">
                                     <tfoot>
                                         <tr>
@@ -75,18 +83,16 @@
                                         <td style="padding:0 15px">
                                             {{ Form::label('langue-'.$langue->code_langue,ucfirst($langue->designation))}}
                                         </td>
-                                        <td>
-                                            <input id="langue-{{$langue->code_langue}}-0" name="langue[{{ $langue->code_langue.'|'.$langue->id}}]" 
-                                                   type="radio" value="0" {{ (isset($langue->pivot) && $langue->pivot->niveau==0)? 'checked': ''}}>
-                                            <label for="langue-{{$langue->code_langue}}-0">0</label>
-                                            @for($i=1;$i<=5;$i++)
+                                        <td nowrap>
+                                            @for($i=0;$i<=5;$i++)
                                             {{ Form::radio('langue['.$langue->code_langue.'|'.$langue->id.']',
                                                 $i, //value
                                                 (isset($langue->pivot) && $langue->pivot->niveau==$i)?true:false, //checked
                                                 [
                                                     'id'=>'langue-'.$langue->code_langue.'-'.$i,
                                                 ]) 
-                                            }} {{ Form::label('langue-'.$langue->code_langue.'-'.$i,$i)}}
+                                            }} {{ Form::label('langue-'.$langue->code_langue.'-'.$i," $i")}}
+                                            {{--Form::label bug with 0 value => [space]0 to fix it --}}
                                             @endfor
                                         </td>
                                     </tr>
@@ -94,9 +100,17 @@
                                     </tbody>
                                 </table>
                                 </div>
+                            </div>
+                            <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="designation" class="col-form-label">Désignation:</label>
-                                    <input type="text" class="form-control" id="designation" name="designation" list="list-designations">
+                                    {{ Form::label('designation','Désignation :',[ 
+                                        'class'=>'col-form-label',
+                                    ]) }}
+                                    {{ Form::text('designation',null,[ 
+                                        'class'=>'form-control',
+                                        'id'=>'designation',
+                                        'list'=>'list-designations'
+                                    ]) }}
                                     <datalist id="list-designations">
                                     @foreach($designations as $designation)
                                         <option value="{{ $designation}}">{{ $designation }}</option>
@@ -104,8 +118,14 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    <label for="finalite" class="col-form-label">Finalité:</label>
-                                    <input type="text" class="form-control" id="finalite" name="finalite" list="list-finalites">
+                                    {{ Form::label('finalite','Finalité :',[ 
+                                        'class'=>'col-form-label',
+                                    ]) }}
+                                    {{ Form::text('finalite',null,[ 
+                                        'class'=>'form-control',
+                                        'id'=>'finalite',
+                                        'list'=>'list-finalites'
+                                    ]) }}
                                     <datalist id="list-finalites">
                                     @foreach($finalites as $finalite)
                                         <option value="{{ $finalite}}">{{ $finalite }}</option>
@@ -113,28 +133,46 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    <label for="niveau" class="col-form-label">Niveau:</label>
-                                    <input type="text" class="form-control" id="niveau" name="niveau" list="list-niveaux">
+                                    {{ Form::label('niveau','Niveau :',[ 
+                                        'class'=>'col-form-label',
+                                    ]) }}
+                                    {{ Form::text('niveau',null,[ 
+                                        'class'=>'form-control',
+                                        'id'=>'niveau',
+                                        'list'=>'list-niveaux'
+                                    ]) }}
                                     <datalist id="list-niveaux">
                                     @foreach($niveaux as $niveau)
                                         <option value="{{$niveau}}">{{ $niveau }}</option>
                                     @endforeach
                                     </datalist>
                                 </div>
-                            </div>
-                            <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="ecole" class="col-form-label">Ecole:</label>
-                                    <input type="text" class="form-control" id="ecole" name="ecole" list="list-ecoles">
+                                    {{ Form::label('ecole','Ecole :',[ 
+                                        'class'=>'col-form-label',
+                                    ]) }}
+                                    {{ Form::text('ecole',null,[ 
+                                        'class'=>'form-control',
+                                        'id'=>'ecole',
+                                        'list'=>'list-ecoles'
+                                    ]) }}
                                     <datalist id="list-ecoles">
                                     @foreach($ecoles as $ecole)
                                         <option value="{{ $ecole->nom}}">{{ $ecole->code_ecole }}</option>
                                     @endforeach
                                     </datalist>
                                 </div>
+                            </div>
+                            <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="societe" class="col-form-label">Employeur:</label>
-                                    <input type="text" class="form-control" id="societe"  name="societe" list="list-societes">
+                                    {{ Form::label('societe','Employeur :',[ 
+                                        'class'=>'col-form-label',
+                                    ]) }}
+                                    {{ Form::text('societe',null,[ 
+                                        'class'=>'form-control',
+                                        'id'=>'societe',
+                                        'list'=>'list-societes'
+                                    ]) }}
                                     <datalist id="list-societes">
                                     @foreach($societes as $societe)
                                         <option value="{{ $societe->nom_entreprise}}">{{ $societe->nom_entreprise }}</option>
@@ -142,8 +180,14 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    <label for="fonction" class="col-form-label">Fonction exercée:</label>
-                                    <input type="text" class="form-control" id="fonction" name="fonction" list="list-fonctions">
+                                    {{ Form::label('fonction','Fonction :',[ 
+                                        'class'=>'col-form-label',
+                                    ]) }}
+                                    {{ Form::text('fonction',null,[ 
+                                        'class'=>'form-control',
+                                        'id'=>'fonction',
+                                        'list'=>'list-fonctions'
+                                    ]) }}
                                     <datalist id="list-fonctions">
                                     @foreach($fonctions as $fonction)
                                         <option value="{{ $fonction->fonction}}">{{ $fonction->fonction }}</option>
@@ -151,8 +195,13 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    <label for="incv" class="col-form-label">In CV:</label>
-                                    <input type="numeric" class="form-control" id="incv" name="incv">
+                                    {{ Form::label('in_cv','In CV :',[ 
+                                        'class'=>'col-form-label',
+                                    ]) }}
+                                    {{ Form::text('in_cv',null,[ 
+                                        'class'=>'form-control',
+                                        'id'=>'in_cv',
+                                    ]) }}
                                 </div>
                                 <div class="text-right">
                                     {{ Form::submit('Rechercher',['class'=>'btn btn-primary'])}}
@@ -160,6 +209,45 @@
                             </div>
                         </div>
                         {{ Form::close() }}
+
+                        <form>
+                            <fieldset><legend>Filtre</legend>
+                            <div class="row">
+                                <div style="width:200px">            
+                                    <strong>Etat avancement</strong>
+                                </div>
+                                <div class="col-lg-9">
+                                    <ul style="display:inline">
+                                        <li style="display:inline"><a href="#">Tous</a><span>(61)</span></li>
+                                        <li style="display:inline"><a href="#">A traiter</a><span>(14)</span></li>
+                                        <li style="display:inline"><a href="#">A contacter</a><span>(9)</span></li>
+                                        <li style="display:inline"><a href="#">A valider</a><span>(8)</span></li>
+                                    </ul>
+                                    <select>
+                                        <option>Autres</option>
+                                        <option>Autres</option>
+                                        <option>Autres</option>
+                                    </select>
+                                </div>
+                            <div class="row">
+                                <div style="width:250px">            
+                                    <strong>Mode candidature</strong>
+                                </div>
+                                <div class="col-lg-3">
+                                    <ul style="display:inline">
+                                        <li style="display:inline"><a href="#">Tous</a><span>(61)</span></li>
+                                        <li style="display:inline"><a href="#">A traiter</a><span>(14)</span></li>
+                                        <li style="display:inline"><a href="#">A contacter</a><span>(9)</span></li>
+                                        <li style="display:inline"><a href="#">A valider</a><span>(8)</span></li>
+                                    </ul>
+                                    <select>
+                                        <option>Autres</option>
+                                        <option>Autres</option>
+                                        <option>Autres</option>
+                                    </select>
+                            </div>
+                        </form>
+                        
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">

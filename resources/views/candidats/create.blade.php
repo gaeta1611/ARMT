@@ -284,6 +284,7 @@
 
                                     <div class="form-group">
                                         {{ Form::label('langues','Langues:')}}
+                                        <p>(0=>langue inconnue | 1=>connais quelques mot | 2=>Notion | 3=>se debrouille | 4=>bilingue | 5=>langue maternelle)<p>
                                         <table id="tbl-langues">
                                             <tfoot>
                                                 <tr>
