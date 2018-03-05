@@ -211,42 +211,45 @@
                         {{ Form::close() }}
 
                         <form>
-                            <fieldset><legend>Filtre</legend>
+                            <fieldset><legend>Filtrer</legend>
                             <div class="row">
-                                <div style="width:200px">            
-                                    <strong>Etat avancement</strong>
+                                <div style="width:150px; float: left;margin:0 15px">
+                                    <strong>État d'avancement: </strong>
                                 </div>
-                                <div class="col-lg-9">
-                                    <ul style="display:inline">
-                                        <li style="display:inline"><a href="#">Tous</a><span>(61)</span></li>
-                                        <li style="display:inline"><a href="#">A traiter</a><span>(14)</span></li>
-                                        <li style="display:inline"><a href="#">A contacter</a><span>(9)</span></li>
-                                        <li style="display:inline"><a href="#">A valider</a><span>(8)</span></li>
+                                <div style=" float: left">
+                                    <ul style="display: inline; padding: 0">
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.search','Tous') }} <span>({{ $counters['all'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::link('/searchBy/','A traiter',['status'=>'à traiter']) }} <span>({{ $counters['à traiter'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::link('/searchBy/','A contacter',['status'=>'à contacter']) }} <span>({{ $counters['à contacter'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::link('/searchBy/','A valider',['status'=>'à valider']) }} <span>({{ $counters['à valider'] }})</span></li>
+                                        
                                     </ul>
                                     <select>
-                                        <option>Autres</option>
-                                        <option>Autres</option>
-                                        <option>Autres</option>
+                                    @foreach($avancements as $avancement)
+                                        <option>{{ $avancement->avancement }}</option>
+                                    @endforeach
                                     </select>
                                 </div>
-                            <div class="row">
-                                <div style="width:250px">            
-                                    <strong>Mode candidature</strong>
-                                </div>
-                                <div class="col-lg-3">
-                                    <ul style="display:inline">
-                                        <li style="display:inline"><a href="#">Tous</a><span>(61)</span></li>
-                                        <li style="display:inline"><a href="#">A traiter</a><span>(14)</span></li>
-                                        <li style="display:inline"><a href="#">A contacter</a><span>(9)</span></li>
-                                        <li style="display:inline"><a href="#">A valider</a><span>(8)</span></li>
-                                    </ul>
-                                    <select>
-                                        <option>Autres</option>
-                                        <option>Autres</option>
-                                        <option>Autres</option>
-                                    </select>
                             </div>
-                        </form>
+                            <div class="row">
+                                <div style="width:150px; float: left;margin:0 15px">
+                                    <strong>Mode candidature: </strong>
+                                </div>
+                                <div style=" float: left">
+                                    <ul style="display: inline; padding: 0">
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.searchBy','Stepstone',['mode'=>'LIKE "%Stepstone% "']) }} <span>({{ $counters['Stepstone'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.searchBy','DB Stepstone',['type'=>'DB','mode'=>'Stepstone']) }} <span>({{ $counters['DB Stepstone'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.searchBy','DB adva',['type'=>'DB','mode'=>'adva']) }} <span>({{ $counters['DB adva'] }})</span></li>
+                                    </ul>
+                                    <select>
+                                    @foreach($modeCandidatures as $modeCandidature)
+                                        <option>{{ json_decode($modeCandidature->media)->type.' '.json_decode($modeCandidature->media)->mode }}</option>
+                                     @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            </fieldset>
+                         </form>
                         
                         </div>
                         <!-- /.panel-heading -->

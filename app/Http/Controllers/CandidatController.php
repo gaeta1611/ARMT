@@ -12,14 +12,18 @@ use App\Ecole;
 use App\Societe;
 use App\Fonction;
 use App\CandidatSociete;
+use App\Status;
 use App\CandidatLangue;
 use App\CandidatDiplomeEcole;
 use App\DiplomeEcole;
+use App\ModeCandidature;
+use App\Candidature;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Rule;
 use Carbon;
+
 
 class CandidatController extends Controller
 {
@@ -69,6 +73,28 @@ class CandidatController extends Controller
         $societes = Societe::all();
         $fonctions = Fonction::all();
 
+        $avancements = Status::whereNotIn ('avancement', [
+            'à traiter',
+            'à contacter',
+            'à valider'
+        ])->get(['avancement']);
+
+        $modeCandidatures = ModeCandidature::all();
+        
+
+        $counters["all"] = sizeof($candidats);
+        $counters["à traiter"] = Status::where(['avancement' => 'à traiter'])->first()->candidatures()->count();
+        $counters["à contacter"] = Status::where(['avancement' => 'à contacter'])->first()->candidatures()->count();
+        $counters["à valider"] = Status::where(['avancement' => 'à valider'])->first()->candidatures()->count();
+//dd(ModeCandidature::where('media','LIKE','%"mode":"Stepstone"%')->first()->candidatures()->get());
+        $counters["Stepstone"] = Candidature::join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
+                ->where('media','LIKE','%"mode":"Stepstone"%')->count();
+        $counters["DB Stepstone"] = Candidature::join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
+                ->where('media','LIKE','{"type":"DB","mode":"Stepstone"}')->count();
+        $counters["DB adva"] = Candidature::join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
+                ->where('media','LIKE','{"type":"DB","mode":"adva"}')->count();
+                    
+
         //Envoyer les données à la vue ou rediriger
         return view ('candidats.index',[
             'candidats'=>$candidats,
@@ -81,6 +107,9 @@ class CandidatController extends Controller
             'ecoles'=>$ecoles,
             'societes'=>$societes,
             'fonctions'=>$fonctions,
+            'counters' => $counters,
+            'modeCandidatures' => $modeCandidatures,
+            'avancements' =>$avancements,
         ]);
 
     }
@@ -626,49 +655,66 @@ class CandidatController extends Controller
             ->leftJoin('societes','societe_candidat.societe_id','societes.id')
             ->leftJoin('fonctions','societe_candidat.fonction_id','fonctions.id');
 
-            if(!empty($inputs['age'])) {
-                $dt = Carbon::now();
-                $dt->year -= (int) $inputs['age'];
+        if(!empty($inputs['age'])) {
+            $dt = Carbon::now();
+            $dt->year -= (int) $inputs['age'];
 
-                $candidats->where('candidat.date_naissance','<=',$dt->toDateString());
-            }
+            $candidats->where('candidat.date_naissance','<=',$dt->toDateString());
+        }
 
-            if(!empty($inputs['langue'])) {
-                foreach($inputs['langue'] as $langueId => $langueNiveau) {
-                    $tLangue = explode('|',$langueId);
-                    $codeLangue = $tLangue[0];
-                    $langueId = $tLangue[1];
-
-                    $candidats->where([
-                        ['langues.code_langue','=', $codeLangue],
-                        ['candidat_langues.niveau','>=', $langueNiveau]
+        if(!empty($inputs['langue'])) {
+            $candidats->whereIn('candidat.id', function($query) use ($inputs) {
+                $langueNiveau = current($inputs['langue']);
+                $tLangue = explode('|',key($inputs['langue']));
+                $codeLangue = $tLangue[0];
+                $langueId = $tLangue[1];
+                    
+                $query->distinct()->select('candidat_langues.candidat_id as clc_id')
+                    ->from('candidat_langues')
+                    ->where([
+                        ['candidat_langues.langue_id','=',$langueId],
+                        ['candidat_langues.niveau','>=',$langueNiveau]
                     ]);
-                }   
-            }
 
-            if(!empty($inputs['designation'])) {
-                $candidats->where('diplomes.designation','=',$inputs['designation']);
-            }
+                    foreach(array_slice($inputs['langue'],1) as $codeId => $langueNiveau) {      
+                        $tLangue = explode('|',$codeId);                                        
+                        $codeLangue = $tLangue[0];
+                        $langueId = $tLangue[1];
+                    
+                        $query->orWhere([
+                            ['candidat_langues.langue_id','=',$langueId],
+                            ['candidat_langues.niveau','>=',$langueNiveau]
+                        ]);
+                    }
+                $query->groupBy('clc_id');
+                $query->havingRaw('count(*) = '.count($inputs['langue']));
+            });
+            //dd($candidats->toSql());
+        }
 
-            if(!empty($inputs['finalite'])) {
-                $candidats->where('diplomes.finalite','=',$inputs['finalite']);
-            }
+        if(!empty($inputs['designation'])) {
+            $candidats->where('diplomes.designation','=',$inputs['designation']);
+        }
 
-            if(!empty($inputs['niveau'])) {
-                $candidats->where('diplomes.niveau','=',$inputs['niveau']);
-            }
+        if(!empty($inputs['finalite'])) {
+            $candidats->where('diplomes.finalite','=',$inputs['finalite']);
+        }
 
-            if(!empty($inputs['ecole'])) {
-                $candidats->where('ecoles.nom','=',$inputs['ecole']);
-            }
+        if(!empty($inputs['niveau'])) {
+            $candidats->where('diplomes.niveau','=',$inputs['niveau']);
+        }
 
-            if(!empty($inputs['societe'])) {
-                $candidats->where('societes.nom_entreprise','=',$inputs['societe']);
-            }
+        if(!empty($inputs['ecole'])) {
+            $candidats->where('ecoles.nom','=',$inputs['ecole']);
+        }
 
-            if(!empty($inputs['fonction'])) {
-                $candidats->where('fonctions.fonction','=',$inputs['fonction']);
-            }
+        if(!empty($inputs['societe'])) {
+            $candidats->where('societes.nom_entreprise','=',$inputs['societe']);
+        }
+
+        if(!empty($inputs['fonction'])) {
+            $candidats->where('fonctions.fonction','=',$inputs['fonction']);
+        }
 
         $candidats = $candidats->get(['candidat.id','candidat.nom','candidat.prenom','candidat.date_naissance','candidat.created_at']);
         //echo'<pre>';print_r($candidats);echo'</pre>';
@@ -708,6 +754,16 @@ class CandidatController extends Controller
 
         $societes = Societe::all();
         $fonctions = Fonction::all();
+        $avancements = Status::whereNotIn ('avancement', [
+            'à traiter',
+            'à contacter',
+            'à valider'
+        ])->get(['avancement']);
+
+        $counters["all"] = sizeof($candidats);
+        $counters["à traiter"] = Status::where(['avancement' => 'à traiter'])->first()->candidatures()->count();
+        $counters["à contacter"] = Status::where(['avancement' => 'à contacter'])->first()->candidatures()->count();
+        $counters["à valider"] = Status::where(['avancement' => 'à valider'])->first()->candidatures()->count();
                     
         //Envoyer les données à la vue ou rediriger
         return view ('candidats.index',[
@@ -720,7 +776,18 @@ class CandidatController extends Controller
             'niveaux'=>$niveaux,
             'ecoles'=>$ecoles,
             'societes'=>$societes,
-            'fonctions'=>$fonctions,
+            'fonctions'=> $fonctions,
+            'counters' => $counters,
+            'avancements' =>$avancements,
         ]);
+    }
+
+    /**
+     * Retrieve all the candidate that correspond to criteria in given form
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function searchBy()
+    {
     }
 }

@@ -29,6 +29,8 @@ Route::get('/missions/create/{id?}','MissionController@create',['id'])
 
 Route::get('candidats/search','CandidatController@search')
                         ->name('candidats.search');
+Route::get('candidats/searchBy','CandidatController@searchBy')
+                        ->name('candidats.searchBy');
 Route::resource('candidats','CandidatController');
 
 
