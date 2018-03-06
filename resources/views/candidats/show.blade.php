@@ -70,6 +70,12 @@ $(document).ready(function() {
                                         <dd>{{ $candidat->site }}</dd>
                                         <dt>Remarques : </dt>
                                         <dd>{{ $candidat->remarques }}</dd>
+                                        <dt>Diplômes : </dt>
+                                        @foreach($candidatDiplomeEcoles as $cde)
+                                        <dd>
+                                            {{ $cde->designation.' '.'('.$cde->niveau.' '.$cde->finalite.')'.' '.'-'.' '.($cde->code_ecole ?? '') }}
+                                        </dd>
+                                        @endforeach()
                                     </dl>
                                 </div>
                                 

@@ -22,6 +22,53 @@
         $('#dataTables-candidats').DataTable({
             responsive: true
         });
+
+        $('select[name="autres"]').on('change',function(){
+            $selected = $(this).find('option:selected')
+
+            if($(this).val()!=0) {
+                tValues = $(this).val().split('-');
+                id = tValues[0];
+                code_langue = tValues[1];
+                texte = $selected.text();
+                $selected.remove();
+                
+                tr = '<tr><td style="padding:0 15px"><label for="langue['+code_langue+']">'
+                        +texte[0].toUpperCase()+texte.substring(1)+'</td><td>';
+                
+                for(var i=0;i<=5;i++) {
+                    tr += '<input id="langue-'+code_langue+'-'+i+'" name="langue['+code_langue+'|'+id+']" type="radio" value="'+i+'"> \
+                        <label for="langue-'+code_langue+'-'+i+'">'+i+'</label>\n';
+                }
+                
+                tr += '</td></tr>';
+
+                $('#tbl-langues tbody').append(tr);
+            }
+        });
+        
+        const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
+
+        $('#status').on('change',function() {
+            var status = $(this).val();
+
+            var redirectURL = APP_URL+'/public/candidats?status='+encodeURIComponent(status);
+
+            location.href = redirectURL;
+        });
+
+        $('#mode').on('change',function() {
+            var typeMode = $(this).val().split('|',2);
+
+            if(typeMode.length==2) {
+                var type = typeMode[0];
+                var mode = typeMode[1];
+
+                var redirectURL = APP_URL+'/public/candidats?type='+encodeURIComponent(type)+'&mode='+encodeURIComponent(mode);
+
+                location.href = redirectURL;
+            }          
+        });
     });
 </script>
 @endsection
@@ -218,15 +265,15 @@
                                 </div>
                                 <div style=" float: left">
                                     <ul style="display: inline; padding: 0">
-                                        <li style="display: inline">{{ HTML::linkRoute('candidats.search','Tous') }} <span>({{ $counters['all'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::link('/searchBy/','A traiter',['status'=>'à traiter']) }} <span>({{ $counters['à traiter'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::link('/searchBy/','A contacter',['status'=>'à contacter']) }} <span>({{ $counters['à contacter'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::link('/searchBy/','A valider',['status'=>'à valider']) }} <span>({{ $counters['à valider'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','Tous') }} <span>({{ $counters['all'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','A traiter',['status'=>'à traiter']) }} <span>({{ $counters['à traiter'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','A contacter',['status'=>'à contacter']) }} <span>({{ $counters['à contacter'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','A valider',['status'=>'à valider']) }} <span>({{ $counters['à valider'] }})</span></li>
                                         
                                     </ul>
-                                    <select>
+                                    <select name="status" id="status">
                                     @foreach($avancements as $avancement)
-                                        <option>{{ $avancement->avancement }}</option>
+                                        <option @if($avancement->avancement==app('request')->input('status')) selected @endif>{{ $avancement->avancement }}</option>
                                     @endforeach
                                     </select>
                                 </div>
@@ -237,14 +284,18 @@
                                 </div>
                                 <div style=" float: left">
                                     <ul style="display: inline; padding: 0">
-                                        <li style="display: inline">{{ HTML::linkRoute('candidats.searchBy','Stepstone',['mode'=>'LIKE "%Stepstone% "']) }} <span>({{ $counters['Stepstone'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::linkRoute('candidats.searchBy','DB Stepstone',['type'=>'DB','mode'=>'Stepstone']) }} <span>({{ $counters['DB Stepstone'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::linkRoute('candidats.searchBy','DB adva',['type'=>'DB','mode'=>'adva']) }} <span>({{ $counters['DB adva'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','Stepstone',['mode'=> 'Stepstone']) }} <span>({{ $counters['Stepstone'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','DB Stepstone',['type'=>'DB','mode'=>'Stepstone']) }} <span>({{ $counters['DB Stepstone'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','DB adva',['type'=>'DB','mode'=>'adva']) }} <span>({{ $counters['DB adva'] }})</span></li>
                                     </ul>
-                                    <select>
+                                    <select name="mode" id="mode">
                                     @foreach($modeCandidatures as $modeCandidature)
-                                        <option>{{ json_decode($modeCandidature->media)->type.' '.json_decode($modeCandidature->media)->mode }}</option>
-                                     @endforeach
+                                        <?php //TODO: a remonter dans le controleur
+                                        $media = json_decode($modeCandidature->media);?>
+                                        <option value="{{ $media->type.'|'.$media->mode }}" @if($media->type==app('request')->input('type') && $media->mode==app('request')->input('mode') ) selected @endif>
+                                            {{ $media->type.' '.$media->mode }}
+                                        </option>
+                                    @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -254,6 +305,7 @@
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
+                        @if($candidats->count())
                             <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-candidats">
                                 <thead>
                                     <tr>
@@ -266,7 +318,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @forelse($candidats as $candidat)
+                                @foreach($candidats as $candidat)
                                     <tr class="odd">
                                         <td>
                                             <a href="{{ route('candidats.show',$candidat->id)}}">
@@ -303,12 +355,14 @@
                                         </td>
                                         
                                     </tr>
-                                @empty
-                                    <tr><td colspan="5">Aucun candidat.</td></tr>
-                                @endforelse
+                                
+                                @endforeach
                                 </tbody>
                             </table>
                             <!-- /.table-responsive -->
+                        @else   
+                            <p><strong>Aucun Candidat.</strong></p>
+                        @endif
                         </div>
                         <!-- /.panel-body -->
                     </div>

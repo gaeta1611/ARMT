@@ -32,11 +32,33 @@ class CandidatController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //Récuperer les données
-        $candidats = Candidat::all();
+        //Récuperation des filtres
+        $status = $request->query('status');
+        $mode = $request->query('mode');
+        $type = $request->query('type');
 
+        //Récuperer les données
+        $candidats = Candidat::distinct()->select('candidat.*');
+        if($status) {
+            $candidats = $candidats->join('candidature','candidat.id','candidature.candidat_id')
+                    ->join('status','candidature.status_id','status.id')
+                    ->where(['status.avancement' => $status])->get();
+        } elseif($mode) {
+            $candidats = $candidats->join('candidature','candidat.id','candidature.candidat_id')
+                    ->join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
+                    ->where('mode_candidature.media','LIKE','%"mode":"%'.$mode.'%"%');
+            if($type) {
+                $candidats->where('mode_candidature.media','LIKE','%"type":"%'.$type.'"%');        
+            }
+
+            $candidats = $candidats->get();
+        } else {
+            $candidats = Candidat::all();         
+        }
+        
+        
         //Récuperer les missions en cours
         $ongoingMissions = Mission::ongoingMissions();
         $prefix = Config::get('constants.options.PREFIX_MISSION');
@@ -82,11 +104,11 @@ class CandidatController extends Controller
         $modeCandidatures = ModeCandidature::all();
         
 
-        $counters["all"] = sizeof($candidats);
+        $counters["all"] = Candidat::all()->count();
         $counters["à traiter"] = Status::where(['avancement' => 'à traiter'])->first()->candidatures()->count();
         $counters["à contacter"] = Status::where(['avancement' => 'à contacter'])->first()->candidatures()->count();
         $counters["à valider"] = Status::where(['avancement' => 'à valider'])->first()->candidatures()->count();
-//dd(ModeCandidature::where('media','LIKE','%"mode":"Stepstone"%')->first()->candidatures()->get());
+
         $counters["Stepstone"] = Candidature::join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
                 ->where('media','LIKE','%"mode":"Stepstone"%')->count();
         $counters["DB Stepstone"] = Candidature::join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
@@ -303,10 +325,30 @@ class CandidatController extends Controller
         //TODO réglé relation many to one
         $localite = Localite::find($candidat->localite_id);
 
+        $candidatDiplomeEcoles = CandidatDiplomeEcole::select('candidat_diplome_ecole.id as cde_id',
+            'candidat_diplome_ecole.candidat_id as candidat_id',
+            'candidat_diplome_ecole.diplome_ecole_id as de_id',
+            'diplomes_ecoles.diplome_id as diplome_id',
+            'diplomes_ecoles.ecole_id as ecole_id',
+            'diplomes.code_diplome as code_diplome',
+            'diplomes.designation as designation',
+            'diplomes.finalite as finalite',
+            'diplomes.niveau as niveau',
+            'ecoles.code_ecole as code_ecole',
+            'ecoles.nom as nom')
+            ->join('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','=','diplomes_ecoles.id')
+            ->join('diplomes','diplomes_ecoles.diplome_id','=','diplomes.id')
+            ->leftJoin('ecoles','diplomes_ecoles.ecole_id','=','ecoles.id')
+            ->where('candidat_id','=',$id)
+            ->orderBy('designation')
+            ->orderBy('niveau')
+            ->get();
+
         return view('candidats.show',[
             'candidat'=>$candidat,
             'title' =>$title,
             'candidat_localite' =>$localite,
+            'candidatDiplomeEcoles' => $candidatDiplomeEcoles,
             ]);
     }
 
@@ -639,7 +681,7 @@ class CandidatController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function search()
+    public function search(Request $request)
     {
         $inputs = Input::all();
         $ageMin = $inputs['age'];
@@ -730,7 +772,21 @@ class CandidatController extends Controller
         $ongoingMissions = $liste;
 
         //Récuperer les données du formulaire de recherche
-        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();   //TODO get only 5 best
+        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais']);  //TODO get only 5 best
+        $extraLangues = $request->query('langue');
+        if($extraLangues) {
+            $langueIds = [];
+            foreach($extraLangues as $langueId => $langueNiveau) {
+                $tLangue = explode('|',$langueId);
+
+                if(isset($tLangue[1])) {
+                    $langueIds[] = $tLangue[1];      
+                }
+            }
+            $bestLangues = $bestLangues->orWhereIn('langues.id',$langueIds);       
+        }
+
+        $bestLangues = $bestLangues->get();
         $listeLangues = Langue::all();                 
         $listeLangues = $listeLangues->diff($bestLangues);
         
@@ -754,16 +810,26 @@ class CandidatController extends Controller
 
         $societes = Societe::all();
         $fonctions = Fonction::all();
+
         $avancements = Status::whereNotIn ('avancement', [
             'à traiter',
             'à contacter',
             'à valider'
         ])->get(['avancement']);
 
-        $counters["all"] = sizeof($candidats);
+        $modeCandidatures = ModeCandidature::all();
+        
+        $counters["all"] = Candidat::all()->count();
         $counters["à traiter"] = Status::where(['avancement' => 'à traiter'])->first()->candidatures()->count();
         $counters["à contacter"] = Status::where(['avancement' => 'à contacter'])->first()->candidatures()->count();
         $counters["à valider"] = Status::where(['avancement' => 'à valider'])->first()->candidatures()->count();
+
+        $counters["Stepstone"] = Candidature::join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
+                ->where('media','LIKE','%"mode":"Stepstone"%')->count();
+        $counters["DB Stepstone"] = Candidature::join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
+                ->where('media','LIKE','{"type":"DB","mode":"Stepstone"}')->count();
+        $counters["DB adva"] = Candidature::join('mode_candidature','candidature.mode_candidature_id','mode_candidature.id')
+                ->where('media','LIKE','{"type":"DB","mode":"adva"}')->count();
                     
         //Envoyer les données à la vue ou rediriger
         return view ('candidats.index',[
@@ -779,6 +845,7 @@ class CandidatController extends Controller
             'fonctions'=> $fonctions,
             'counters' => $counters,
             'avancements' =>$avancements,
+            'modeCandidatures'=>$modeCandidatures
         ]);
     }
 
