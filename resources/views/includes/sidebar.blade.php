@@ -16,7 +16,7 @@
                             <a href="{{ route('clients.index') }}"><i class="fa fa-dashboard fa-fw"></i> Accueil</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-briefcase fa-fw"></i> Clients<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-briefcase fa-fw"></i> Clients & Prospects<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
                                     <a href="{{ route('clients.index',['prospect'=>false]) }}">Rechercher <i class="fa fa-search"></i></a>
@@ -39,18 +39,7 @@
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
-                        <li>
-                            <a href="#"><i class="fa fa-eur fa-fw"></i> Prospects<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li>
-                                    <a href="{{ route('clients.index',['prospect'=>true]) }}">Rechercher <i class="fa fa-search"></i></a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('clients.create')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
-                                </li>
-                            </ul>
-                            <!-- /.nav-second-level -->
-                        </li>
+                        
                         <li>
                             <a href="{{ route('missions.index',['filter'=>'Statut=En cours']) }}"><i class="fa fa-code-fork fa-fw"></i> Missions</a>
                         </li>

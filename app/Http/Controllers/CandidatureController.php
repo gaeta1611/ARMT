@@ -194,6 +194,7 @@ class CandidatureController extends Controller
     public function show($id)
     {
         
+        
     }
 
      /**
@@ -204,6 +205,72 @@ class CandidatureController extends Controller
      */
     public function edit($id)
     {
+        //Récuperer le candidat
+        $candidature = Candidature::find($id);
+        
+        //Récuperer la mission
+        $missionId = $candidature->mission_id;
+        $prefix = Config::get('constants.options.PREFIX_MISSION');
+
+        $candidat = Candidat::find($candidature->candidat_id);
+        $candidatId = $candidature->candidat_id;
+
+        $title = 'Modifier la candidature';
+        $title .= " de {$candidat->nom} {$candidat->prenom}";
+        $route = ['candidatures.update',$id];
+        $method = 'PUT';
+
+    
+        //Récuperer les missions en cours
+        $ongoingMissions = Mission::ongoingMissions();
+
+        $liste=[null =>'Aucun'];
+        foreach($ongoingMissions as $ongoingMission) {
+            $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id} =>{$ongoingMission->client->nom_entreprise} - {$ongoingMission->fonction->fonction}";
+        }
+        $ongoingMissions = $liste;
+
+
+        //Récuperer les modes de candidatures (média)
+        $listMedias = ModeCandidature::all();
+
+        $liste=[null =>'Aucun'];
+        foreach($listMedias as $media) {
+            $liste[$media->id] = "{$media->type} {$media->mode}";;
+        }
+        $listMedias = $liste;
+
+        //Récuperer les status
+        $listStatus = Status::all();
+        
+        $liste=[];
+        foreach($listStatus as $status) {
+            $liste[$status->status] [$status->id] = $status->avancement;
+        }
+        $listStatus = $liste;
+
+        //Récuperer les modes de candidatures (média)
+        $candidats = Candidat::orderBy('nom')->get();
+        
+        $liste=[null=>'Aucun'];
+        foreach($candidats as $candidat) {
+            $liste[$candidat->id] = "{$candidat->nom} {$candidat->prenom}";;
+        }
+        $candidats = $liste;
+        
+        return view('candidatures.create',[
+            'title' => $title,
+            'route' => $route,
+            'method' => $method,
+            'ongoingMissions'=>$ongoingMissions,
+            'listMedias'=>$listMedias,
+            'listStatus'=>$listStatus,
+            'candidats'=>$candidats,
+            'candidatId'=>$candidatId,
+            'missionId'=>$missionId,
+            'candidature'=>$candidature,
+
+        ]);
         
     }
 
@@ -219,10 +286,43 @@ class CandidatureController extends Controller
         $candidature = Candidature::find($id);
         $data = Input::post();
 
-        if($candidature->update($data)) {
-            return response()->json(true);
-        } else {
-            return response()->json([0=>false,"message"=>"Erreur Ajax"]);
+        if($request->ajax()) {
+            if($candidature->update($data)) {
+                return response()->json(true);
+            } else {
+                return response()->json([0=>false,"message"=>"Erreur Ajax"]);
+            }
+        }
+
+        $validatorData = $request->validate([
+            'mission_id'=>'nullable|numeric',
+            'candidat_id'=>'required|numeric|min:1',
+            'created_at'=>'required|date',
+            'postule_mission_id'=>'nullable|numeric',
+            'mode_candidature_id'=>'required|numeric',
+            'status_id'=>'required|numeric',
+            'rapport_interview_id'=>'nullable|numeric',
+            
+
+        ],[
+            'mission_id.numeric'=>'Le type du champ mission_id est incorrect',
+            'candidat_id.required'=>'Veuillez spécifier le candidat',
+            'candidat_id.min'=>'Valeur incorrecte pour le candidat',
+            'created_at.required'=>'Veuillez spécifier la date de candidature',
+            'created_at.date'=>'Le type du champ created_at est incorrecte',
+            'postule_mission_id.numeric'=>'Le type du champ postule_mission_id est incorrect',
+            'mode_candidature_id.required'=>'Veuillez spécifier le mode de candidature',
+            'status_id.required'=>'Veuillez spécifier le status',
+            'rapport_interview_id.numeric'=>'Le type du champ rapport_interview_id est incorrecte',
+        ]);
+
+        if($candidature->update($data)){
+            Session::put('success','La candidature a bien été enregistré');
+
+            return redirect()->route('candidats.show',$candidature->candidat_id);
+        }
+        else{
+            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
         }
         
     }

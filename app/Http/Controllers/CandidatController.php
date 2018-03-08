@@ -307,7 +307,7 @@ class CandidatController extends Controller
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
         }
 
-        return redirect()->route('candidats.index');
+        return redirect()->route('candidatures.create.from.candidat',[$candidat->id]);
     
     }
 
@@ -344,11 +344,36 @@ class CandidatController extends Controller
             ->orderBy('niveau')
             ->get();
 
+        $actualSociety = Societe::select('nom_entreprise')
+                ->join('societe_candidat','societes.id','=','societe_candidat.societe_id')
+                ->where('candidat_id','=',$id)
+                ->where('societe_actuelle','=',1)->get();
+            $actualSociety = isset($actualSociety->toArray()[0]['nom_entreprise']) ? 
+                $actualSociety->toArray()[0]['nom_entreprise']:'';
+    
+    
+        $lastFunction = Fonction::select('fonction') 
+                ->join('societe_candidat','fonctions.id','=','societe_candidat.fonction_id')
+                ->where('candidat_id','=',$id)
+                ->orderBy('societe_actuelle','DESC')
+                ->orderBy('date_fin','DESC')
+                ->get();
+            $lastFunction = isset($lastFunction->toArray()[0]['fonction']) ? 
+                $lastFunction->toArray()[0]['fonction']:'';
+
+        $societeCandidats = CandidatSociete::where('candidat_id','=',$id)
+            ->orderBy('societe_actuelle','DESC')
+            ->orderBy('date_fin','DESC')
+            ->get();
+
         return view('candidats.show',[
             'candidat'=>$candidat,
             'title' =>$title,
             'candidat_localite' =>$localite,
             'candidatDiplomeEcoles' => $candidatDiplomeEcoles,
+            'societeCandidats' => $societeCandidats,
+            'lastFunction' => $lastFunction,
+            'actualSociety' => $actualSociety,
             ]);
     }
 

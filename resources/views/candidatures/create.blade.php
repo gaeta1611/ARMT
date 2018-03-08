@@ -41,19 +41,28 @@
 
                                     <div class="form-group">
                                         {{ Form::label('candidat_id','Candidat :')}}
+                                    @if(empty($candidature) || empty($candidature->candidat_id))
                                         {{ Form::select('candidat_id',
                                             $candidats,
                                             (isset($candidatId) ? $candidatId : null),
                                         [
                                             'class'=>'form-control'
                                         ]) }}
+                                    @else
+                                    <p>{{ $candidature->candidat()->first()->nom }} {{ $candidature->candidat()->first()->prenom }}</p>
+                                        {{ Form::hidden('candidat_id',
+                                            $candidature->candidat_id,
+                                        [
+                                            'id'=>'candidat_id'
+                                        ]) }}   
+                                    @endif
                                     </div>
 
                                     <div class="form-group">
                                         {{ Form::label('postule_mission_id','A postulé :')}}
                                         {{ Form::select('postule_mission_id',
                                             $ongoingMissions,
-                                            (isset($oldPostuleMission) ? $oldPostuleMission->id : null),
+                                            old('postule_mission_id')?? (isset($candidature) ? $candidature->postule_mission_id: null),
                                         [
                                             'class'=>'form-control'
                                         ]) }}
@@ -61,7 +70,7 @@
                                     <div class="form-group">
                                         {{ Form::label('created_at','Date :')}}
                                         {{ Form::date('created_at',
-                                            old('created_at')?? (isset($candidature) ? $candidat->created_at: Carbon::now()),
+                                            old('created_at')?? (isset($candidature) ? $candidature->created_at: Carbon::now()),
                                             [
                                             'class'=>'form-control'
                                         ]) }}
@@ -71,7 +80,7 @@
                                         {{ Form::label('mode_candidature_id','Média :')}}
                                         {{ Form::select('mode_candidature_id',
                                             $listMedias,
-                                            (isset($oldMedia) ? $oldMedia->id : null),
+                                            old('mode_candidature_id')?? (isset($candidature) ? $candidature->mode_candidature_id: null),
                                         [
                                             'class'=>'form-control'
                                         ]) }}
@@ -93,7 +102,7 @@
                                         {{ Form::label('status_id','Etat d\'avancement :') }}
                                         {{ Form::select('status_id',
                                             $listStatus,
-                                            (isset($oldStatus) ? $oldStatus->id : null),
+                                            old('status_id')?? (isset($candidature) ? $candidature->status_id: null),
                                         [
                                             'class'=>'form-control'
                                         ]) }}
@@ -101,10 +110,10 @@
 
                                     <div class="form-group">
                                         {{ Form::label('rapport_interview_id','Charger rapport interview:') }}
-                                        @if(isset($candidature) && $candidature->rapport_interview_id)
-                                            <a href="{{ url(Storage::url($candidature->rapport_interview->url_document)) }}" target="_blank"> 
+                                        @if(isset($candidature) && ($rapport_interview = $candidature->rapport()->first()))
+                                            <a href="{{ url(Storage::url($rapport_interview->url_document)) }}" target="_blank"> 
                                                 <i class="fa fa-download" aria-hidden="true"></i>
-                                                {{ $candidature->rapport_interview->filename }}
+                                                {{ $rapport_interview->filename }}
                                             </a>
                                             <i class="fa fa-times" aria-hidden="true" 
                                                 style="margin-top:10px;font-size: 1.5em;color:orangered"

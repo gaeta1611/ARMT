@@ -24,6 +24,7 @@ class Candidature extends Model
         'rapport_interview_id',
         'remarques',
         'mode_candidature_id',
+        'created_at',
     ];
 
     /**

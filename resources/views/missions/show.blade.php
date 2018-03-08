@@ -361,6 +361,7 @@ $(document).ready(function() {
                                             <thead>
                                                 <tr>
                                                     <th>Candidats</th>
+                                                    <th>Diplômes</th>
                                                     <th>Date</th>
                                                     <th>Status</th>
                                                     <th data-field="status_id" data-fetch-table="status.avancement">Avancement</th>
@@ -383,6 +384,11 @@ $(document).ready(function() {
                                                         <a href="{{ route('candidats.show',$candidature->candidat->id)}}">
                                                             {{ $candidature->candidat->nom}}&nbsp;{{ $candidature->candidat->prenom }}
                                                         </a>
+                                                    </td>
+                                                    <td>
+                                                    @foreach($candidatDiplomeEcoles as $cde)
+                                                        {{$cde->designation}}
+                                                    @endforeach
                                                     </td>
                                                     <td style="white-space:nowrap">
                                                             {{ Carbon::parse($candidature->created_at)->format('d-m-Y') }}

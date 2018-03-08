@@ -8,6 +8,7 @@ use App\Mission;
 use App\TypeContrat;
 use App\Document;
 use App\Fonction;
+use App\CandidatDiplomeEcole;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -261,11 +262,32 @@ class MissionController extends Controller
             }
         }
 
+        $candidatDiplomeEcoles = CandidatDiplomeEcole::select('candidat_diplome_ecole.id as cde_id',
+        'candidat_diplome_ecole.candidat_id as candidat_id',
+        'candidat_diplome_ecole.diplome_ecole_id as de_id',
+        'diplomes_ecoles.diplome_id as diplome_id',
+        'diplomes_ecoles.ecole_id as ecole_id',
+        'diplomes.code_diplome as code_diplome',
+        'diplomes.designation as designation',
+        'diplomes.finalite as finalite',
+        'diplomes.niveau as niveau',
+        'ecoles.code_ecole as code_ecole',
+        'ecoles.nom as nom')
+        ->join('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','=','diplomes_ecoles.id')
+        ->join('diplomes','diplomes_ecoles.diplome_id','=','diplomes.id')
+        ->leftJoin('ecoles','diplomes_ecoles.ecole_id','=','ecoles.id')
+        ->where('candidat_id','=',$id)
+        ->orderBy('designation')
+        ->orderBy('niveau')
+        ->get();
+
         return view('missions.show',[
             'mission'=>$mission,
             'client'=>$client,
             'title' =>$title,
-            ]);
+            'candidatDiplomeEcoles' =>$candidatDiplomeEcoles,
+
+        ]);
     }
 
     /**

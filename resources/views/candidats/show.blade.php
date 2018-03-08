@@ -53,13 +53,6 @@ $(document).ready(function() {
                                         <dd>{{ $candidat->sexe}}</dd>
                                         <dt>Téléphone : </dt>
                                         <dd>{{ $candidat->telephone }}</dd>
-                                    </dl>
-                                    <a href="{{ $candidat->site }}" target="_blank" style="margin:15px"><i class="fa fa-internet-explorer fa-lg"></i></a>
-                                    <a href="{{ $candidat->linkedin }}" target="_blank" style="margin:15px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
-                                    <a href=" mailto:{{ $candidat->email }}" target="_blank" style="margin:15px"><i class="fa fa-envelope-o fa-lg"></i></a>                                
-                                </div>
-                                <div class="col-lg-6">
-                                    <dl class="dl-horizontal">
                                         <dt>Localité : </dt>
                                         <dd>{{ $candidat_localite->code_postal }} {{ $candidat_localite->localite }}</dd>
                                         <dt>Email : </dt>
@@ -70,12 +63,32 @@ $(document).ready(function() {
                                         <dd>{{ $candidat->site }}</dd>
                                         <dt>Remarques : </dt>
                                         <dd>{{ $candidat->remarques }}</dd>
+                                    </dl>
+                                    <a href="{{ $candidat->site }}" target="_blank" style="margin:15px"><i class="fa fa-internet-explorer fa-lg"></i></a>
+                                    <a href="{{ $candidat->linkedin }}" target="_blank" style="margin:15px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
+                                    <a href=" mailto:{{ $candidat->email }}" target="_blank" style="margin:15px"><i class="fa fa-envelope-o fa-lg"></i></a>                                
+                                </div>
+                                <div class="col-lg-6">
+                                    <dl class="dl-horizontal">                                     
                                         <dt>Diplômes : </dt>
                                         @foreach($candidatDiplomeEcoles as $cde)
                                         <dd>
                                             {{ $cde->designation.' '.'('.$cde->niveau.' '.$cde->finalite.')'.' '.'-'.' '.($cde->code_ecole ?? '') }}
                                         </dd>
-                                        @endforeach()
+                                        @endforeach
+                                        <dt>Dernier Employeur : </dt>
+                                        <dd>{{ $actualSociety }}</dd>
+                                        <dt>Dernière fonction : </dt>
+                                        <dd>{{ $lastFunction}}</dd>
+                                        <dt>Employeurs : </dt>
+                                        @foreach($societeCandidats as $societeCandidat)
+                                        <dd>
+                                            {{ $societeCandidat->societe->nom_entreprise }}-{{ $societeCandidat->fonction->fonction }}-{{$societeCandidat->date_debut}}/{{$societeCandidat->date_fin}}
+                                        </dd>
+                                        @endforeach
+                                        <dt>CV :</dt>
+                                        <dd>      
+                                        </dd>
                                     </dl>
                                 </div>
                                 
@@ -120,6 +133,8 @@ $(document).ready(function() {
                                         <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-candidats">
                                             <thead>
                                                 <tr>
+                                                    <th></th>
+                                                    <th>Modifier</th>
                                                     <th>A postulé</th>
                                                     <th>Date</th>
                                                     <th>Média</th>
@@ -135,6 +150,12 @@ $(document).ready(function() {
                                             <tbody>
                                             @forelse($candidat->candidatures as $candidature)
                                                 <tr class="odd">
+                                                    <td>
+                                                        <span style="display:none">{{ $candidature->id }}</span>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        <a href="{{ route('candidatures.edit',$candidature->id)}}"><i class="fa fa-edit"></i></a>
+                                                    </td>
                                                     <td>
                                                         @if($candidature->postule_mission_id)
                                                         <a href="{{ route('missions.show',$candidature->postule_mission_id)}}">

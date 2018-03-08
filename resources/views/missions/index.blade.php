@@ -126,7 +126,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="5">Aucun mission.</td></tr>
+                                    <tr><td colspan="5">Aucune mission.</td></tr>
                                 @endforelse
                                 </tbody>
                             </table>
