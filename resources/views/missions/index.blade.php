@@ -29,10 +29,10 @@
         var labels = ['Fonction','Contrat','Statut'];
 
         table.columns([2,3,4]).flatten().each( function ( colIdx, index ) {
-            $panelHeading.find('.row').append('<div class="col-lg-4"><label for="'+labels[index]+'">'+labels[index]+': ');
+            $panelHeading.find('.row').append('<div class="col-lg-4"><label for="'+labels[index]+'">'+labels[index]+':<br> ');
 
             // Create the select list and search operation
-            var select = $('<select id="'+labels[index]+'" />')
+            var select = $('<select id="'+labels[index]+'"style="width:165px" />')
                 .appendTo(
                     $panelHeading.find('label[for='+labels[index]+']')
                 )

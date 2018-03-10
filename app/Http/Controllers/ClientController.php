@@ -67,7 +67,8 @@ class ClientController extends Controller
             'localite_id'=>'required|max:120',
             'tva'=>'required|max:15',
             'site'=>'nullable|url|unique:client|max:255',
-            'linkedin'=>'nullable|url|unique:client|max:255'
+            'linkedin'=>'nullable|url|unique:client|max:255',
+            'prospect'=>'required|boolean',
 
         ],[
             'nom_entreprise.required'=>'Veuillez entrer le nom d\'une entreprise',
@@ -96,12 +97,14 @@ class ClientController extends Controller
 
             'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin',
             'linkedin.unique'=>'Ce Linkedin existe déjà',
-            'linkedin;max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères'
+            'linkedin;max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
+
+            'prospect.required'=>'Veuillez choisir la nature de l\'entreprise',
+            'prospect.boolean'=>'Type de valeur incorrecte pour le type',
         ]);
 
         $client = new client(Input::all());
 
-        $client->prospect = 0;
         if($client->save()){
             Session::put('success','Le client a bien été enregistré');
         }
@@ -122,7 +125,7 @@ class ClientController extends Controller
     public function show($id)
     {
         $client = Client::find($id);
-        $title = 'Client : '.$client->nom_entreprise;
+        $title = ($client->prospect ? 'Prospect':'Client').' : '.$client->nom_entreprise;
         
 
         //$missions = $client->missions;

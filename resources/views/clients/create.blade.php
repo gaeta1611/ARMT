@@ -70,6 +70,27 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="form-group">
+                                        {{ Form::label('prospect','Type:')}}
+                                        {{ Form::radio('prospect','1',
+                                            old('prospect')=='1'|| (isset($client) && $client->prospect==1),
+                                            (isset($client) && !$client->prospect)?[
+                                                'id'=>'prospect',
+                                                'disabled'=>'disabled',
+                                            ]:[
+                                                'id'=>'prospect',
+                                            ])}}
+                                        {{ Form::label('prospect','Prospect')}}
+                                        {{ Form::radio('prospect','0',
+                                            old('prospect')=='0'|| (isset($client) && $client->prospect==0),
+                                            (isset($client) && !$client->prospect)?[
+                                                'id'=>'client',
+                                                'disabled'=>'disabled',
+                                            ]:[
+                                                'id'=>'client',
+                                            ])}}
+                                        {{ Form::label('client','Client')}} 
+                                    </div>
+                                    <div class="form-group">
                                         {{ Form::label('nom_entreprise','Nom entreprise:')}}
                                         {{ Form::text('nom_entreprise',
                                             old('nom_entreprise')?? (isset($client) ? $client->nom_entreprise:''),
