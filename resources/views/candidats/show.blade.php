@@ -130,6 +130,7 @@ $(document).ready(function() {
                             <div class="row" style="padding: 10px">
                                 <div class="panel panel-default">
                                     <div class="panel-body">
+                                    @if($candidat->candidatures->count())
                                         <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-candidats">
                                             <thead>
                                                 <tr>
@@ -148,7 +149,7 @@ $(document).ready(function() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            @forelse($candidat->candidatures as $candidature)
+                                            @foreach($candidat->candidatures as $candidature)
                                                 <tr class="odd">
                                                     <td>
                                                         <span style="display:none">{{ $candidature->id }}</span>
@@ -203,12 +204,12 @@ $(document).ready(function() {
                                                         <i class="fa fa-envelope-o"></i>
                                                     </td>
                                                 </tr>
-                                            @empty
-                                                <tr><td colspan="12">Aucune candidatures.</td></tr>
-                                            @endforelse
-                            
+                                            @endforeach
                                             </tbody>
                                         </table>
+                                    @else   
+                                        <p><strong>Aucune candidature pour ce candidat.</strong></p>
+                                    @endif
                                     </div>
                                 </div>
                             </div>

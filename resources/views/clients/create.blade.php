@@ -62,13 +62,13 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-body">
+                        {{Form::open([
+                            'route'=>$route,
+                            'method'=>$method,
+                            'role'=>'form'
+                        ]) }}
                             <div class="row">
                                 <div class="col-lg-6">
-                                    {{Form::open([
-                                        'route'=>$route,
-                                        'method'=>$method,
-                                        'role'=>'form'
-                                    ]) }}
                                     <div class="form-group">
                                         {{ Form::label('nom_entreprise','Nom entreprise:')}}
                                         {{ Form::text('nom_entreprise',
@@ -190,11 +190,9 @@
                                     <div style="margin-top:35px">
                                     {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
                                     </div>
-
-                                    {{Form::close()}}
                                 </div>
                             </div>
-                           
+                        {{Form::close()}}
                         </div>
                         <!-- /.panel-body -->
                     </div>

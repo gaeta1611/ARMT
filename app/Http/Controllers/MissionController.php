@@ -168,8 +168,8 @@ class MissionController extends Controller
         if($mission->save()){
             Session::put('success','La mission a bien été enregistrée'.'<br \>'.$extraSuccessMsg);
             
-            //Déplacer le job description dans le dossier uploads
-             $jobFiles = $request->file('job_description_ids');
+        //Déplacer le job description dans le dossier uploads
+        $jobFiles = $request->file('job_description_ids');
         
             if($jobFiles){
                 for($i=0;$i<count($jobFiles);$i++){
@@ -468,8 +468,8 @@ class MissionController extends Controller
 
         //Mise a jour des documents(job description)
         //Ajout des nouveaux documents
-            //Déplacer le job description dans le dossier uploads
-             $jobFiles = $request->file('job_description_ids');
+        //Déplacer le job description dans le dossier uploads
+        $jobFiles = $request->file('job_description_ids');
         
             if($jobFiles){
                 for($i=0;$i<count($jobFiles);$i++){

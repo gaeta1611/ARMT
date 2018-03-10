@@ -221,7 +221,8 @@
                             {{Form::open([
                                         'route'=>$route,
                                         'method'=>$method,
-                                        'role'=>'form'
+                                        'role'=>'form',
+                                        'enctype'=>'multipart/form-data'
                             ]) }}
                             <div class="row">
                                 <div class="col-lg-6">

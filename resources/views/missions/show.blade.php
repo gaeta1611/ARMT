@@ -357,33 +357,46 @@ $(document).ready(function() {
                             <div class="row" style="padding: 10px">
                                 <div class="panel panel-default">
                                     <div class="panel-body">
+                                    @if($mission->candidatures->count())
                                         <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-candidats">
                                             <thead>
                                                 <tr>
                                                     <th>Candidats</th>
                                                     <th>Diplômes</th>
+                                                    <th>Employeur</th>
+                                                    <th>Fonction</th>
                                                     <th>Date</th>
                                                     <th>Status</th>
                                                     <th data-field="status_id" data-fetch-table="status.avancement">Avancement</th>
-                                                    <th>Média</th>
                                                     <th data-field="information_candidature_id" data-fetch-table="information_candidature.information">Type</th>
                                                     <th data-field="mode_reponse_id" data-fetch-table="mode_reponse.media">Mode réponse</th>
                                                     <th data-field="date_reponse">Date réponse</th>
-                                                    <th>Rapport interview</th>
                                                     <th data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=F2F'">Date 1er F2F</th>
                                                     <th data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=rencontre client'">Date candidat vs client</th>
                                                     <th data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=3e rencontre'">Date 3e interview</th>
+                                                    <th>Média</th>
+                                                    <th>Rapport interview</th>
                                                     <th>Remarques</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
 
-                                            @forelse($mission->candidatures as $candidature)
+                                            @foreach($mission->candidatures as $candidature)
                                                 <tr class="odd" data-id="{{ $candidature->id }}">
                                                     <td>
                                                         <a href="{{ route('candidats.show',$candidature->candidat->id)}}">
                                                             {{ $candidature->candidat->nom}}&nbsp;{{ $candidature->candidat->prenom }}
                                                         </a>
+                                                    </td>
+                                                    <td>
+                                                    @foreach($candidatDiplomeEcoles as $cde)
+                                                        {{$cde->designation}}
+                                                    @endforeach
+                                                    </td>
+                                                    <td>
+                                                    @foreach($candidatDiplomeEcoles as $cde)
+                                                        {{$cde->designation}}
+                                                    @endforeach
                                                     </td>
                                                     <td>
                                                     @foreach($candidatDiplomeEcoles as $cde)
@@ -397,9 +410,6 @@ $(document).ready(function() {
                                                     <td>
                                                         {{ $candidature->status->avancement }}   
                                                     </td>
-                                                    <td>
-                                                        {{ $candidature->modeCandidature->type}} {{ $candidature->modeCandidature->mode}}
-                                                    </td>
                                                     <td style="white-space:nowrap">
                                                         {{ $candidature->informationCandidature->information }}
                                                     </td>
@@ -408,15 +418,6 @@ $(document).ready(function() {
                                                     </td>
                                                     <td style="white-space:nowrap">
                                                         {{ $candidature->date_reponse ? Carbon::parse($candidature->date_reponse)->format('d-m-Y'):'' }}
-                                                    </td>
-                                                    <td style="text-align:center">
-                                                        @if($candidature->rapport)
-                                                            <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
-                                                                <i class="fa fa-download" aria-hidden="true"></i>
-                                                            </a>
-                                                        @else
-                                                            Aucun
-                                                        @endif
                                                     </td>
                                                     <td style="white-space:nowrap">
                                                         {{ $candidature->F2F ? Carbon::parse($candidature->F2F)->format('d-m-Y'):'' }}
@@ -428,15 +429,27 @@ $(document).ready(function() {
                                                         {{ $candidature->rencontre3 ? Carbon::parse($candidature->rencontre3)->format('d-m-Y'):'' }}
                                                     </td>
                                                     <td>
+                                                        {{ $candidature->modeCandidature->type}} {{ $candidature->modeCandidature->mode}}
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        @if($candidature->rapport)
+                                                            <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
+                                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                            </a>
+                                                        @else
+                                                            Aucun
+                                                        @endif
+                                                    </td>
+                                                    <td>
                                                         {{ $candidature->remarques }}
                                                     </td>
                                                 </tr>
-                                            @empty
-                                                <tr><td colspan="12">Aucun candidat pour cette mission.</td></tr>
-                                            @endforelse
-                                            
+                                    @endforeach
                                             </tbody>
                                         </table>
+                                    @else   
+                                        <p><strong>Aucun candidat pour cette mission.</strong></p>
+                                    @endif
                                     </div>
                                 </div>
                             </div>

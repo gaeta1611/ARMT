@@ -9,9 +9,11 @@ use App\ModeCandidature;
 use App\Status;
 use App\InformationCandidature;
 use App\Candidat;
+use App\Document;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
 
 
 class CandidatureController extends Controller
@@ -286,14 +288,26 @@ class CandidatureController extends Controller
         $candidature = Candidature::find($id);
         $data = Input::post();
 
+        //Traitement des requetes client ajax(cf api)
         if($request->ajax()) {
-            if($candidature->update($data)) {
-                return response()->json(true);
-            } else {
-                return response()->json([0=>false,"message"=>"Erreur Ajax"]);
-            }
+            try {
+                if($candidature->update($data)) {
+                    return response()->json(true);
+                } else {
+                    return response()->json([0=>false,"message"=>"Erreur ajax"]);
+                }
+            } catch (\Illuminate\Database\QueryException $ex) {
+                if(preg_match("/candidat_already_assigned_to_mission/", $ex->getMessage())){
+                    Session::push('errors','Ce candidat a deja postulé pour cette mission');
+                } elseif(preg_match("/candidat_already_applied_to_mission/", $ex->getMessage())){
+                    Session::push('errors','Ce candidat correspond à cette mission');
+                } else {
+                    Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
+                }
+            }         
         }
 
+        //Traitement du formulaire update
         $validatorData = $request->validate([
             'mission_id'=>'nullable|numeric',
             'candidat_id'=>'required|numeric|min:1',
@@ -301,9 +315,7 @@ class CandidatureController extends Controller
             'postule_mission_id'=>'nullable|numeric',
             'mode_candidature_id'=>'required|numeric',
             'status_id'=>'required|numeric',
-            'rapport_interview_id'=>'nullable|numeric',
-            
-
+            //'rapport_interview_id'=>'nullable|numeric',
         ],[
             'mission_id.numeric'=>'Le type du champ mission_id est incorrect',
             'candidat_id.required'=>'Veuillez spécifier le candidat',
@@ -313,17 +325,94 @@ class CandidatureController extends Controller
             'postule_mission_id.numeric'=>'Le type du champ postule_mission_id est incorrect',
             'mode_candidature_id.required'=>'Veuillez spécifier le mode de candidature',
             'status_id.required'=>'Veuillez spécifier le status',
-            'rapport_interview_id.numeric'=>'Le type du champ rapport_interview_id est incorrecte',
+            //'rapport_interview_id.numeric'=>'Le type du champ rapport_interview_id est incorrecte',
         ]);
 
-        if($candidature->update($data)){
-            Session::put('success','La candidature a bien été enregistré');
+        //Mise a jour du document (rapport interview)
+        //Récuperer le  nouveau rapport d'interview chargé dans le formulaire
+        $file = $request->file('rapport_interview_id');
+        
+        if($file){
 
-            return redirect()->route('candidats.show',$candidature->candidat_id);
+            //Déplacer le fichier dans le dossier de téléchargement public
+            $filename = Storage::putFile('public/uploads/rapports',$file);
+
+            //Récuperer le nouveau nom de fichier
+            $filename = strrchr($filename,"/");
+            
+            //Récuperer l'url du dossier de téléchargement
+            //à partir du fichier de config config/filesystems.php
+            $url = '/uploads/rapports'.$filename;
+
+            //Enregistrer le document dans la base de donnée
+            $rapport = new Document ();
+            $rapport->type = 'Rapport d\'interview';
+            $rapport->url_document = $url;
+            $rapport->filename = $file->getClientOriginalName();
+
+            if($rapport->save()){
+                $oldRapportId = $candidature->rapport_interview_id;
+                $candidature->rapport_interview_id = $rapport->id;
+                
+                //Suppression de l'ancien rapport d'interview
+                if($request->get('delete')) {
+                    $oldRapport = Document::find($oldRapportId);
+                    
+                    if(!Storage::disk('public')->delete($oldRapport->url_document)){
+                        Session::push('errors','L\ancien rapport d\'interview n\'a pas pu être supprimé du disque !');
+                    } else {
+                        if($oldRapport->delete()) {
+                            Session::push('errors','L\ancien rapport d\'interview n\'a pas pu être supprimé de la DB !');
+                        }
+                    }
+                }
+            } else{
+                Session::push('errors','Erreur lors de l\'enregristrement du document (rapport interview)!');
+            }
+        //Il n'y a pas de nouveau rapport d'interview => sauver OU supprimer ancien rapport interview
+        } elseif(empty($file) && !empty($request->get('rapport_interview_id'))) {
+            //Suppression de l'ancien rapport d'interview
+            if($request->get('delete')) {
+                $oldRapport = Document::find($request->get('rapport_interview_id'));
+
+                if(!Storage::disk('public')->delete($oldRapport->url_document)){
+                    Session::push('errors','L\ancien rapport d\'interview n\'a pas pu être supprimé du disque !');
+                } else {
+                    if(!$oldRapport->delete()) {
+                        Session::push('errors','L\ancien rapport d\'interview n\'a pas pu être supprimé !');
+                    }
+                }
+
+                $candidature->rapport_interview_id = null;
+            } else {  //Sauver ancien rapport interview
+                $candidature->rapport_interview_id = $request->get('rapport_interview_id');
+            }
+        //Aucun rapport interview pour cette candidature
+        } else {
+            $candidature->rapport_interview_id = null;
         }
-        else{
-            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+
+        $data['rapport_interview_id'] = $candidature->rapport_interview_id;
+        try {
+            if($candidature->update($data)){
+                Session::put('success','La candidature a bien été enregistré');
+    
+                return redirect()->route('candidats.show',[$candidature->candidat_id]);
+            }
+            else{
+                Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement de la candidature $candidature->id!");
+            }
+        } catch (\Illuminate\Database\QueryException $ex) {
+            if(preg_match("/candidat_already_assigned_to_mission/", $ex->getMessage())){
+                Session::push('errors','Ce candidat a deja postulé pour cette mission');
+            } elseif(preg_match("/candidat_already_applied_to_mission/", $ex->getMessage())){
+                Session::push('errors','Ce candidat correspond à cette mission');
+            } else {
+                Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
+            }
         }
+
+        return redirect()->route('candidats.show',$candidature->candidat_id);
         
     }
 

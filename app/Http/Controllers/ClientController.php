@@ -35,7 +35,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        $title = 'Ajouter client';
+        $title = 'Ajouter client ou prospect';
         $route = 'clients.store';
         $method = 'POST';
 

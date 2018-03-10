@@ -31,14 +31,14 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-body">
+                        {{Form::open([
+                            'route'=>$route,
+                            'method'=>$method,
+                            'role'=>'form',
+                            'enctype'=>'multipart/form-data'
+                        ]) }}
                             <div class="row">
                                 <div class="col-lg-6">
-                                    {{Form::open([
-                                        'route'=>$route,
-                                        'method'=>$method,
-                                        'role'=>'form'
-                                    ]) }}
-
                                     <div class="form-group">
                                         {{ Form::label('candidat_id','Candidat :')}}
                                     @if(empty($candidature) || empty($candidature->candidat_id))
@@ -148,11 +148,9 @@
                                     <div style="margin-top:35px">
                                     {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
                                     </div>
-
-                                    {{Form::close()}}
                                 </div>
                             </div>
-                           
+                            {{Form::close()}}
                         </div>
                         <!-- /.panel-body -->
                     </div>
