@@ -19,6 +19,13 @@ class DiplomeEcole extends Model
     ];
 
     /**
+     * Gestion automatique des champs automatique created_at et updated_at
+     *
+     * @var boolean
+     */
+    public $timestamps = false;
+
+    /**
      * Gestion automatique des champs created_at et updated_at
      *
      * @var boolean

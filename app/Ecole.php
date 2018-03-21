@@ -17,6 +17,13 @@ class Ecole extends Model
     ];
 
     /**
+     * Gestion automatique des champs automatique created_at et updated_at
+     *
+     * @var boolean
+     */
+    public $timestamps = false;
+
+    /**
      * Le nom de la table 
      *
      * @var string

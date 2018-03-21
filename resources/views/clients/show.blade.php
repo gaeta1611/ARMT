@@ -54,10 +54,12 @@ $(document).ready(function() {
                                         <dd>{{ $client->telephone }}</dd>
                                         <dt>Email : </dt>
                                         <dd>{{ $client->email }}</dd>
+                                        <dt>
+                                        <a href="{{ $client->site }}" target="_blank" style="margin:10px"><i class="fa fa-internet-explorer fa-lg" style="margin-top:15px"></i></a>
+                                        <a href="{{ $client->linkedin }}" target="_blank" style="margin:10px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
+                                        <a href=" mailto:{{ $client->email }}" target="_blank" style="margin:10px"><i class="fa fa-envelope-o fa-lg"></i></a>
+                                        </dt>
                                     </dl>
-                                    <a href="{{ $client->site }}" target="_blank" style="margin:10px"><i class="fa fa-internet-explorer fa-lg"></i></a>
-                                    <a href="{{ $client->linkedin }}" target="_blank" style="margin:10px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
-                                    <a href=" mailto:{{ $client->email }}" target="_blank" style="margin:10px"><i class="fa fa-envelope-o fa-lg"></i></a>
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
@@ -118,7 +120,6 @@ $(document).ready(function() {
                                                     <th>Date</th>
                                                     <th>Remarques</th>
                                                     <th>Status</th>
-                                                    <th>Mails échangés</th>
                                                     <th>Supprimer</th>
                                                 </tr>
                                             </thead>
@@ -141,11 +142,6 @@ $(document).ready(function() {
                                                     </td>
                                                     <td>
                                                             {{ $mission->status}}
-                                                    </td>
-                                                    <td style="text-align: center">
-                                                        <a href="{{ route('clients.show',$client->id)}}">
-                                                            <i class="fa fa-envelope-o" aria-hidden="true" title="Afficher les emails"></i>
-                                                        </a>
                                                     </td>
                                                     <td style="text-align: center">
                                                         {{Form::open([

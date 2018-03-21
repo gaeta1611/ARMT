@@ -1,4 +1,9 @@
 <?php
+/*header("Access-Control-Allow-Origin: armt.be");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Origin");
+header("Content-Type: application/json; charset=utf-8");*/
 
 /**
  * Laravel - A PHP Framework For Web Artisans

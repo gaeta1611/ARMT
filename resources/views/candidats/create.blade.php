@@ -65,9 +65,118 @@
         const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
         var armtAPI = APP_URL + '/public/api/';
 
+        $('#designation, #finalite, #niveau').on('change', function() {
+                var data = [];
+                data['designation'] = $('#designation').val().trim();
+                data['finalite']  = $('#finalite').val().trim();
+                data['niveau']  = $('#niveau').val().trim();
+
+                if (data['designation']!='' && data['niveau']!='') { 
+                    var apiURL = armtAPI+'diplome?designation='+
+                        data['designation']+'&finalite='+
+                        data['finalite']+'&niveau='+data['niveau'];
+
+                    $.get(apiURL, function(response) {
+                        if(response!==false) {
+                            $('#code_diplome').val(response.code_diplome);
+                            $('#code_diplome').attr('readonly',true);
+                        } else {
+                            $('#code_diplome').val('');
+                            $('#code_diplome').attr('readonly',false);
+                        }
+                    }).fail(function(error) {
+                        $('#code_diplome').val('');
+                        alert('Eche de la requête au serveur!')
+                        $('#code_diplome').attr('readonly',false);
+                    });
+                }
+        });
+        $('#btnAddDiplomeDialog').on('click', function() {
+            function handleError(source) {
+                alert('Echec de la requête au serveur(ajout '+source+')!')
+            }
+            var apiURL;
+            var data = [];
+            data['designation'] = $('#designation').val().trim();
+            data['finalite']  = $('#finalite').val().trim();
+            data['niveau']  = $('#niveau').val().trim();
+            data['ecole']  = $('#ecole').val().trim();
+            data['code_diplome']  = $('#code_diplome').val().trim();
+
+            //Ajout du diplome
+            apiURL = armtAPI+'diplome';
+
+            $.post(apiURL, data, function(response){
+               if(response) {
+                    var diplomeId = JSON.parse(response).id;
+               } else {
+                    handleError('diplôme');
+               }
+            }).done(function(response) {
+                if(response) {
+                    //Ajout de l'ecole
+                    apiURL = armtAPI+'ecole';
+                    data['code_ecole'] = 'COOODEEE';
+
+                    $.post(apiURL, data, function(response) {
+                        if(response) {
+                            var ecoleId = JSON.parse(response).id;
+                        } else {
+                            handleError('ecole');
+                        }
+
+                    }).done(function(response) {
+                        if(response) {
+                            //Ajout de l'association diplome-ecole
+                            apiURL = armtAPI+'diplomes_ecoles';
+                            data['diplome_id'] = JSON.parse(response).diplome_id;
+                            data['ecole_id'] = JSON.parse(response).ecole_id;
+
+                            $.post(apiURL, data, function(response) {
+                                if(!response) {
+                                    handleError('association diplome-ecoles');
+                                }
+                            }).fail(function() {
+                                handleError('association diplome-ecoles');
+                            });
+                        }
+                    }).fail(function() {
+                        handleError('ecoles');
+                    });
+                }
+            }).fail(function() {
+                handleError('diplomes');
+            });
+        });
+
+
+        $('#btnCloseDiplomeDialog').on('click', function() {
+            var designation = $('#designation').val();
+            var finalite = $('#finalite').val();
+            var niveau = $('#niveau').val();
+            var ecole = $('#ecole').val();
+            var code_diplome = $('#code_diplome').val();
+
+            if(designation=='' && finalite=='' && niveau=='' && ecole=='' && code_diplome=='') {
+                $(this).attr('data-dismiss','modal');
+            } else {
+                if(confirm('Etes-vous sur de vouloir annuler')) {
+                    //Vider le formulaire
+                    $('#designation').val('');
+                    $('#finalite').val('');
+                    $('#niveau').val('');
+                    $('#ecole').val('');
+                    $('#code_diplome').val('');
+
+                    $(this).attr('data-dismiss','modal');
+                } else {
+                    $(this).removeAttr('data-dismiss');
+                }
+            }
+        });
+
         $('#btnSaveSocieteDialog').on('click', function() {
 
-            //
             var nbSocCans = $('#tbl-societes tbody tr').length;
 
             var $rows = $('#tbl-societes tbody tr[data-id]');
@@ -365,8 +474,8 @@
                                                 <div class="modal-body">
                                                     <form>
                                                         <div class="form-group">
-                                                            <label for="recipient-name" class="col-form-label">Désignation:</label>
-                                                            <input type="text" class="form-control" id="recipient-name" list="list-designations">
+                                                            <label for="designation" class="col-form-label">Désignation:<span>*<span></label>
+                                                            <input type="text" data-required="true" class="form-control" id="designation" list="list-designations">
                                                             <datalist id="list-designations">
                                                             @foreach($designations as $designation)
                                                                 <option value="{{ $designation}}">{{ $designation }}</option>
@@ -374,8 +483,8 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="recipient-name" class="col-form-label">Finalité:</label>
-                                                            <input type="text" class="form-control" id="recipient-name" list="list-finalites">
+                                                            <label for="finalite" class="col-form-label">Finalité:</label>
+                                                            <input type="text" class="form-control" id="finalite" list="list-finalites">
                                                             <datalist id="list-finalites">
                                                             @foreach($finalites as $finalite)
                                                                 <option value="{{ $finalite}}">{{ $finalite }}</option>
@@ -383,8 +492,8 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="recipient-name" class="col-form-label">Niveau:</label>
-                                                            <input type="text" class="form-control" id="recipient-name" list="list-niveaux">
+                                                            <label for="niveau" class="col-form-label">Niveau:<span>*<span></label>
+                                                            <input type="text" data-required="true" class="form-control" id="niveau" list="list-niveaux">
                                                             <datalist id="list-niveaux">
                                                             @foreach($niveaux as $niveau)
                                                                 <option value="{{$niveau}}">{{ $niveau }}</option>
@@ -392,8 +501,8 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="message-text" class="col-form-label">Ecole:</label>
-                                                            <input type="text" class="form-control" id="recipient-name" list="list-ecoles">
+                                                            <label for="ecole" class="col-form-label">Ecole:</label>
+                                                            <input type="text" class="form-control" id="ecole" list="list-ecoles">
                                                             <datalist id="list-ecoles">
                                                             @foreach($ecoles as $ecole)
                                                                 <option value="{{ $ecole->nom}}">{{ $ecole->code_ecole }}</option>
@@ -401,14 +510,14 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="recipient-name" class="col-form-label">Code Diplôme:</label>
-                                                            <input type="text" class="form-control" id="recipient-name">
+                                                            <label for="code_diplome" class="col-form-label">Code Diplôme:</label>
+                                                            <input type="text" class="form-control" id="code_diplome">
                                                         </div>
                                                     </form>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                                                    <button type="button" class="btn btn-primary">Ajouter</button>
+                                                    <button type="button" class="btn btn-secondary" id="btnCloseDiplomeDialog" data-dismiss="modal">Fermer</button>
+                                                    <button type="button" class="btn btn-primary" id="btnAddDiplomeDialog">Ajouter</button>
                                                 </div>
                                                 </div>
                                             </div>

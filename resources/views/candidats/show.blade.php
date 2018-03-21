@@ -63,10 +63,12 @@ $(document).ready(function() {
                                         <dd>{{ $candidat->site }}</dd>
                                         <dt>Remarques : </dt>
                                         <dd>{{ $candidat->remarques }}</dd>
+                                        <dt>
+                                            <a href="{{ $candidat->site }}" target="_blank" style="margin:10px" style="margin:100px"><i class="fa fa-internet-explorer fa-lg" style="margin-top:15px" ></i></a>
+                                            <a href="{{ $candidat->linkedin }}" target="_blank" style="margin:10px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
+                                            <a href=" mailto:{{ $candidat->email }}" target="_blank" style="margin:10px"><i class="fa fa-envelope-o fa-lg"></i></a>
+                                        </dt>
                                     </dl>
-                                    <a href="{{ $candidat->site }}" target="_blank" style="margin:15px"><i class="fa fa-internet-explorer fa-lg"></i></a>
-                                    <a href="{{ $candidat->linkedin }}" target="_blank" style="margin:15px" ><i class="fa fa-linkedin-square fa-lg"></i></a>
-                                    <a href=" mailto:{{ $candidat->email }}" target="_blank" style="margin:15px"><i class="fa fa-envelope-o fa-lg"></i></a>                                
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">                                     

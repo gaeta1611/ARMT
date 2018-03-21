@@ -760,7 +760,7 @@ class CandidatController extends Controller
         }
 
         if(!empty($inputs['designation'])) {
-            $candidats->where('diplomes.designation','=',$inputs['designation']);
+            $candidats->where('diplomes.designation','LIKE','%'.$inputs['designation'].'%');
         }
 
         if(!empty($inputs['finalite'])) {
