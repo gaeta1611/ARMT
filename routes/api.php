@@ -20,9 +20,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('/status', 'StatusController@getAll');
 Route::get('/information_candidature', 'InformationCandidatureController@getAll');
 Route::get('/mode_reponse', 'ModeReponseController@getAll');
-Route::get('/localite/cp/{cp}', 'LocaliteController@getLocaliteFromCP',['cp']);
-Route::get('/localite/ville/{localite}', 'LocaliteController@getLocaliteFromLocalite',['localite']);
-Route::get('/candidat/status', 'CandidatController@index',['localite']);
+Route::get('/localite/cp/{cp}', 'LocaliteController@getLocaliteFromCP',['cp'])->middleware('cors');
+Route::get('/localite/ville/{localite}', 'LocaliteController@getCPFromLocalite',['localite']);
+Route::get('/candidat/status', 'CandidatController@index');
 //Route::get('/diplome', 'DiplomeController@findDiplomeEcole',['formData']);
 Route::get('/diplome', 'DiplomeController@findDiplome');
 

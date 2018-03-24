@@ -13,7 +13,7 @@
                             <!-- /input-group -->
                         </li>
                         <li>
-                            <a href="{{ route('clients.index') }}"><i class="fa fa-dashboard fa-fw"></i> Accueil</a>
+                            <a href="{{ route('home') }}"><i class="fa fa-dashboard fa-fw"></i> Accueil</a>
                         </li>
                         <li>
                             <a href="#"><i class="fa fa-briefcase fa-fw"></i> Clients & Prospects<span class="fa arrow"></span></a>

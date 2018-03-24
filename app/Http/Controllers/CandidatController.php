@@ -214,7 +214,9 @@ class CandidatController extends Controller
             'prenom'=> 'required|max:60',
             'sexe'=>'required|max:1|in:m,f',
             'email'=>'email|required|unique:candidat|max:120',
-            'localite_id'=>'numeric',
+            'localite_id' => 'nullable|numeric',
+            'code_postal' => 'required|max:10',
+            'localite' => 'required|max:120',
             'date_naissance'=>'nullable|date',
             'telephone'=>'max:20',
             'linkedin'=>'nullable|url|unique:candidat|max:255',
@@ -235,7 +237,11 @@ class CandidatController extends Controller
             'email.unique'=>'L\'adresse mail existe déjà',
             'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
 
-            'localite_id.numeric'=>'Type de valeur incorrecte pour la localité',
+            'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
+            'code_postal.required' => 'Veuillez entrer un code postal.',
+            'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
+            'localite.required' => 'Veuillez entrer une localité.',
+            'localite.max' => 'La localité ne peut dépasser 120 caractères.',
 
             'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
 
@@ -252,6 +258,25 @@ class CandidatController extends Controller
 
 
         $candidat = new candidat(Input::all());
+        $data = Input::all();
+
+        //Ajout éventuel d'une nouvelle localité       
+        if($data['localite_id']==null) {
+            $localite = new Localite();
+            $localite->code_postal = $data['code_postal'];
+            $localite->localite = $data['localite'];
+            
+            if($localite->save()) {
+                $candidat->localite_id = $localite->id;
+                
+                Session::put('success','Une nouvelle localité a été enregistrée.');
+            } else {
+                Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                
+                return redirect()->route('candidats.create');
+            }
+        }
+
         if($candidat->save()){
             Session::put('success','Le candidat a bien été enregistré');
 
@@ -508,7 +533,9 @@ class CandidatController extends Controller
                 Rule::unique('candidat')->ignore($id),
                 'max:100'
             ],
-            'localite_id'=>'numeric',
+            'localite_id' => 'nullable|numeric',
+            'code_postal' => 'required|max:10',
+            'localite' => 'required|max:120',
             'date_naissance'=>'nullable|date',
             'telephone'=>'max:20',
             'site'=>[
@@ -539,7 +566,11 @@ class CandidatController extends Controller
             'email.unique'=>'L\'adresse mail existe déjà',
             'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
 
-            'localite_id.numeric'=>'Type de valeur incorrecte pour la localité',
+            'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
+            'code_postal.required' => 'Veuillez entrer un code postal.',
+            'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
+            'localite.required' => 'Veuillez entrer une localité.',
+            'localite.max' => 'La localité ne peut dépasser 120 caractères.',
 
             'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
 
@@ -556,6 +587,23 @@ class CandidatController extends Controller
 
         $candidat = Candidat::find($id);
         $data = Input::all();
+
+        //Ajout éventuel d'une nouvelle localité       
+        if($data['localite_id']==null) {
+            $localite = new Localite();
+            $localite->code_postal = $data['code_postal'];
+            $localite->localite = $data['localite'];
+            
+            if($localite->save()) {
+                $data['localite_id'] = $localite->id;
+                
+                Session::put('success','Une nouvelle localité a été enregistrée.');
+            } else {
+                Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                
+                return redirect()->route('candidats.update');
+            }
+        }
        
         if($candidat->update($data)){
             Session::put('success','Le candidat a bien été enregistré');

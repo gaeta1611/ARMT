@@ -14,36 +14,33 @@ class Localite extends Model
     protected $fillable = [
         'code_postal',
         'localite',
-    ];
-
+    ]; 
+    
     /**
-     * Gestion automatique des champs automatique created_at et updated_at
-     *
-     * @var boolean
-     */
-    public $timestamps = false;
-
-    /**
-     * Le nom de la table 
+     * Le nom de la table.
      *
      * @var string
      */
     protected $table = 'localites';
-
     
     /**
-    * Récuperer les clients associés à la localité
-    */
-    public function mission (){
+     * Gestion automatique des champs created_at et updated_at
+     * 
+     * @var boolean
+     */
+    public $timestamps = false;
+    
+    /**
+     * Récupère les clients associés à la localité
+     */
+    public function client() {
         return $this->hasMany('App\Client');
     }
 
     /**
-     * Récuperer les candidats associés à la localité
+     * Récupère les candidats associés à la localité
      */
-    public function candidat (){
+    public function candidat() {
         return $this->hasMany('App\Candidat');
     }
-
-    
 }

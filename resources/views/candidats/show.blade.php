@@ -54,7 +54,7 @@ $(document).ready(function() {
                                         <dt>Téléphone : </dt>
                                         <dd>{{ $candidat->telephone }}</dd>
                                         <dt>Localité : </dt>
-                                        <dd>{{ $candidat_localite->code_postal }} {{ $candidat_localite->localite }}</dd>
+                                        <dd>{{ $candidat_localite->code_postal }}, {{ $candidat_localite->localite }}</dd>
                                         <dt>Email : </dt>
                                         <dd>{{ $candidat->email }}</dd>
                                         <dt>Linkedin : </dt>

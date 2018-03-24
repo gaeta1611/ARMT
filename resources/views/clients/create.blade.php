@@ -11,7 +11,7 @@
         $('#code_postal')[0].onchange = function(event) { getLocaliteFromCP(this) };
         $('#localite')[0].onchange = function(event) { getCPFromLocalite(this) };
     });
-
+    
     const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
     var armtAPI = APP_URL + '/public/api/';
 
@@ -19,33 +19,67 @@
         var apiURL = armtAPI+'localite/ville/'+localiteInput.value;
 
         $.get(apiURL, function(data) {
-            if(data.length>0) {
-                $('#code_postal').val(data[0].code_postal);
-                $('#code_postal').onchange = function() { getLocaliteFromCP(this) };
-            } else {
-                $('#code_postal').css('border-color','red').val('');
-                $('#code_postal').onchange = function(event) { event.preventDefault(); return false };
-            }
+           if(data.length>0) {
+               $('#code_postal').css('border-color','#ccc').val(data[0].code_postal);
+               $('#localite').css('border-color','#ccc');
+               $('#code_postal').onchange = function() { getLocaliteFromCP(this) };
+               
+               //Mise à jour du champ caché
+               $('#localite_id').val(data[0].id);
+           } else {
+               var code_postal = $('#code_postal').val();
+               apiURL = armtAPI+'localite/cp/'+code_postal;
+               
+               $.get(apiURL, function(data) {
+                   if(data.length>0) {
+                        if($('#localite').val()!=data[0].localite) {
+                            $('#code_postal').val('');
+                        }
+                    }
+               });
+               
+               $('#code_postal').css('border-color','red');
+               $('#code_postal').onchange = function(event) { event.preventDefault();return false };
+               
+               //Mise à jour du champ caché
+               $('#localite_id').val('');
+           }
         });
-
     }
 
     function getLocaliteFromCP(cpInput) {
-        var apiURL = armtAPI+'localite/cp/'+cpInput.value;
         
-            $.get(apiURL, function(data) {
-            if(data.length>0) {
-                $('#localite').val(data[0].localite);
-                $('#localite').onchange = function() { getCPFromLocalite(this) };
-            } else {
-                $('#localite').css('border-color','red').val('');
-                $('#localite').onchange = function(event) { event.preventDefault(); return false };
-            }
-        });
+        var apiURL = armtAPI+'localite/cp/'+cpInput.value;
 
+        $.get(apiURL, function(data) {
+           if(data.length>0) {
+               $('#localite').css('border-color','#ccc').val(data[0].localite);
+               $('#code_postal').css('border-color','#ccc');
+               $('#localite').onchange = function() { getCPFromLocalite(this) };
+               
+               //Mise à jour du champ caché
+               $('#localite_id').val(data[0].id);
+           } else {
+               var localite = $('#localite').val();
+               apiURL = armtAPI+'localite/ville/'+localite;
+               
+               $.get(apiURL, function(data) {
+                   if(data.length>0) {
+                        if($('#code_postal').val()!=data[0].code_postal) {
+                            $('#localite').val('');
+                        }
+                    }
+               });
+               
+               $('#localite').css('border-color','red');
+               $('#localite').onchange = function(event) { event.preventDefault(); return false };
+               
+               //Mise à jour du champ caché
+               $('#localite_id').val('');
+           }
+        });
     }
 </script>
-
 @endsection
 
 @include('includes.sidebar')
@@ -147,37 +181,37 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         {{ Form::hidden('localite_id',
-                                            old('localite')?? (isset($client) ? $client->localite_id:'2'),
+                                            old('localite')?? (isset($client) ? $client->localite_id:''),
                                             [
-                                                'id'=>'localite_id'
+                                                'id'=>'localite_id',
                                         ]) }}
                                         <div class="row">
                                             <div class="col-lg-4 col-xs-4">
-                                                {{ Form::label('code_postal','Code postal:')}}
+                                                {{ Form::label('code_postal','Code postal:') }}
                                                 {{ Form::text('code_postal',
-                                                    old('code_postal')?? (isset($client) ? $client->localite->code_postal:''),
-                                                    [
-                                                        'placeholder'=>'ex: 1400',
-                                                        'class'=>'form-control',
+                                                old('code_postal')?? (isset($client) ? $client->localite->code_postal : ''),
+                                                [
+                                                    'placeholder' => 'ex.: 1400',
+                                                    'class' => 'form-control',
                                                 ]) }}
                                             </div>
                                             <div class="col-lg-8 col-xs-8">
-                                                {{ Form::label('localite','Ville:')}}
+                                                {{ Form::label('localite','Localité:') }}
                                                 {{ Form::text('localite',
-                                                    old('localite')?? (isset($client) ? $client->localite->localite:''),
-                                                    [
-                                                        'placeholder'=>'ex: Nivelles',
-                                                        'class'=>'form-control',
-                                                        'list'=>'list-localites'
+                                                old('localite')?? (isset($client) ? $client->localite->localite : ''),
+                                                [
+                                                    'placeholder' => 'ex.: Nivelles',
+                                                    'class' => 'form-control',
+                                                    'list' => 'list-localites',
                                                 ]) }}
                                                 <datalist id="list-localites">
-                                                    @foreach($localites as $localite)
-                                                        <option value="{{ $localite->localite }}">{{ $localite->id }}</option>
-                                                    @endforeach
+                                                @foreach($localites as $localite)   
+                                                    <option value="{{ $localite->localite }}">{{ $localite->id }}</option>
+                                                @endforeach   
                                                 </datalist>
-                                            </div>
                                         </div>
                                     </div>
+                                </div>
                                     <div class="form-group">
                                         {{ Form::label('adresse','Adresse:')}}
                                         {{ Form::text('adresse',
