@@ -25,13 +25,14 @@ class DiplomeController extends Controller
         if($diplome) {
             return response()->json($diplome);
         } 
-        return response()->json($diplome);
+        return response()->json(false);
     
     }
 
     public function store(Request $request) {
 
-        $diplome = Diplome::where('designation','=',$request->designation)
+        $diplome = Diplome::where('code_diplome','=',$request->code_diplome)
+                ->where('designation','=',$request->designation)
                 ->where('finalite','=',$request->finalite)
                 ->where('niveau','=',$request->niveau)
                 ->get()->first();

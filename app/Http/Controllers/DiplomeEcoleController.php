@@ -18,8 +18,8 @@ class DiplomeEcoleController extends Controller
     public function findDiplome(Request $request) {
 
         $diplomeEcole = diplomeEcole::where('diplome_id','=',$request->diplome_id)
-        ->where('ecole_id','=',$request->ecole_id)
-        ->get()->first();
+            ->where('ecole_id','=',$request->ecole_id)
+            ->get()->first();
 
         if(!$diplomeEcole) {
             $diplomeEcole = new DiplomeEcole($request->all());
@@ -31,6 +31,23 @@ class DiplomeEcoleController extends Controller
 
         return response()->json($diplomeEcole);
             
+    }
+
+    public function store(Request $request) {
+        
+        $diplomeEcole = DiplomeEcole::where('diplome_id','=',$request->diplome_id)
+                ->where('ecole_id','=',$request->ecole_id)
+                ->get()->first();
+
+        if(!$diplomeEcole) {
+            $diplomeEcole = new DiplomeEcole($request->all());
+
+            if(!$diplomeEcole->save()) {
+                return response()->json(false);
+            }    
+        } 
+
+        return response()->json($diplomeEcole);
     }
 
 }

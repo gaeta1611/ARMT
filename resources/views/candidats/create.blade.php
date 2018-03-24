@@ -139,7 +139,7 @@
         var armtAPI = APP_URL + '/public/api/';
 
         $('#designation, #finalite, #niveau').on('change', function() {
-                var data = [];
+                var data = {};
                 data['designation'] = $('#designation').val().trim();
                 data['finalite']  = $('#finalite').val().trim();
                 data['niveau']  = $('#niveau').val().trim();
@@ -169,11 +169,11 @@
                 alert('Echec de la requête au serveur(ajout '+source+')!')
             }
             var apiURL;
-            var data = [];
+            var data = {};
             data['designation'] = $('#designation').val().trim();
             data['finalite']  = $('#finalite').val().trim();
             data['niveau']  = $('#niveau').val().trim();
-            data['ecole']  = $('#ecole').val().trim();
+            data['code_ecole']  = $('#code_ecole').val().trim();
             data['code_diplome']  = $('#code_diplome').val().trim();
 
             //Ajout du diplome
@@ -181,19 +181,21 @@
 
             $.post(apiURL, data, function(response){
                if(response) {
-                    var diplomeId = JSON.parse(response).id;
+                    var diplomeId = response.id;
+                    data['diplome_id'] = diplomeId;
                } else {
-                    handleError('diplôme');
+                    handleError('diplôme id ');
                }
             }).done(function(response) {
                 if(response) {
                     //Ajout de l'ecole
                     apiURL = armtAPI+'ecole';
-                    data['code_ecole'] = 'COOODEEE';
 
                     $.post(apiURL, data, function(response) {
                         if(response) {
-                            var ecoleId = JSON.parse(response).id;
+                            var ecoleId = response.id;
+                            data['ecole_id'] = ecoleId;
+
                         } else {
                             handleError('ecole');
                         }
@@ -202,8 +204,6 @@
                         if(response) {
                             //Ajout de l'association diplome-ecole
                             apiURL = armtAPI+'diplomes_ecoles';
-                            data['diplome_id'] = JSON.parse(response).diplome_id;
-                            data['ecole_id'] = JSON.parse(response).ecole_id;
 
                             $.post(apiURL, data, function(response) {
                                 if(!response) {
@@ -214,7 +214,7 @@
                             });
                         }
                     }).fail(function() {
-                        handleError('ecoles');
+                        handleError('ecole');
                     });
                 }
             }).fail(function() {
@@ -227,7 +227,7 @@
             var designation = $('#designation').val();
             var finalite = $('#finalite').val();
             var niveau = $('#niveau').val();
-            var ecole = $('#ecole').val();
+            var code_ecole = $('#code_ecole').val();
             var code_diplome = $('#code_diplome').val();
 
             if(designation=='' && finalite=='' && niveau=='' && ecole=='' && code_diplome=='') {
@@ -238,7 +238,7 @@
                     $('#designation').val('');
                     $('#finalite').val('');
                     $('#niveau').val('');
-                    $('#ecole').val('');
+                    $('#code_ecole').val('');
                     $('#code_diplome').val('');
 
                     $(this).attr('data-dismiss','modal');
@@ -574,11 +574,11 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="ecole" class="col-form-label">Ecole:</label>
-                                                            <input type="text" class="form-control" id="ecole" list="list-ecoles">
+                                                            <label for="code_ecole" class="col-form-label">Ecole:</label>
+                                                            <input type="text" class="form-control" id="code_ecole" name="code_ecole" list="list-ecoles">
                                                             <datalist id="list-ecoles">
                                                             @foreach($ecoles as $ecole)
-                                                                <option value="{{ $ecole->nom}}">{{ $ecole->code_ecole }}</option>
+                                                                <option value="{{ $ecole->code_ecole}}">{{ $ecole->code_ecole }}</option>
                                                             @endforeach
                                                             </datalist>
                                                         </div>

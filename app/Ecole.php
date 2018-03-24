@@ -13,7 +13,6 @@ class Ecole extends Model
      */
     protected $fillable = [
         'code_ecole',
-        'nom',
     ];
 
     /**
