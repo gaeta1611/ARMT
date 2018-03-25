@@ -205,7 +205,7 @@
                                     ]) }}
                                     <datalist id="list-ecoles">
                                     @foreach($ecoles as $ecole)
-                                        <option value="{{ $ecole->nom}}">{{ $ecole->code_ecole }}</option>
+                                        <option value="{{ $ecole->code_ecole}}">{{ $ecole->code_ecole }}</option>
                                     @endforeach
                                     </datalist>
                                 </div>

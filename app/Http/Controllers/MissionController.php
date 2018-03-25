@@ -271,8 +271,7 @@ class MissionController extends Controller
         'diplomes.designation as designation',
         'diplomes.finalite as finalite',
         'diplomes.niveau as niveau',
-        'ecoles.code_ecole as code_ecole',
-        'ecoles.nom as nom')
+        'ecoles.code_ecole as code_ecole')
         ->join('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','=','diplomes_ecoles.id')
         ->join('diplomes','diplomes_ecoles.diplome_id','=','diplomes.id')
         ->leftJoin('ecoles','diplomes_ecoles.ecole_id','=','ecoles.id')
