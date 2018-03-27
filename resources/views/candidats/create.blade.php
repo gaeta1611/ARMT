@@ -7,18 +7,6 @@
 
 @section('js')
 <script>
-    //$('#date-creation input').datepicker({
-        //weekStart: 1,
-        //todayBtn: "linked",
-        //language: "fr",
-        //multidateSeparator: "."
-    //});
-    
-    $(function() {
-        $('#code_postal')[0].onchange = function(event) { getLocaliteFromCP(this) };
-        $('#localite')[0].onchange = function(event) { getCPFromLocalite(this) };
-    });
-    
     const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
     var armtAPI = APP_URL + '/public/api/';
 
@@ -88,6 +76,16 @@
     }
 
     $(function() {
+        //Animation de l'attente Ajax
+        $body = $("body");
+
+        $(document).on({
+            ajaxStart: function() { $body.addClass("loading");    },
+            ajaxStop: function() { $body.removeClass("loading"); }    
+        });
+
+        $('#code_postal')[0].onchange = function(event) { getLocaliteFromCP(this) };
+        $('#localite')[0].onchange = function(event) { getCPFromLocalite(this) };
         $('select[name="autres"]').on('change',function(){
             $selected = $(this).find('option:selected')
 
@@ -112,26 +110,33 @@
             }
         });
 
-        $('#diplome').on('input',function() {
+        $('#diplome').on('change',function() {
             var selectedValue = $(this).val().split('|');
-            var diplomeEcoleId = selectedValue[0].trim();
-            var diplome  = selectedValue[1].trim();
 
-            //le texte entré fait-il partie des diplomes de la liste ?
-            if($('#list-diplomes option[value="'+$(this).val()+'"]').length) {
+            if(selectedValue.length>=2) {
+                var diplomeEcoleId = selectedValue[0].trim();
+                var diplome  = selectedValue[1].trim();
 
-                //le diplome est-il déj ajouté?
-                if($ ('#selected-diplomes input[value='+diplomeEcoleId+']').length===0) {
-                    diplome = '<p>'+diplome+ 
-                    '<input type="hidden" name="diplome_ecole_ids[]" value="'+diplomeEcoleId+'"> \
-                    <i class="fa fa-minus-square" onclick="$(this).parent().remove()" style="color:red; cursor:pointer"></i>\n \
-                    </p>';
+                //le texte entré fait-il partie des diplomes de la liste ?
+                if($('#list-diplomes option[value="'+$(this).val()+'"]').length) {
+
+                    //le diplome est-il déj ajouté?
+                    if($ ('#selected-diplomes input[value='+diplomeEcoleId+']').length===0) {
+                        diplome = '<p>'+diplome+ 
+                        '<input type="hidden" name="diplome_ecole_ids[]" value="'+diplomeEcoleId+'"> \
+                        <i class="fa fa-minus-square" onclick="$(this).parent().remove()" style="color:red; cursor:pointer"></i>\n \
+                        </p>';
+                        
+                        //Ajouter le diplome
+                        $('#selected-diplomes').append(diplome);
                     
-                    $('#selected-diplomes').append(diplome);
-                   
-                }
+                    }
 
-                $(this).val('');
+                    $(this).val('');
+                }
+            } else {
+                alert('Valeur incorrecte, Veuillez sélectionner une valeur dans la liste');
+                $(this).val('').focus();
             }
         });
 
@@ -165,9 +170,6 @@
                 }
         });
         $('#btnAddDiplomeDialog').on('click', function() {
-            function handleError(source) {
-                alert('Echec de la requête au serveur(ajout '+source+')!')
-            }
             var apiURL;
             var data = {};
             data['designation'] = $('#designation').val().trim();
@@ -176,80 +178,105 @@
             data['code_ecole']  = $('#code_ecole').val().trim();
             data['code_diplome']  = $('#code_diplome').val().trim();
 
-            //Ajout du diplome
-            apiURL = armtAPI+'diplome';
+            if(data['designation']!='' && data['niveau']!='' && data['code_diplome']!=''){    
+                //Ajout du diplome
+                apiURL = armtAPI+'diplome';
 
-            $.post(apiURL, data, function(response){
-               if(response) {
-                    var diplomeId = response.id;
-                    data['diplome_id'] = diplomeId;
-               } else {
-                    handleError('diplôme id ');
-               }
-            }).done(function(response) {
-                if(response) {
-                    //Ajout de l'ecole
-                    apiURL = armtAPI+'ecole';
+                $.post(apiURL, data, function(response){
+                    if(response) {
+                        var diplomeId = response.id;
+                        data['diplome_id'] = diplomeId;
+                    } 
+                }).done(function(response) {
+                    if(response) {
+                        if(data['code_ecole']!='') {
+                            //Ajout de l'ecole
+                            apiURL = armtAPI+'ecole';
 
-                    $.post(apiURL, data, function(response) {
-                        if(response) {
-                            var ecoleId = response.id;
-                            data['ecole_id'] = ecoleId;
+                            $.post(apiURL, data, function(response) {
+                                if(response) {
+                                    var ecoleId = response.id;
+                                    data['ecole_id'] = ecoleId;
+                                }
+                            }).done(function(response) {
+                                if(response) {
+                                    //Ajout de l'association diplome-ecole
+                                    apiURL = armtAPI+'diplomes_ecoles';
 
-                        } else {
-                            handleError('ecole');
-                        }
+                                    postDataForDiplomesEcoles(apiURL, data);
+                                } else {
+                                    handleError('ecole');
+                                }
+                            }).fail(function() {
+                                handleError('ecole(ajax)');
+                            });
+                        } else {  //Pas d'école spécifiée
+                            data['ecole_id'] = null;
 
-                    }).done(function(response) {
-                        if(response) {
                             //Ajout de l'association diplome-ecole
                             apiURL = armtAPI+'diplomes_ecoles';
 
-                            $.post(apiURL, data, function(response) {
-                                if(!response) {
-                                    handleError('association diplome-ecoles');
-                                }
-                            }).fail(function() {
-                                handleError('association diplome-ecoles');
-                            });
+                            postDataForDiplomesEcoles(apiURL, data);
                         }
-                    }).fail(function() {
-                        handleError('ecole');
-                    });
+                    } else {
+                        handleError('diplôme id ');
+                    }
+                }).fail(function() {
+                    handleError('diplomes');
+                });
+            } else {
+                var fields = [];
+                if(data['designation']=='') {
+                    fields.push('designation');
+                } 
+                
+                if(data['niveau']!='') {
+                    fields.push('niveau');
                 }
-            }).fail(function() {
-                handleError('diplomes');
-            });
+
+                if(data['code_diplome']!='') {
+                    fields.push('code_diplome');
+                }
+
+                if(data['designation']!='' && data['niveau']!='' && data['code_diplome']!=''){
+                    handleError('Veuillez remplir les champs obligatoires');
+                } else {
+                    handleError('Veuillez remplir les champs obligatoire ('+fields.join(', ')+')!');
+                }
+            }
         });
 
 
-        $('#btnCloseDiplomeDialog').on('click', function() {
-            var designation = $('#designation').val();
-            var finalite = $('#finalite').val();
-            var niveau = $('#niveau').val();
-            var code_ecole = $('#code_ecole').val();
-            var code_diplome = $('#code_diplome').val();
+        $('#btnCloseDiplomeDialog').on('click', function(e, mustConfirm = true) {
+            if(mustConfirm) {
+                var designation = $('#designation').val();
+                var finalite = $('#finalite').val();
+                var niveau = $('#niveau').val();
+                var code_ecole = $('#code_ecole').val();
+                var code_diplome = $('#code_diplome').val();
 
-            if(designation=='' && finalite=='' && niveau=='' && ecole=='' && code_diplome=='') {
-                $(this).attr('data-dismiss','modal');
-            } else {
-                if(confirm('Etes-vous sur de vouloir annuler')) {
-                    //Vider le formulaire
-                    $('#designation').val('');
-                    $('#finalite').val('');
-                    $('#niveau').val('');
-                    $('#code_ecole').val('');
-                    $('#code_diplome').val('');
-
+                if(designation=='' && finalite=='' && niveau=='' && code_ecole=='' && code_diplome=='') {
                     $(this).attr('data-dismiss','modal');
                 } else {
-                    $(this).removeAttr('data-dismiss');
+                    if(confirm('Etes-vous sur de vouloir annuler')) {
+                        //Vider le formulaire
+                        $('#designation').val('');
+                        $('#finalite').val('');
+                        $('#niveau').val('');
+                        $('#code_ecole').val('');
+                        $('#code_diplome').val('');
+                        $('#code_diplome').attr('readonly',false);
+
+                        $(this).attr('data-dismiss','modal');
+                    } else {
+                        $(this).removeAttr('data-dismiss');
+                    }
                 }
             }
         });
 
         $('#btnSaveSocieteDialog').on('click', function() {
-
+        /*
             var nbSocCans = $('#tbl-societes tbody tr').length;
 
             var $rows = $('#tbl-societes tbody tr[data-id]');
@@ -283,53 +310,143 @@
                 //Flash message
                 alert('Erreur lors de la modification');
             });
+        */
 
             //Actualiser derniere societe et fonction
             updateActualSociety();
         });
 
         $('#btnAddSociete').on('click',function() {
-            
+            var error = false;
+            var societeId, societe, fonctionId, fonction;
             var selectedValue = $('#societe').val().split('|');
-            var societeId = selectedValue[0] ? selectedValue[0].trim():'';
-            var societe = selectedValue[1] ? selectedValue[1].trim():'';
+            
+            if(selectedValue[1]!=undefined) {
+                societeId = selectedValue[0] ? selectedValue[0].trim():'';
+                societe = selectedValue[1] ? selectedValue[1].trim():'';
+            } else { //Ajout d'une nouvelle société
+                societeId = selectedValue[0] ? selectedValue[0].trim():'';
+                societe = selectedValue[0] ? selectedValue[0].trim():'';
 
+                if(societe=='') {
+                    alert('Veuillez entrer une société!')
+                    return;
+                }
+
+
+                //Ajout de la société
+                apiURL = armtAPI+'societe';
+
+                $.post(apiURL, {nom_entreprise:societe}, function(response){
+                    societeId = response.id;
+                    var inputValue = response.id+' | '+response.nom_entreprise;
+                    var inputText = response.id+' | '+response.nom_entreprise;
+
+                    //Update datalist (if not already in the list)
+                    if($('#list-societes option').filter('[value="'+inputValue+'"]').length==0) {
+                        //Make new value & text
+                        var datalistOption = $('<option></option>');
+                        datalistOption.attr('value',inputValue);
+                        datalistOption.text(inputText);
+
+                        $('#list-societes').append(datalistOption);
+                    }
+
+                    //Put Value then Trigger input
+                    $('#societe').val('')
+                }).fail(function() {
+                    error = true;
+                    handleError('société (Ajax)');
+                });
+            }
+           
             selectedValue = $('#fonction').val().split('|');
-            var fonctionId = selectedValue[0] ? selectedValue[0].trim():'';
-            var fonction = selectedValue[1] ? selectedValue[1].trim():'';
+            
+            if(selectedValue[1]!=undefined) {
+                fonctionId = selectedValue[0] ? selectedValue[0].trim():'';
+                fonction = selectedValue[1] ? selectedValue[1].trim():'';
+            } else { //Ajout d'une nouvelle fonction
+                fonctionId = selectedValue[0] ? selectedValue[0].trim():'';
+                fonction = selectedValue[0] ? selectedValue[0].trim():'';
+
+                if(societe!='recherche d\'emploi' && fonction=='') {
+                    alert('Veuillez entrer une fonction!')
+                    return;
+                }
+
+
+                //Ajout de la fonction
+                apiURL = armtAPI+'fonction';
+
+                $.post(apiURL, {fonction:fonction}, function(response){
+                    fonctionId = response.id;
+                    var inputValue = response.id+' | '+response.fonction;
+                    var inputText = response.id+' | '+response.fonction;
+
+                    //Update datalist (if not already in the list)
+                    if($('#list-fonctions option').filter('[value="'+inputValue+'"]').length==0) {
+                        //Make new value & text
+                        var datalistOption = $('<option></option>');
+                        datalistOption.attr('value',inputValue);
+                        datalistOption.text(inputText);
+
+                        $('#list-fonctions').append(datalistOption);
+                    }
+
+                    //Put Value then Trigger input
+                    $('#fonction').val('')
+                }).fail(function(){
+                    error = true
+                    handleError('fonction (Ajax)');
+                });
+            }
 
             var date_debut = $('#date_debut').val();
             var date_fin = $('#date_fin').val();
 
-            if(societe=='') {
-                alert('Veuillez entrer une société')
-                return;
-            }
+            if(!error) {
+                
+                var data = {};
+                data.societeId = societeId;
+                data.societe = societe;
+                data.fonctionId = fonctionId;
+                data.fonction = fonction;
+                data.date_debut = date_debut;
+                data.date_fin = date_fin;
+                
+                //Ajouter l'emploi dans le tableau
+                prependTableRow(data);
 
-            if(societe !='recherche d\'emploi' && fonction=='') {
-                alert('Veuillez entrer une fonction')
-                return;
+                //Actualiser derniere societe et fonction
+                updateActualSociety();
             }
+        });
+    });
 
-            $('#tbl-societes tbody tr:visible:first').toggleClass('danger');
-            
+    function handleError(source) {
+                alert('Echec de la requête au serveur(ajout '+source+')!')
+    }
+
+    function prependTableRow(data) {
+        $('#tbl-societes tbody tr:visible:first').toggleClass('danger');
+                
             var row = '<tr scope="row" class="danger" data-id=""> \
                 <td>*\n\
                     <input type="hidden" name="socCan[socCanIds][]" value="">\n\
-                 </td>\n\
-                 <td>'+societe+'\n\
-                    <input type="hidden" name="socCan[societeIds][]" value="'+societeId+'">\n\
-                 </td>\n\
-                 <td>'+fonction+'\n\
-                    <input type="hidden" name="socCan[fonctionIds][]" value="'+fonctionId+'">\n\
-                 </td>\n\
-                 <td>'+date_debut+' \
-                    <input type="hidden" name="socCan[dateDebuts][]" value="'+date_debut+'">\n\
-                 </td> \
-                 <td>'+date_fin+' \
-                    <input type="hidden" name="socCan[dateFins][]" value="'+date_fin+'">\n\
-                 </td> \
-                 <td><i class="fa fa-minus-square" onclick="removeTableRow(this)" style="cursor:pointer" style="color:red"><i></td> \
+                </td>\n\
+                <td>'+data.societe+'\n\
+                    <input type="hidden" name="socCan[societeIds][]" value="'+data.societeId+'">\n\
+                </td>\n\
+                <td>'+data.fonction+'\n\
+                    <input type="hidden" name="socCan[fonctionIds][]" value="'+data.fonctionId+'">\n\
+                </td>\n\
+                <td>'+data.date_debut+' \
+                    <input type="hidden" name="socCan[dateDebuts][]" value="'+data.date_debut+'">\n\
+                </td> \
+                <td>'+data.date_fin+' \
+                    <input type="hidden" name="socCan[dateFins][]" value="'+data.date_fin+'">\n\
+                </td> \
+                <td><i class="fa fa-minus-square" onclick="removeTableRow(this)" style="cursor:pointer" style="color:red"><i></td> \
             </tr>';
 
             $('#tbl-societes tbody').prepend(row);
@@ -338,11 +455,7 @@
             $('#fonction').val('');
             $('#date_debut').val('');
             $('#date_fin').val('');
-
-            //Actualiser derniere societe et fonction
-            updateActualSociety();
-        });
-    });
+    }
 
     function removeTableRow(btn) {
         var $tbody = $(btn).parentsUntil('tbody').parent('tbody');
@@ -382,6 +495,74 @@
         $('#actualSociety span').html($actualSociety);
         $('#lastFunction span').html($lastFunction);
     }
+
+    function postDataForDiplomesEcoles(apiURL, data) {
+        $.post(apiURL, data, function(response) {
+            if(response) {
+                var diplomeEcoleId = response.id;
+                data['diplomeEcole_id'] = diplomeEcoleId;
+
+                //Prepare new value & text
+                var inputValue = data['diplomeEcole_id']+' | '+ data['designation']+' ('+
+                    data['niveau']+' '+data['finalite']+') - '+ 
+                    (data['code_ecole'] ? data['code_ecole']:'');
+                var inputText = data['code_diplome']+' | '+data['diplome_id'];
+                
+
+                //Update datalist (if not already in the list)
+                if($('#list-diplomes option').filter('[value="'+inputValue+'"]').length==0) {
+                    //Make new value & text
+                    var datalistOption = $('<option></option>');
+                    datalistOption.attr('value',inputValue);
+                    datalistOption.text(inputText);
+
+                    $('#list-diplomes').append(datalistOption);
+                }
+
+                //Put Value then Trigger input
+                $('#diplome').val(inputValue).trigger('change');
+
+                //Empty dialog box
+                $('#designation').val('');
+                $('#finalite').val('');
+                $('#niveau').val('');
+                $('#code_ecole').val('');
+                $('#code_diplome').val('');
+
+                //Close the dialog box (false means no verification)
+                $('#btnCloseDiplomeDialog').trigger('click',[false]);
+            } else { 
+                handleError('association diplome-ecoles');
+            }
+        }).fail(function() {
+            handleError('association diplome-ecoles(ajax)');
+        });
+    }
+
+    function valider(frm, fields) {
+        for(var i=0; i<fields.length;i++) {
+            $field = $('[name='+fields[i]+']');
+
+            if($field.length==1){
+                if($field.val().trim()=='') {
+                    //Message + focus
+                    alert('Veuillez remplir le champ'+fields[i]+'!');
+                    $field.focus();
+
+                    return false;
+                }
+             } else {
+                for(var j=0;j<$field.length;j++) {
+                    if($field[j].checked()) {
+                        continue;
+                    }
+                }
+
+                return false;
+            }
+        }
+        return true;
+    }
 </script>
 
 @endsection
@@ -401,10 +582,11 @@
                     <div class="panel panel-default">
                         <div class="panel-body">
                             {{Form::open([
-                                        'route'=>$route,
-                                        'method'=>$method,
-                                        'role'=>'form',
-                                        'enctype'=>'multipart/form-data'
+                                'route'=>$route,
+                                'method'=>$method,
+                                'role'=>'form',
+                                'enctype'=>'multipart/form-data',
+                                /*'onsubmit' => 'return valider(this,[nom,prenom,sexe,email])'*/
                             ]) }}
                             <div class="row">
                                 <div class="col-lg-6">
@@ -583,7 +765,7 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="code_diplome" class="col-form-label">Code Diplôme:</label>
+                                                            <label for="code_diplome" class="col-form-label">Code Diplôme:<span>*<span></label>
                                                             <input type="text" class="form-control" id="code_diplome">
                                                         </div>
                                                     </form>
@@ -706,6 +888,9 @@
                                                                 <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnSaveSocieteDialog">Sauvegarder & fermer</button>
                                                             </div> 
                                                             <div class="col-lg-4 col-sm-4">
+                                                                <!-- Ajax waiting animation -->                          
+                                                                <div class="waiting"></div>
+
                                                                 <button type="button" class="btn btn-success" id="btnAddSociete">Ajouter</button>   
                                                             </div>
                                                         </div>
@@ -795,7 +980,9 @@
                                     </div>
                     
                                     <div style="margin-top:35px">
-                                    {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right']) }}
+                                    {{ Form::submit('Enregistrer',[
+                                        'class'=>'btn btn-primary pull-right',
+                                    ]) }}
                                     </div>
                                     
                                 </div>

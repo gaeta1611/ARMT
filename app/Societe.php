@@ -25,6 +25,13 @@ class Societe extends Model
      */
     protected $table = 'societes';
 
+     /**
+     * Gestion automatique des champs created_at et updated_at
+     * 
+     * @var boolean
+     */
+    public $timestamps = false;
+
     /**
      * Récuperer les fonctions associés à cette société
      */

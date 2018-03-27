@@ -51,9 +51,7 @@ class MissionController extends Controller
         $method = 'POST';
         
         //Récuperer la liste des clients pour le formulaire(select)
-        $listeClients = Client::where('prospect',0)
-                            ->orderBy('nom_entreprise')
-                            ->get();
+        $listeClients = Client::orderBy('nom_entreprise')->get();
         $clients=[];
         foreach($listeClients as $client){
             $clients[$client->id] = $client->nom_entreprise;

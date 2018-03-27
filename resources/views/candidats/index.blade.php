@@ -195,12 +195,12 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('ecole','Ecole :',[ 
+                                    {{ Form::label('code_ecole','Ecole :',[ 
                                         'class'=>'col-form-label',
                                     ]) }}
-                                    {{ Form::text('ecole',null,[ 
+                                    {{ Form::text('code_ecole',null,[ 
                                         'class'=>'form-control',
-                                        'id'=>'ecole',
+                                        'id'=>'code_ecole',
                                         'list'=>'list-ecoles'
                                     ]) }}
                                     <datalist id="list-ecoles">

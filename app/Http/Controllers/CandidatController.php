@@ -309,21 +309,52 @@ class CandidatController extends Controller
                 }
             }
 
-            $societes = Input::all('socCan');
-            if(isset($societes['socCan']) && isset($societes['socCan']['societeIds']))  {
-                foreach($societes['socCan']['societeIds'] as $key => $societeId) {
-                    $candidatSociete = new CandidatSociete();
-                    $candidatSociete->candidat_id = $candidat->id;
-                    $candidatSociete->societe_id = $societeId;
-                    $candidatSociete->fonction_id = $societes['socCan']['fonctionIds'][$key];
-                    $candidatSociete->date_debut = $societes['socCan']['dateDebuts'][$key];
-                    $candidatSociete->date_fin = $societes['socCan']['dateFins'][$key];
-                    $candidatSociete->societe_actuelle = $key==0 ? 1:0; // La premiere société
+            //Gestion des emplois antérieurs
+            $data = Input::all('socCan');
+            if(isset($data['socCan']) && !empty($data['socCan']['societeIds']))  {
+                $cptNotSaved = 0;
+                
+                try {
+                    for($i=0;$i<sizeof($data['socCan']['socCanIds']);$i++) {
+                        //Cas d'une nouvelle société
+                        $societeId = $data['socCan']['societeIds'][$i];
 
-                    if(!$candidatSociete->save()) {
-                        Session::push('errors','Erreur lors de l\'enregristrement de société pour ce candidat!');
-                    }
+                        if($societeId!='' && !is_numeric($societeId)) {
+                            $societe = Societe::where('nom_entreprise','=',$societeId)
+                                ->get()->first();
 
+                            $societeId = $societe->id;
+                        }
+
+                        //Cas d'une nouvelle société
+                        $fonctionId = $data['socCan']['fonctionIds'][$i];
+                        
+                        if($fonctionId!='' && !is_numeric($fonctionId)) {
+                            $fonction = Fonction::where('fonction','=',$fonctionId)
+                                ->get()->first();
+
+                            $fonctionId = $fonction->id;
+                        }
+
+                        $newCandidatSociete[] = CandidatSociete::updateOrCreate([
+                            'id'=> $data['socCan']['socCanIds'][$i],
+                        ],[
+                            'candidat_id'=> $candidat->id,
+                            'societe_id'=> $societeId,
+                            'fonction_id'=> $fonctionId ? $fonctionId: null ,
+                            'date_debut'=> $data['socCan']['dateDebuts'][$i] ? $data['socCan']['dateDebuts'][$i]:null,
+                            'date_fin'=> $data['socCan']['dateFins'][$i] ? $data['socCan']['dateFins'][$i]:null,
+                            'societe_actuelle'=>$i==0 ? 1:0,
+                        ]);
+                    } 
+                } catch (\Exception $e) {
+                    $cptNotSaved++;
+                    $message = $e->getMessage();
+                }
+    
+                if($cptNotSaved) {
+                    Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement des emplois antérieus $cptNotSaved! $message");
+                    
                 }
             }
 
@@ -668,14 +699,35 @@ class CandidatController extends Controller
         
             if(isset($data['socCan']) && !empty($data['socCan']['societeIds'])) {
                 $cptNotSaved = 0;
+
                 try {
                     for($i=0;$i<sizeof($data['socCan']['socCanIds']);$i++) {
+                        //Cas d'une nouvelle société
+                        $societeId = $data['socCan']['societeIds'][$i];
+
+                        if($societeId!='' && !is_numeric($societeId)) {
+                            $societe = Societe::where('nom_entreprise','=',$societeId)
+                                ->get()->first();
+
+                            $societeId = $societe->id;
+                        }
+
+                        //Cas d'une nouvelle société
+                        $fonctionId = $data['socCan']['fonctionIds'][$i];
+                        
+                        if($fonctionId!='' && !is_numeric($fonctionId)) {
+                            $fonction = Fonction::where('fonction','=',$fonctionId)
+                                ->get()->first();
+
+                            $fonctionId = $fonction->id;
+                        }
+
                         $newCandidatSociete[] = CandidatSociete::updateOrCreate([
                             'id'=> $data['socCan']['socCanIds'][$i],
                         ],[
                             'candidat_id'=> $id,
-                            'societe_id'=> $data['socCan']['societeIds'][$i],
-                            'fonction_id'=> $data['socCan']['fonctionIds'][$i] ? $data['socCan']['fonctionIds'][$i]:null ,
+                            'societe_id'=> $societeId,
+                            'fonction_id'=> $fonctionId ? $fonctionId: null ,
                             'date_debut'=> $data['socCan']['dateDebuts'][$i] ? $data['socCan']['dateDebuts'][$i]:null,
                             'date_fin'=> $data['socCan']['dateFins'][$i] ? $data['socCan']['dateFins'][$i]:null,
                             'societe_actuelle'=>$i==0 ? 1:0,
@@ -817,8 +869,8 @@ class CandidatController extends Controller
             $candidats->where('diplomes.niveau','=',$inputs['niveau']);
         }
 
-        if(!empty($inputs['ecole'])) {
-            $candidats->where('ecoles.code_ecole','=',$inputs['ecole']);
+        if(!empty($inputs['code_ecole'])) {
+            $candidats->where('ecoles.code_ecole','=',$inputs['code_ecole']);
         }
 
         if(!empty($inputs['societe'])) {

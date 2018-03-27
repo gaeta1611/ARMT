@@ -17,8 +17,11 @@
     <!-- MetisMenu CSS -->
     <link href="{{ asset('../vendor/metisMenu/metisMenu.min.css')}}" rel="stylesheet">
 
-    <!-- Custom CSS -->
+    <!-- SB admin CSS -->
     <link href="{{ asset('css/sb-admin-2.css')}}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{ asset('css/style.css')}}" rel="stylesheet">
 
     <!-- Morris Charts CSS -->
     <!--<link href="{{ asset('../vendor/morrisjs/morris.css')}}" rel="stylesheet">-->

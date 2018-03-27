@@ -33,6 +33,8 @@ Route::delete('/jobs/{id}','CandidatSocieteController@storeFor',['id']);
 Route::post('/diplome','DiplomeController@store');
 Route::post('/ecole','EcoleController@store');
 Route::post('/diplomes_ecoles','DiplomeEcoleController@store');
+Route::post('/societe','SocieteController@store');
+Route::post('/fonction','FonctionController@store');
 
 
 
