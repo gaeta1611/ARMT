@@ -35,3 +35,7 @@ body.loading .waiting {
 body.loading .waiting {
     display: block;
 }
+
+dl dd span.societe {
+    font-variant:small-caps;
+}

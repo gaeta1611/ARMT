@@ -389,18 +389,24 @@ $(document).ready(function() {
                                                         </a>
                                                     </td>
                                                     <td>
-                                                    @foreach($candidatDiplomeEcoles as $cde)
-                                                        {{$cde->designation}}
+                                                    @foreach($candidature->candidat->candidatDiplomeEcoles as $cde)
+                                                        {{$cde->diplomeEcoles->diplome->code_diplome}}
                                                     @endforeach
                                                     </td>
                                                     <td>
-                                                    @foreach($candidatDiplomeEcoles as $cde)
-                                                        {{$cde->designation}}
+                                                    @foreach($candidature->candidat->candidatSocietes as $cs)
+                                                        @if($cs->societe_actuelle)
+                                                            {{$cs->societe->nom_entreprise}}
+                                                             @break
+                                                        @endif
                                                     @endforeach
                                                     </td>
                                                     <td>
-                                                    @foreach($candidatDiplomeEcoles as $cde)
-                                                        {{$cde->designation}}
+                                                    @foreach($candidature->candidat->candidatSocietes as $cs)
+                                                        @if($cs->fonction_id)
+                                                            {{$cs->fonction->lastfunction}}
+                                                             @break
+                                                        @endif
                                                     @endforeach
                                                     </td>
                                                     <td style="white-space:nowrap">

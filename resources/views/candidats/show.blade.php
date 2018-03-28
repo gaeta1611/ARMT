@@ -41,7 +41,7 @@ $(document).ready(function() {
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-lg-6">
+                                <div class="col-lg-5">
                                     <dl class="dl-horizontal">
                                         <dt>Nom : </dt>
                                         <dd>{{ $candidat->nom }}</dd>
@@ -70,23 +70,49 @@ $(document).ready(function() {
                                         </dt>
                                     </dl>
                                 </div>
-                                <div class="col-lg-6">
+                                <div class="col-lg-7">
                                     <dl class="dl-horizontal">                                     
-                                        <dt>Diplômes : </dt>
+                                        <dt id="diplome">Diplômes : </dt>
                                         @foreach($candidatDiplomeEcoles as $cde)
                                         <dd>
                                             {{ $cde->designation.' '.'('.$cde->niveau.' '.$cde->finalite.')'.' '.'-'.' '.($cde->code_ecole ?? '') }}
                                         </dd>
                                         @endforeach
+                                        <br \>
                                         <dt>Dernier Employeur : </dt>
-                                        <dd>{{ $actualSociety }}</dd>
+                                        <dd><span class="societe">{{ isset($actualSociety) ? $actualSociety->nom_entreprise:'' }}</span></dd>
                                         <dt>Dernière fonction : </dt>
-                                        <dd>{{ $lastFunction}}</dd>
-                                        <dt>Employeurs : </dt>
-                                        @foreach($societeCandidats as $societeCandidat)
-                                        <dd>
-                                            {{ $societeCandidat->societe->nom_entreprise }}-{{ $societeCandidat->fonction->fonction }}-{{$societeCandidat->date_debut}}/{{$societeCandidat->date_fin}}
+                                        <dd>{{  isset($lastFunction) ? $lastFunction->fonction:''}} 
+                                        @if($lastFunction)
+                                            @if($lastFunction->date_debut && $lastFunction->date_fin)
+                                            <small>({{Carbon::parse($lastFunction->date_debut)->format('d/m/Y')}} => {{Carbon::parse($lastFunction->date_fin)->format('d/m/Y')}})</small>
+                                            @elseif($lastFunction->date_debut)
+                                            <small>({{Carbon::parse($lastFunction->date_debut)->format('d/m/Y')}}=>)</small>
+                                            @elseif($lastFunction->date_fin)
+                                            <small>( => {{Carbon::parse($lastFunction->date_fin)->format('d/m/Y')}})</small>
+                                            @endif
+                                        @endif
                                         </dd>
+                                        <br \>
+                                        <dt>Employeurs/fonctions : </dt>
+                                        @forelse($societeCandidats as $societeCandidat)
+                                        <dd>
+                                            <span class="societe">{{ $societeCandidat->societe->nom_entreprise }}</span> - {{ $societeCandidat->fonction->fonction }}
+                                            @if($societeCandidat->date_debut && $societeCandidat->date_fin)
+                                            <small>({{Carbon::parse($societeCandidat->date_debut)->format('d/m/Y')}} => {{Carbon::parse($societeCandidat->date_fin)->format('d/m/Y')}})</small>
+                                            @elseif($societeCandidat->date_debut)
+                                            <small>({{Carbon::parse($societeCandidat->date_debut)->format('d/m/Y')}}=>)</small>
+                                            @elseif($societeCandidat->date_fin)
+                                            <small>( => {{Carbon::parse($societeCandidat->date_fin)->format('d/m/Y')}})</small>
+                                            @endif
+                                        </dd>
+                                        @empty
+                                        <dd></dd>
+                                        @endforelse
+                                        <br \>
+                                        <dt>Langues : <dt>
+                                        @foreach($candidat->langues as $langue)
+                                        <dd>{{$langue->designation}} (niveau : {{$langue->pivot->niveau}})</dd>
                                         @endforeach
                                         <dt>CV :</dt>
                                         <dd>      

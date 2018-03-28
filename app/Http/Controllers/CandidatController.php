@@ -399,27 +399,28 @@ class CandidatController extends Controller
             ->orderBy('niveau')
             ->get();
 
-        $actualSociety = Societe::select('nom_entreprise')
+        $actualSociety = Societe::select('societes.id','nom_entreprise')
                 ->join('societe_candidat','societes.id','=','societe_candidat.societe_id')
                 ->where('candidat_id','=',$id)
-                ->where('societe_actuelle','=',1)->get();
-            $actualSociety = isset($actualSociety->toArray()[0]['nom_entreprise']) ? 
-                $actualSociety->toArray()[0]['nom_entreprise']:'';
+                ->where('societe_actuelle','=',1)->get()->first();
     
     
-        $lastFunction = Fonction::select('fonction') 
+        $lastFunction = Fonction::select('fonction', 'date_debut','date_fin') 
                 ->join('societe_candidat','fonctions.id','=','societe_candidat.fonction_id')
                 ->where('candidat_id','=',$id)
                 ->orderBy('societe_actuelle','DESC')
                 ->orderBy('date_fin','DESC')
-                ->get();
-            $lastFunction = isset($lastFunction->toArray()[0]['fonction']) ? 
-                $lastFunction->toArray()[0]['fonction']:'';
+                ->get()->first();
+        
 
         $societeCandidats = CandidatSociete::where('candidat_id','=',$id)
             ->orderBy('societe_actuelle','DESC')
             ->orderBy('date_fin','DESC')
             ->get();
+
+            if($societeCandidats->first() && $societeCandidats->first()->societe_id == $actualSociety->id) {
+                $societeCandidats->shift();
+            }
 
         return view('candidats.show',[
             'candidat'=>$candidat,
