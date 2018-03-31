@@ -23,7 +23,10 @@ Route::get('/mode_reponse', 'ModeReponseController@getAll');
 Route::get('/localite/cp/{cp}', 'LocaliteController@getLocaliteFromCP',['cp'])->middleware('cors');
 Route::get('/localite/ville/{localite}', 'LocaliteController@getCPFromLocalite',['localite']);
 Route::get('/candidat/status', 'CandidatController@index');
-//Route::get('/diplome', 'DiplomeController@findDiplomeEcole',['formData']);
+Route::get('/candidat/{nom}/{prenom}', function(Request $request) {
+    return App\Candidat::where('nom','=',$request['nom'])
+      ->where('prenom','=',$request['prenom'])->get();
+});
 Route::get('/diplome', 'DiplomeController@findDiplome');
 
 Route::post('/candidatures/{id}','CandidatureController@update',['id']);

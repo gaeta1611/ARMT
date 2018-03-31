@@ -52,7 +52,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('fonction','Fonction:')}}
+                                        {{ Form::label('fonction','Fonction:')}}<span class="required">*</span>
                                         {{ Form::text('fonction',
                                             old('fonction')?? (isset($mission) ? $mission->fonction->fonction: ''),
                                             [
@@ -275,13 +275,12 @@
                                         </div>    
                                     </div>
 
-                                    <div style="margin-top:35px">
-                                        {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
+                                    <div class="bottom-bar">
+                                    {{ Form::submit('Enregistrer',[
+                                        'class'=>'btn btn-primary pull-right',
+                                    ]) }}
+                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
                                     </div>
-                                    <div style="margin-top:20px">
-                                        {{ Form::submit('Annuler',['class'=>'btn btn-danger pull-right'])}}
-                                    </div>
-
                                 </div>
                             </div>
                         {{Form::close()}}

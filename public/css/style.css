@@ -39,3 +39,38 @@ body.loading .waiting {
 dl dd span.societe {
     font-variant:small-caps;
 }
+
+/* Affichage sur smartphone */
+@media screen and (max-width:500px) {
+    h1 {
+        font-size:1em;
+        font-weight:bold;
+    }
+}
+
+.top-bar {
+    position:absolute;
+    top:-100px;
+    right:10px;
+}
+
+.top-bar input, .top-bar button {
+    margin:40px 0 10px 10px;
+}
+
+.tob-bar a {
+    text-decoration: none;
+}
+
+.bottom-bar {
+    
+}
+
+.bottom-bar input, .bottom-bar button {
+    margin:40px 0 10px 10px;
+}
+
+.required {
+    color:red; 
+    font-size:1.5em;
+}   

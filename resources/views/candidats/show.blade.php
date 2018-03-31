@@ -48,7 +48,7 @@ $(document).ready(function() {
                                         <dt>Prénom : </dt>
                                         <dd>{{ $candidat->prenom }}</dd>
                                         <dt>Date de naissance : </dt>
-                                        <dd>{{ Carbon::parse($candidat->date_naissance)->format('d-m-Y') }} </dd>
+                                        <dd>{{ isset($candidat->date_naissance) ? Carbon::parse($candidat->date_naissance)->format('d-m-Y'):'' }} </dd>
                                         <dt>Sexe : </dt>
                                         <dd>{{ $candidat->sexe}}</dd>
                                         <dt>Téléphone : </dt>

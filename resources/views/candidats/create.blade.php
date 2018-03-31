@@ -84,6 +84,26 @@
             ajaxStop: function() { $body.removeClass("loading"); }    
         });
 
+        $('#nom, #prenom').each(function() {
+            $(this).on('change', function() {
+                var nom = $("#nom").val().trim();
+                var prenom = $('#prenom').val().trim();
+
+                if(nom!='' && prenom!='') {
+                    var apiURL = armtAPI+'candidat/'+nom+'/'+prenom;
+            
+                    //Recherche du candidat et renvoi de son id si trouvé
+                    $.get(apiURL, function(response) {
+                        if(response[0]) {
+                            if(confirm('Ce candidat existe déjà! \nVoulez vous l\'afficher?')) {
+                            location.href = APP_URL+'/public/candidats/'+response[0].id;
+                            }
+                        }
+                    })
+                }
+            });
+        });
+
         $('#code_postal')[0].onchange = function(event) { getLocaliteFromCP(this) };
         $('#localite')[0].onchange = function(event) { getCPFromLocalite(this) };
         $('select[name="autres"]').on('change',function(){
@@ -540,6 +560,7 @@
         });
     }
 
+
     function valider(frm, fields) {
         for(var i=0; i<fields.length;i++) {
             $field = $('[name='+fields[i]+']');
@@ -589,11 +610,17 @@
                                 'enctype'=>'multipart/form-data',
                                 /*'onsubmit' => 'return valider(this,[nom,prenom,sexe,email])'*/
                             ]) }}
+                            <div class="top-bar">
+                            {{ Form::submit('Enregistrer',[
+                                'class'=>'btn btn-primary pull-right',
+                            ]) }}
+                                <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
+                            </div>
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div style="display:none" id="candidat_id">{{isset($candidat) ? $candidat->id:''}}</div>
                                     <div class="form-group">
-                                        {{ Form::label('nom','Nom :')}}
+                                        {{ Form::label('nom','Nom :')}}<span class="required">*</span>
                                         {{ Form::text('nom',
                                             old('nom')?? (isset($candidat) ? $candidat->nom:''),
                                             [
@@ -603,7 +630,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('prenom','Prénom:')}}
+                                        {{ Form::label('prenom','Prénom:')}}<span class="required">*</span>
                                         {{ Form::text('prenom',
                                             old('prenom')?? (isset($candidat) ? $candidat->prenom:''),
                                             [
@@ -623,7 +650,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('sexe','Sexe:')}}
+                                        {{ Form::label('sexe','Sexe:')}}<span class="required">*</span>
                                         {{ Form::radio('sexe','m',
                                             old('sexe')=='m'|| (isset($candidat) && $candidat->sexe=='m'),
                                             [
@@ -723,7 +750,7 @@
                                                 <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="addDiplomeModalLabel"><strong>Nouveau diplôme</strong></h5>
-                                                    <p><span style="color:red; font-size:25px;">*</span>Champs obligatoire<p>
+                                                    <p><span class="required">*</span>Champs obligatoire<p>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                     </button>
@@ -731,7 +758,7 @@
                                                 <div class="modal-body">
                                                     <form>
                                                         <div class="form-group">
-                                                            <label for="designation" class="col-form-label">Désignation:<span style="color:red; font-size:25px;">*<span></label>
+                                                            <label for="designation" class="col-form-label">Désignation:<span class="required">*</span></label>
                                                             <input type="text" data-required="true" class="form-control" id="designation" list="list-designations">
                                                             <datalist id="list-designations">
                                                             @foreach($designations as $designation)
@@ -749,7 +776,7 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="niveau" class="col-form-label">Niveau:<span style="color:red; font-size:25px;">*<span></label>
+                                                            <label for="niveau" class="col-form-label">Niveau:<span class="required">*</span></label>
                                                             <input type="text" data-required="true" class="form-control" id="niveau" list="list-niveaux">
                                                             <datalist id="list-niveaux">
                                                             @foreach($niveaux as $niveau)
@@ -767,7 +794,7 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="code_diplome" class="col-form-label">Code Diplôme:<span style="color:red; font-size:25px;">*<span></label>
+                                                            <label for="code_diplome" class="col-form-label">Code Diplôme:<span class="required">*</span></label>
                                                             <input type="text" class="form-control" id="code_diplome">
                                                         </div>
                                                     </form>
@@ -941,7 +968,7 @@
                                 </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('Email','Email:')}}
+                                        {{ Form::label('Email','Email:')}}<span class="required">*</span>
                                         <div class="form-group input-group">
                                             <span class="input-group-addon">@</span>
                                             {{ Form::email('email',
@@ -981,12 +1008,12 @@
                                         ]) }}
                                     </div>
                     
-                                    <div style="margin-top:35px">
+                                    <div class="bottom-bar">
                                     {{ Form::submit('Enregistrer',[
                                         'class'=>'btn btn-primary pull-right',
                                     ]) }}
+                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
                                     </div>
-                                    
                                 </div>
                             </div>
                         {{Form::close()}}

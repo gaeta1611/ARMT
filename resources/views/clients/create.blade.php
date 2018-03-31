@@ -104,7 +104,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        {{ Form::label('prospect','Type:')}}
+                                        {{ Form::label('prospect','Type:')}}<span class="required">*</span>
                                         {{ Form::radio('prospect','1',
                                             old('prospect')=='1'|| (isset($client) && $client->prospect==1),
                                             (isset($client) && !$client->prospect)?[
@@ -125,7 +125,7 @@
                                         {{ Form::label('client','Client')}} 
                                     </div>
                                     <div class="form-group">
-                                        {{ Form::label('nom_entreprise','Nom entreprise:')}}
+                                        {{ Form::label('nom_entreprise','Nom entreprise:')}}<span class="required">*</span>
                                         {{ Form::text('nom_entreprise',
                                             old('nom_entreprise')?? (isset($client) ? $client->nom_entreprise:''),
                                             [
@@ -165,7 +165,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('Email','Email:')}}
+                                        {{ Form::label('Email','Email:')}}<span class="required">*</span>
                                         <div class="form-group input-group">
                                             <span class="input-group-addon">@</span>
                                             {{ Form::email('email',
@@ -242,8 +242,11 @@
                                         ]) }}
                                     </div>
 
-                                    <div style="margin-top:35px">
-                                    {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
+                                    <div class="bottom-bar">
+                                    {{ Form::submit('Enregistrer',[
+                                        'class'=>'btn btn-primary pull-right',
+                                    ]) }}
+                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
                                     </div>
                                 </div>
                             </div>

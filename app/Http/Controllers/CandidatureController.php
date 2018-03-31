@@ -120,17 +120,20 @@ class CandidatureController extends Controller
                 'candidat_id'=>'required',
             ]);
                 
-            $modeCandidature_id = ModeCandidature::where('media','LIKE','%chasse%DB adva%')->first()->id;
+            $modeCandidature = ModeCandidature::where('media','LIKE','%DB%adva%')->first();
+            if($modeCandidature) {
+                $candidature = new Candidature(Input::all());
+                $candidature->created_at = now()->format('Y-m-d');
+                $candidature->status_id = 1;//1=>ouvert, à prevalider
+                $candidature->mode_candidature_id =  $modeCandidature->id;
 
-            $candidature = new Candidature(Input::all());
-            $candidature->created_at = now()->format('Y-m-d');
-            $candidature->status_id = 1;//1=>ouvert, à prevalider
-            $candidature->mode_candidature_id =  $modeCandidature_id;
-
-            if($candidature->save()){
-                Session::put('success','La candidature a bien été enregistré');
-            }
-            else{
+                if($candidature->save()){
+                    Session::put('success','La candidature a bien été enregistré');
+                }
+                else{
+                    Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+                }
+            } else {
                 Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
             }
 

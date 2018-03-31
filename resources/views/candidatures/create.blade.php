@@ -77,7 +77,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('mode_candidature_id','Média :')}}
+                                        {{ Form::label('mode_candidature_id','Média :')}}<span class="required">*</span>
                                         {{ Form::select('mode_candidature_id',
                                             $listMedias,
                                             old('mode_candidature_id')?? (isset($candidature) ? $candidature->mode_candidature_id: null),
@@ -145,8 +145,11 @@
                                         ]) }}
                                     </div>
 
-                                    <div style="margin-top:35px">
-                                    {{ Form::submit('Enregistrer',['class'=>'btn btn-primary pull-right'])}}
+                                    <div class="bottom-bar">
+                                    {{ Form::submit('Enregistrer',[
+                                        'class'=>'btn btn-primary pull-right',
+                                    ]) }}
+                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
                                     </div>
                                 </div>
                             </div>
