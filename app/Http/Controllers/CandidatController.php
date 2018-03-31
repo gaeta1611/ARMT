@@ -215,8 +215,8 @@ class CandidatController extends Controller
             'sexe'=>'required|max:1|in:m,f',
             'email'=>'email|required|unique:candidat|max:120',
             'localite_id' => 'nullable|numeric',
-            'code_postal' => 'required|max:10',
-            'localite' => 'required|max:120',
+            'code_postal' => 'max:10',
+            'localite' => 'max:120',
             'date_naissance'=>'nullable|date',
             'telephone'=>'max:20',
             'linkedin'=>'nullable|url|unique:candidat|max:255',
@@ -232,27 +232,27 @@ class CandidatController extends Controller
             'sexe.max'=>'Veuillez renseigner m ou f pour le sexe du candidat',
             'sexe.in'=>'Veuillez renseigner m ou f pour le sexe du candidat',
 
-            'email.required'=>'Veuillez entrer une email',
+            'email.required'=>'Veuillez entrer un email',
             'email.email'=>'Type de valeur incorrecte pour l\'email',
             'email.unique'=>'L\'adresse mail existe déjà',
             'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
 
             'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
-            'code_postal.required' => 'Veuillez entrer un code postal.',
+            //'code_postal.required' => 'Veuillez entrer un code postal.',
             'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
-            'localite.required' => 'Veuillez entrer une localité.',
+            //'localite.required' => 'Veuillez entrer une localité.',
             'localite.max' => 'La localité ne peut dépasser 120 caractères.',
 
             'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
 
             'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 caractères',
 
-            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin',
-            'linkedin.unique'=>'Ce Linkedin existe déjà',
+            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin en ajoutant (http://)',
+            'linkedin.unique'=>'Ce Linkedin existe déjà dans votre DBs',
             'linkedin.max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
 
-            'site.url'=>'Veuillez entrer une URL valide pour le site internet',
-            'site.unique'=>'Ce site internet existe déjà',
+            'site.url'=>'Veuillez entrer une URL valide pour le site internet (http://)',
+            'site.unique'=>'Ce site internet existe déjà dans votre DB',
             'site.max'=>'L\' URL du site  ne peut pas dépasser 255 caractères'
         ]);
 
@@ -391,13 +391,13 @@ class CandidatController extends Controller
             'diplomes.finalite as finalite',
             'diplomes.niveau as niveau',
             'ecoles.code_ecole as code_ecole')
-            ->join('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','=','diplomes_ecoles.id')
-            ->join('diplomes','diplomes_ecoles.diplome_id','=','diplomes.id')
-            ->leftJoin('ecoles','diplomes_ecoles.ecole_id','=','ecoles.id')
-            ->where('candidat_id','=',$id)
-            ->orderBy('designation')
-            ->orderBy('niveau')
-            ->get();
+        ->join('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','=','diplomes_ecoles.id')
+        ->join('diplomes','diplomes_ecoles.diplome_id','=','diplomes.id')
+        ->leftJoin('ecoles','diplomes_ecoles.ecole_id','=','ecoles.id')
+        ->where('candidat_id','=',$id)
+        ->orderBy('designation')
+        ->orderBy('niveau')
+        ->get();
 
         $actualSociety = Societe::select('societes.id','nom_entreprise')
                 ->join('societe_candidat','societes.id','=','societe_candidat.societe_id')
@@ -475,13 +475,13 @@ class CandidatController extends Controller
             'diplomes.finalite as finalite',
             'diplomes.niveau as niveau',
             'ecoles.code_ecole as code_ecole')
-            ->join('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','=','diplomes_ecoles.id')
-            ->join('diplomes','diplomes_ecoles.diplome_id','=','diplomes.id')
-            ->leftJoin('ecoles','diplomes_ecoles.ecole_id','=','ecoles.id')
-            ->where('candidat_id','=',$id)
-            ->orderBy('designation')
-            ->orderBy('niveau')
-            ->get();
+        ->join('diplomes_ecoles','candidat_diplome_ecole.diplome_ecole_id','=','diplomes_ecoles.id')
+        ->join('diplomes','diplomes_ecoles.diplome_id','=','diplomes.id')
+        ->leftJoin('ecoles','diplomes_ecoles.ecole_id','=','ecoles.id')
+        ->where('candidat_id','=',$id)
+        ->orderBy('designation')
+        ->orderBy('niveau')
+        ->get();
 
         $designations = Diplome::select('designation')->distinct('designation')->get()->toArray();
         array_walk($designations, function(&$item) { $item= $item['designation']; });
@@ -564,8 +564,8 @@ class CandidatController extends Controller
                 'max:100'
             ],
             'localite_id' => 'nullable|numeric',
-            'code_postal' => 'required|max:10',
-            'localite' => 'required|max:120',
+            'code_postal' => 'max:10',
+            'localite' => 'max:120',
             'date_naissance'=>'nullable|date',
             'telephone'=>'max:20',
             'site'=>[
@@ -597,20 +597,20 @@ class CandidatController extends Controller
             'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
 
             'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
-            'code_postal.required' => 'Veuillez entrer un code postal.',
+            //'code_postal.required' => 'Veuillez entrer un code postal.',
             'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
-            'localite.required' => 'Veuillez entrer une localité.',
+            //'localite.required' => 'Veuillez entrer une localité.',
             'localite.max' => 'La localité ne peut dépasser 120 caractères.',
 
             'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
 
             'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 caractères',
 
-            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin',
+            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin en ajoutant (http://)',
             'linkedin.unique'=>'Ce Linkedin existe déjà',
             'linkedin.max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
 
-            'site.url'=>'Veuillez entrer une URL valide pour le site internet',
+            'site.url'=>'Veuillez entrer une URL valide pour le site internet (http://)',
             'site.unique'=>'Ce site internet existe déjà',
             'site.max'=>'L\' URL du site  ne peut pas dépasser 255 caractères'
         ]);
@@ -656,6 +656,7 @@ class CandidatController extends Controller
             //Gestion des diplomes
             //Récuperer de la DB les diplomes du candidat
             $cdes = CandidatDiplomeEcole::where('candidat_id','=',$id)->get()->toArray();
+
             $db_de_ids = [];
             foreach($cdes as $cde){
                 $db_de_ids[] = $cde['diplome_ecole_id'];
@@ -683,6 +684,7 @@ class CandidatController extends Controller
             }
             //Déterminer les diplomes à supprimer de la DB
             $deleteDiplomes = array_diff($db_de_ids,$form_de_ids);
+
             foreach($deleteDiplomes as $diplomeEcoleId) {
                 $candidatDiplomeEcole = CandidatDiplomeEcole::where([
                     'candidat_id'=>$id,
@@ -701,38 +703,40 @@ class CandidatController extends Controller
             if(isset($data['socCan']) && !empty($data['socCan']['societeIds'])) {
                 $cptNotSaved = 0;
 
-                try {
-                    for($i=0;$i<sizeof($data['socCan']['socCanIds']);$i++) {
-                        //Cas d'une nouvelle société
-                        $societeId = $data['socCan']['societeIds'][$i];
+                try { //Ajout d'emploi(avec association de nouvelle sociétés ou fonctions)
+                    if(!empty($data['socCan']['socCanIds'])) {
+                        for($i=0;$i<sizeof($data['socCan']['socCanIds']);$i++) {
+                            //Cas d'une nouvelle société
+                            $societeId = $data['socCan']['societeIds'][$i];
 
-                        if($societeId!='' && !is_numeric($societeId)) {
-                            $societe = Societe::where('nom_entreprise','=',$societeId)
-                                ->get()->first();
+                            if($societeId!='' && !is_numeric($societeId)) {
+                                $societe = Societe::where('nom_entreprise','=',$societeId)
+                                    ->get()->first();
 
-                            $societeId = $societe->id;
+                                $societeId = $societe->id;
+                            }
+
+                            //Cas d'une nouvelle société
+                            $fonctionId = $data['socCan']['fonctionIds'][$i];
+                            
+                            if($fonctionId!='' && !is_numeric($fonctionId)) {
+                                $fonction = Fonction::where('fonction','=',$fonctionId)
+                                    ->get()->first();
+
+                                $fonctionId = $fonction->id;
+                            }
+
+                            $newCandidatSociete[] = CandidatSociete::updateOrCreate([
+                                'id'=> $data['socCan']['socCanIds'][$i],
+                            ],[
+                                'candidat_id'=> $id,
+                                'societe_id'=> $societeId,
+                                'fonction_id'=> $fonctionId ? $fonctionId: null ,
+                                'date_debut'=> $data['socCan']['dateDebuts'][$i] ? $data['socCan']['dateDebuts'][$i]:null,
+                                'date_fin'=> $data['socCan']['dateFins'][$i] ? $data['socCan']['dateFins'][$i]:null,
+                                'societe_actuelle'=>$i==0 ? 1:0,
+                            ]);
                         }
-
-                        //Cas d'une nouvelle société
-                        $fonctionId = $data['socCan']['fonctionIds'][$i];
-                        
-                        if($fonctionId!='' && !is_numeric($fonctionId)) {
-                            $fonction = Fonction::where('fonction','=',$fonctionId)
-                                ->get()->first();
-
-                            $fonctionId = $fonction->id;
-                        }
-
-                        $newCandidatSociete[] = CandidatSociete::updateOrCreate([
-                            'id'=> $data['socCan']['socCanIds'][$i],
-                        ],[
-                            'candidat_id'=> $id,
-                            'societe_id'=> $societeId,
-                            'fonction_id'=> $fonctionId ? $fonctionId: null ,
-                            'date_debut'=> $data['socCan']['dateDebuts'][$i] ? $data['socCan']['dateDebuts'][$i]:null,
-                            'date_fin'=> $data['socCan']['dateFins'][$i] ? $data['socCan']['dateFins'][$i]:null,
-                            'societe_actuelle'=>$i==0 ? 1:0,
-                        ]);
                     } 
                 } catch (\Exception $e) {
                     $cptNotSaved++;

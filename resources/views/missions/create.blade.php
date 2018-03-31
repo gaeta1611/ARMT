@@ -100,7 +100,7 @@
                                     <div class="form-group">
                                         {{ Form::label('contrat_id','Charger contrat:')}}
                                         @if(isset($mission) && $mission->contrat_id)
-                                            <a href="{{ url(Storage::url($mission->contrat->url_document)) }}" target="_blank"> 
+                                            <a href="{{ Storage::disk('public')->url($mission->contrat->url_document) }}" target="_blank"> 
                                                 <i class="fa fa-download" aria-hidden="true"></i>
                                                 {{$mission->contrat->filename}}
                                             </a>
@@ -132,7 +132,7 @@
                                             <dd style="margin-left:15px">
                                             @foreach($mission->job_descriptions as $job_description)
                                                 <p style="margin:0">
-                                                    <a href="{{ url(Storage::url($job_description->url_document)) }}" target="_blank"> 
+                                                    <a href="{{ Storage::disk('public')->url($job_description->url_document) }}" target="_blank"> 
                                                         <i class="fa fa-download" aria-hidden="true"></i>
                                                         {{ $job_description->description }}
                                                         </a>
@@ -207,7 +207,7 @@
                                             <dd style="margin-left:15px">
                                             @foreach($mission->offres as $offre)
                                                 <p style="margin:0">
-                                                    <a href="{{ url(Storage::url($offre->url_document)) }}" target="_blank"> 
+                                                    <a href="{{ Storage::disk('public')->url($offre->url_document) }}" target="_blank"> 
                                                         <i class="fa fa-download" aria-hidden="true"></i>
                                                         {{ $offre->description }}
                                                         </a>

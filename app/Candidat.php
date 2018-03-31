@@ -57,7 +57,9 @@ class Candidat extends Model
      * Récuperer les emplois associés à ce candidat
      */
     public function candidatSocietes(){
-        return $this->hasMany('App\CandidatSociete');
+        return $this->hasMany('App\CandidatSociete')
+                ->orderBy('societe_actuelle','DESC')
+                ->orderBy('date_fin','DESC');
     }
 
     /**

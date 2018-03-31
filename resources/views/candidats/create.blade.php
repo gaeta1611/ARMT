@@ -374,31 +374,32 @@
                     return;
                 }
 
+                if(fonction !='') {
+                    //Ajout de la fonction
+                    apiURL = armtAPI+'fonction';
 
-                //Ajout de la fonction
-                apiURL = armtAPI+'fonction';
+                    $.post(apiURL, {fonction:fonction}, function(response){
+                        fonctionId = response.id;
+                        var inputValue = response.id+' | '+response.fonction;
+                        var inputText = response.id+' | '+response.fonction;
 
-                $.post(apiURL, {fonction:fonction}, function(response){
-                    fonctionId = response.id;
-                    var inputValue = response.id+' | '+response.fonction;
-                    var inputText = response.id+' | '+response.fonction;
+                        //Update datalist (if not already in the list)
+                        if($('#list-fonctions option').filter('[value="'+inputValue+'"]').length==0) {
+                            //Make new value & text
+                            var datalistOption = $('<option></option>');
+                            datalistOption.attr('value',inputValue);
+                            datalistOption.text(inputText);
 
-                    //Update datalist (if not already in the list)
-                    if($('#list-fonctions option').filter('[value="'+inputValue+'"]').length==0) {
-                        //Make new value & text
-                        var datalistOption = $('<option></option>');
-                        datalistOption.attr('value',inputValue);
-                        datalistOption.text(inputText);
+                            $('#list-fonctions').append(datalistOption);
+                        }
 
-                        $('#list-fonctions').append(datalistOption);
-                    }
-
-                    //Put Value then Trigger input
-                    $('#fonction').val('')
-                }).fail(function(){
-                    error = true
-                    handleError('fonction (Ajax)');
-                });
+                        //Put Value then Trigger input
+                        $('#fonction').val('')
+                    }).fail(function(){
+                        error = true
+                        handleError('fonction (Ajax)');
+                    });
+                }
             }
 
             var date_debut = $('#date_debut').val();
@@ -701,7 +702,7 @@
                                         ]) }}
                                         <datalist id="list-diplomes">
                                             @foreach($diplomeEcoles as $de)
-                                                <option value="{{ $de->diplome_id}} | {{ $de->diplome['designation']}} ({{$de->diplome['niveau']}} {{$de->diplome['finalite']}}) - {{isset($de->ecole) ? $de->ecole['code_ecole']:''}}">{{$de->diplome['code_diplome']}} | {{$de->diplome_id}}</option>
+                                                <option value="{{ $de->id}} | {{ $de->diplome['designation']}} ({{$de->diplome['niveau']}} {{$de->diplome['finalite']}}) - {{isset($de->ecole) ? $de->ecole['code_ecole']:''}}">{{$de->diplome['code_diplome']}} | {{$de->diplome_id}}</option>
                                             @endforeach
                                         </datalist>
                                         <div id="selected-diplomes" style="margin:15px">
@@ -721,7 +722,8 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="addDiplomeModalLabel">Nouveau diplôme</h5>
+                                                    <h5 class="modal-title" id="addDiplomeModalLabel"><strong>Nouveau diplôme</strong></h5>
+                                                    <p><span style="color:red; font-size:25px;">*</span>Champs obligatoire<p>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                     </button>
@@ -729,7 +731,7 @@
                                                 <div class="modal-body">
                                                     <form>
                                                         <div class="form-group">
-                                                            <label for="designation" class="col-form-label">Désignation:<span>*<span></label>
+                                                            <label for="designation" class="col-form-label">Désignation:<span style="color:red; font-size:25px;">*<span></label>
                                                             <input type="text" data-required="true" class="form-control" id="designation" list="list-designations">
                                                             <datalist id="list-designations">
                                                             @foreach($designations as $designation)
@@ -747,7 +749,7 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="niveau" class="col-form-label">Niveau:<span>*<span></label>
+                                                            <label for="niveau" class="col-form-label">Niveau:<span style="color:red; font-size:25px;">*<span></label>
                                                             <input type="text" data-required="true" class="form-control" id="niveau" list="list-niveaux">
                                                             <datalist id="list-niveaux">
                                                             @foreach($niveaux as $niveau)
@@ -765,7 +767,7 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="code_diplome" class="col-form-label">Code Diplôme:<span>*<span></label>
+                                                            <label for="code_diplome" class="col-form-label">Code Diplôme:<span style="color:red; font-size:25px;">*<span></label>
                                                             <input type="text" class="form-control" id="code_diplome">
                                                         </div>
                                                     </form>

@@ -281,7 +281,7 @@ $(document).ready(function() {
                                         <dt>Contrat :</dt>
                                         <dd>
                                             @if($mission->contrat_id)
-                                               <a href="{{ url(Storage::url($mission->contrat->url_document)) }}" target="_blank"> 
+                                               <a href="{{ Storage::disk('public')->url($mission->contrat->url_document) }}" target="_blank"> 
                                                    <i class="fa fa-download" aria-hidden="true"></i>
                                                 </a>
                                             @else
@@ -293,7 +293,7 @@ $(document).ready(function() {
                                         <dd>
                                         @if(count($mission->job_descriptions))
                                             @foreach($mission->job_descriptions as $job_description)
-                                               <a href="{{ url(Storage::url($job_description->url_document)) }}" target="_blank"> 
+                                               <a href="{{ Storage::disk('public')->url($job_description->url_document) }}" target="_blank"> 
                                                    <i class="fa fa-download" aria-hidden="true"></i>
                                                    {{ $job_description->description }}
                                                 </a></br>
@@ -307,7 +307,7 @@ $(document).ready(function() {
                                         <dd>
                                         @if(count($mission->offres))
                                             @foreach($mission->offres as $offre)
-                                               <a href="{{ url(Storage::url($offre->url_document)) }}" target="_blank"> 
+                                               <a href="{{ Storage::disk('public')->url($offre->url_document) }}" target="_blank"> 
                                                    <i class="fa fa-download" aria-hidden="true"></i>
                                                    {{ $offre->description }}
                                                 </a></br>
@@ -390,24 +390,23 @@ $(document).ready(function() {
                                                     </td>
                                                     <td>
                                                     @foreach($candidature->candidat->candidatDiplomeEcoles as $cde)
-                                                        {{$cde->diplomeEcoles->diplome->code_diplome}}
+                                                        {{$cde->diplomeEcoles->diplome->code_diplome}} /
                                                     @endforeach
                                                     </td>
                                                     <td>
                                                     @foreach($candidature->candidat->candidatSocietes as $cs)
                                                         @if($cs->societe_actuelle)
-                                                            {{$cs->societe->nom_entreprise}}
+                                                            {{$cs->societe->nom_entreprise}} 
                                                              @break
                                                         @endif
                                                     @endforeach
                                                     </td>
                                                     <td>
-                                                    @foreach($candidature->candidat->candidatSocietes as $cs)
-                                                        @if($cs->fonction_id)
-                                                            {{$cs->fonction->lastfunction}}
-                                                             @break
-                                                        @endif
-                                                    @endforeach
+                                                    @if($candidature->candidat->candidatSocietes->count()!=0 && $candidature->candidat->candidatSocietes[0]->societe->nom_entreprise!="recherche d'emploi")
+                                                        {{$candidature->candidat->candidatSocietes[0]->fonction->fonction}}
+                                                    @elseif(isset($candidature->candidat->candidatSocietes[1]))
+                                                        {{$candidature->candidat->candidatSocietes[1]->fonction->fonction}}   
+                                                    @endif()
                                                     </td>
                                                     <td style="white-space:nowrap">
                                                             {{ Carbon::parse($candidature->created_at)->format('d-m-Y') }}
@@ -439,7 +438,7 @@ $(document).ready(function() {
                                                     </td>
                                                     <td style="text-align:center">
                                                         @if($candidature->rapport)
-                                                            <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
+                                                            <a href="{{ Storage::disk('public')->url($candidature->rapport->url_document) }}" target="_blank"> 
                                                                 <i class="fa fa-download" aria-hidden="true"></i>
                                                             </a>
                                                         @else

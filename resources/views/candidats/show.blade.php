@@ -97,7 +97,7 @@ $(document).ready(function() {
                                         <dt>Employeurs/fonctions : </dt>
                                         @forelse($societeCandidats as $societeCandidat)
                                         <dd>
-                                            <span class="societe">{{ $societeCandidat->societe->nom_entreprise }}</span> - {{ $societeCandidat->fonction->fonction }}
+                                            <span class="societe">{{ $societeCandidat->societe->nom_entreprise }}</span> - {{$societeCandidat->fonction->fonction ?? 'Pas spécifiée'}}
                                             @if($societeCandidat->date_debut && $societeCandidat->date_fin)
                                             <small>({{Carbon::parse($societeCandidat->date_debut)->format('d/m/Y')}} => {{Carbon::parse($societeCandidat->date_fin)->format('d/m/Y')}})</small>
                                             @elseif($societeCandidat->date_debut)
@@ -218,7 +218,7 @@ $(document).ready(function() {
                                                     </td>
                                                     <td style="text-align:center" >
                                                         @if($candidature->rapport)
-                                                            <a href="{{ url(Storage::url($candidature->rapport->url_document)) }}" target="_blank"> 
+                                                            <a href="{{ Storage::disk('public')->url($candidature->rapport->url_document) }}" target="_blank"> 
                                                                 <i class="fa fa-download" aria-hidden="true"></i>
                                                             </a>
                                                         @else

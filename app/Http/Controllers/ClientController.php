@@ -63,11 +63,11 @@ class ClientController extends Controller
             'personne_contact'=> 'max:100',
             'telephone'=>'max:20',
             'email'=>'email|unique:client|max:100',
-            'adresse'=>'required|max:255',
+            'adresse'=>'max:255',
             'localite_id' => 'nullable|numeric',
-            'code_postal' => 'required|max:10',
-            'localite' => 'required|max:120',
-            'tva'=>'required|max:15',
+            'code_postal' => 'max:10',
+            'localite' => 'max:120',
+            'tva'=>'max:15',
             'site'=>'nullable|url|unique:client|max:255',
             'linkedin'=>'nullable|url|unique:client|max:255',
             'prospect'=>'required|boolean',
@@ -84,23 +84,23 @@ class ClientController extends Controller
             'email.unique'=>'Cet email existe déjà',
             'email.max'=>'L\email ne peut pas dépasser 100 caractères',
 
-            'adresse.required'=>'Veuillez entrer une adresse',
+            //'adresse.required'=>'Veuillez entrer une adresse',
             'adresse.max'=>'L\'adresse ne peut pas dépasser 255 caractères',
 
             'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
-            'code_postal.required' => 'Veuillez entrer un code postal.',
+            //'code_postal.required' => 'Veuillez entrer un code postal.',
             'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
-            'localite.required' => 'Veuillez entrer une localité.',
+            //'localite.required' => 'Veuillez entrer une localité.',
             'localite.max' => 'La localité ne peut dépasser 120 caractères.',
 
-            'tva.required'=>'Veuillez entrer un numéro de TVA',
+            //'tva.required'=>'Veuillez entrer un numéro de TVA',
             'tva.max'=>'Le numéro de TVA ne peut pas dépasser 15 caractères',
 
-            'site.url'=>'Veuillez entrer une URL valide pour le site',
+            'site.url'=>'Veuillez entrer une URL valide pour le site en ajoutant (http://)',
             'site.unique'=>'Ce site existe déjà',
             'site.max'=>'L\' URL du site ne peut pas dépasser 255 caractères',
 
-            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin',
+            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin en ajoutant (http://)',
             'linkedin.unique'=>'Ce Linkedin existe déjà',
             'linkedin;max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
 
@@ -210,11 +210,11 @@ class ClientController extends Controller
                 Rule::unique('client')->ignore($id),
                 'max:100'
             ],
-            'adresse'=>'required|max:255',
+            'adresse'=>'max:255',
             'localite_id' => 'nullable|numeric',
-            'code_postal' => 'required|max:10',
-            'localite' => 'required|max:120',
-            'tva'=>'required|max:15',
+            'code_postal' => 'max:10',
+            'localite' => 'max:120',
+            'tva'=>'max:15',
             'site'=>[
                 'nullable',
                 'url',
@@ -240,23 +240,23 @@ class ClientController extends Controller
             'email.unique'=>'Cet email existe déjà',
             'email.max'=>'L\email ne peut pas dépasser 100 caractères',
 
-            'adresse.required'=>'Veuillez entrer une adresse',
+            //'adresse.required'=>'Veuillez entrer une adresse',
             'adresse.max'=>'L\'adresse ne peut pas dépasser 255 caractères',
 
             'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
-            'code_postal.required' => 'Veuillez entrer un code postal.',
+            //'code_postal.required' => 'Veuillez entrer un code postal.',
             'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
-            'localite.required' => 'Veuillez entrer une localité.',
+            //'localite.required' => 'Veuillez entrer une localité.',
             'localite.max' => 'La localité ne peut dépasser 120 caractères.',
 
-            'tva.required'=>'Veuillez entrer un numéro de TVA',
+            //'tva.required'=>'Veuillez entrer un numéro de TVA',
             'tva.max'=>'Le numéro de TVA ne peut pas dépasser 15 caractères',
 
-            'site.url'=>'Veuillez entrer une URL valide pour le site',
+            'site.url'=>'Veuillez entrer une URL valide pour le site en ajoutant (http://)',
             'site.unique'=>'Ce site existe déjà',
             'site.max'=>'L\' URL du site ne peut pas dépasser 255 caractères',
 
-            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin',
+            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin en ajoutant (http://)',
             'linkedin.unique'=>'Ce Linkedin existe déjà',
             'linkedin.max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères'
         ]);

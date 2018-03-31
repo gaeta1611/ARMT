@@ -111,7 +111,7 @@
                                     <div class="form-group">
                                         {{ Form::label('rapport_interview_id','Charger rapport interview:') }}
                                         @if(isset($candidature) && ($rapport_interview = $candidature->rapport()->first()))
-                                            <a href="{{ url(Storage::url($rapport_interview->url_document)) }}" target="_blank"> 
+                                            <a href="{{ Storage::disk('public')->url($rapport_interview->url_document) }}" target="_blank"> 
                                                 <i class="fa fa-download" aria-hidden="true"></i>
                                                 {{ $rapport_interview->filename }}
                                             </a>
