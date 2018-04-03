@@ -7,8 +7,14 @@
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
+                    <div class="panel-body">
+                        @if (session('status'))
+                            <div class="alert alert-success">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+                    </div>
                     <h1 class="page-header">Page d'accueil qui ne fonctionne pas encore</h1>
-                    <?php $_SERVER['HTTP_HOST']; ?>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>

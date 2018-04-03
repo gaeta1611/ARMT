@@ -825,7 +825,7 @@
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                         <h5 class="modal-title" id="addSocieteModalLabel" style="font-size:1.5em" >Gestion des employeurs antérieurs & actuels</h5>
-                                                        <p>Veuillez ajouter chaque employeur en terminant par la dernièr employeur et/ou fonction du candidat</p>
+                                                        <p>Veuillez ajouter chaque employeur en terminant par le dernier employeur et/ou fonction du candidat</p>
                                                     </div>
                                                     <div class="modal-body">
                                                         <table class="table table-striped" id="tbl-societes">

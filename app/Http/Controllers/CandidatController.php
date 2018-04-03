@@ -76,7 +76,7 @@ class CandidatController extends Controller
         
         $showLangues = $bestLangues;
 
-        $autresLangues = [0=>''];
+        $autresLangues = [0=>'Autres'];
         foreach($listeLangues as $langue) {
             $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }
@@ -153,7 +153,7 @@ class CandidatController extends Controller
         
         $showLangues = $bestLangues;
 
-        $autresLangues = [0=>''];
+        $autresLangues = [0=>'Autres'];
         foreach($listeLangues as $langue) {
             $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }

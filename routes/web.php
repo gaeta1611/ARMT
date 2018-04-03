@@ -42,3 +42,10 @@ Route::get('/candidatures/create/{id?}','CandidatureController@create',['id'])
 
 
 
+
+Auth::routes();
+
+Route::put('register/{id}','Auth\\RegisterController@update',['id'])
+        ->name('profile.update');
+Route::resource('users','UserController');
+

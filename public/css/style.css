@@ -73,4 +73,26 @@ dl dd span.societe {
 .required {
     color:red; 
     font-size:1.5em;
-}   
+} 
+
+#frmLogin, #frmRegister {
+    margin-top:30px;
+}
+
+#frmRegister .form-group p {
+    margin:0;
+    padding-top: 7px;
+}
+
+ul.dropdown-user {
+    padding-top: 0px;
+}
+
+
+ul.dropdown-user .user-login {
+    text-align: center;
+    background-color : lightgray;
+    padding : 3px 0;
+    margin-bottom : 2px;
+    font-weight : bold;
+}

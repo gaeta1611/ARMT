@@ -43,11 +43,26 @@
                         <li>
                             <a href="{{ route('missions.index',['filter'=>'Statut=En cours']) }}"><i class="fa fa-code-fork fa-fw"></i> Missions</a>
                         </li>
+
+                        <li>
+                            <a href="#"><i class="fa fa-users"></i> Utilisateurs<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="{{ route('users.index')}}">Liste <i class="fa fa-search"></i></a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('register')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
+                                </li>
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link text-center" id="sidenavToggler" color="dark">
                                 <i class="fa fa-fw fa-angle-left"></i>
                             </a>
                         </li>
+
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->
