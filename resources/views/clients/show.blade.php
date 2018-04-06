@@ -64,7 +64,11 @@ $(document).ready(function() {
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
                                         <dt>Localité : </dt>
+                                    @if(isset($client->localite))
                                         <dd> {{ $client->localite->code_postal }}, {{ $client->localite->localite }}</dd>
+                                    @else
+                                        <dd></dd>
+                                    @endif
                                         <dt>Adresse : </dt>
                                         <dd>{{ $client->adresse }}</dd>
                                         <dt>Site internet : </dt>
@@ -128,7 +132,7 @@ $(document).ready(function() {
                                                 <tr class="odd">
                                                     <td>
                                                         <a href="{{ route('missions.show',$mission->id)}}">
-                                                            {{ Config('constants.options.PREFIX_MISSION').$mission->id}}
+                                                            {{ $mission->user()->initials.$mission->id}}
                                                         </a>
                                                     </td>
                                                     <td>

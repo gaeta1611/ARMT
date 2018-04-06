@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Mission extends Model
 {
@@ -86,6 +87,14 @@ class Mission extends Model
      */
     public function scopeOngoingMissions($query){
         return $query->where(['status'=>'En cours'])->get();
+    }
+
+    /**
+     * Récuperer l'utilisateur qui a creer cette mission
+     */
+    public function user(){
+        return Auth::user();
+        //return $this->hasOne('App\User','id','user_id');
     }
 
 }

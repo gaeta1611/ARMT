@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,8 +13,13 @@
 |
 */
 
-Route::get('/', function () {
-    return view('index');
+Route::get('/', function (Request $request) {
+    $user = $request->user();
+    if($user && $user->authorizeRoles(['admin','employee'])) {
+        return view('index');
+    }
+
+   return view('auth.login');
 })->name('home');
 
 Route::get('/login', function () {

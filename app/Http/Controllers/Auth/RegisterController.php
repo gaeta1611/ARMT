@@ -98,7 +98,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'lastname' => $data['lastname'],
             'firstname' => $data['firstname'],
             'initials' => $data['initials'],
@@ -107,6 +107,10 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
+
+        $user->roles()->attach(Role::where('name','employee')->first());
+
+        return $user;
     }
 
     /**
@@ -172,12 +176,15 @@ class RegisterController extends Controller
         $user = User::find($id);
         $data = Input::all();
 
+        //Modification éventuelle de mot de passe
         if(empty($data['password']) && empty($data['password_confirmation']) ) {
             unset($data['password']);
             unset($data['password_confirmation']);
         } elseif(!empty($data['password'])) {
             $data['password'] = bcrypt($data['password']);
         }
+       
+        //Modificaton éventuelle du rôle(action réservé aux admin)
 
         if($user->update($data)){
             Session::put('success',"L'utilisateur a bien été enregistré");

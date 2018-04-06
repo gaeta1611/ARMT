@@ -111,20 +111,29 @@ class ClientController extends Controller
         $client = new Client(Input::all());
         $data = Input::all();
 
-        //Ajout éventuel d'une nouvelle localité       
-        if($data['localite_id']==null) {
-            $localite = new Localite();
-            $localite->code_postal = $data['code_postal'];
-            $localite->localite = $data['localite'];
-            
-            if($localite->save()) {
-                $client->localite_id = $localite->id;
-                
-                Session::put('success','Une nouvelle localité a été enregistrée.');
-            } else {
-                Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
-                
-                return redirect()->route('clients.create');
+        //Ajout éventuel d'une nouvelle localité
+        if($data['localite_id']==null) {     
+            if($data['code_postal']!='' && $data['localite']!='') {
+                //Rechercher si la localité existe déja dans la DB
+                $localite = Localite::where('code_postal',$data['code_postal'])->get()->first();
+
+                if($localite) {
+                    $client->localite_id = $localite->id;
+                } else {
+                    $localite = new Localite();
+                    $localite->code_postal = $data['code_postal'];
+                    $localite->localite = $data['localite'];
+                    
+                    if($localite->save()) {
+                        $client->localite_id = $localite->id;
+                        
+                        Session::put('success','Une nouvelle localité a été enregistrée.');
+                    } else {
+                        Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                        
+                        return redirect()->route('clients.create');
+                    }
+                }
             }
         }
 
@@ -264,22 +273,31 @@ class ClientController extends Controller
         $client = Client::find($id);
         $data = Input::all();
 
-        //Ajout éventuel d'une nouvelle localité       
-        if($data['localite_id']==null) {
-            $localite = new Localite();
-            $localite->code_postal = $data['code_postal'];
-            $localite->localite = $data['localite'];
+        //Ajout éventuel d'une nouvelle localité
             
-            if($localite->save()) {
+        if($data['code_postal']!='' && $data['localite']!='') {
+            //Rechercher si la localité existe déja dans la DB
+            $localite = Localite::where('code_postal',$data['code_postal'])->get()->first();
+
+            if($localite) {
                 $data['localite_id'] = $localite->id;
-                
-                Session::put('success','Une nouvelle localité a été enregistrée.');
             } else {
-                Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                $localite = new Localite();
+                $localite->code_postal = $data['code_postal'];
+                $localite->localite = $data['localite'];
                 
-                return redirect()->route('clients.update');
+                if($localite->save()) {
+                    $data['localite_id'] = $localite->id;
+                    
+                    Session::put('success','Une nouvelle localité a été enregistrée.');
+                } else {
+                    Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                    
+                    return redirect()->route('clients.update');
+                }
             }
         }
+        
        
         if($client->update($data)){
             Session::put('success','Le client a bien été enregistré');
