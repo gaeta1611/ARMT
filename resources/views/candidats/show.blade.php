@@ -54,7 +54,7 @@ $(document).ready(function() {
                                         <dt>Téléphone : </dt>
                                         <dd>{{ $candidat->telephone }}</dd>
                                         <dt>Localité : </dt>
-                                        <dd>{{ $candidat_localite->code_postal }}, {{ $candidat_localite->localite }}</dd>
+                                        <dd>{{ $candidat_localite->code_postal }} {{ $candidat_localite->localite }}</dd>
                                         <dt>Email : </dt>
                                         <dd>{{ $candidat->email }}</dd>
                                         <dt>Linkedin : </dt>
@@ -188,7 +188,7 @@ $(document).ready(function() {
                                                     <td>
                                                         @if($candidature->postule_mission_id)
                                                         <a href="{{ route('missions.show',$candidature->postule_mission_id)}}">
-                                                            {{ Config('constants.options.PREFIX_MISSION').$candidature->postule_mission_id }}
+                                                            {{ $candidature->postule_mission->user->initials.$candidature->postule_mission_id }}
                                                         </a>
                                                         @else
                                                             Aucun
@@ -203,7 +203,7 @@ $(document).ready(function() {
                                                     <td>
                                                         @if($candidature->mission_id)
                                                         <a href="{{ route('missions.show',$candidature->mission_id)}}">
-                                                            {{ Config('constants.options.PREFIX_MISSION').$candidature->mission_id}}
+                                                            {{ $candidature->mission->user->initials.$candidature->mission_id}}
                                                         </a>
                                                         @else
                                                             Aucune mission

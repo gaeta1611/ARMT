@@ -97,8 +97,9 @@
                                 </div>
 
                                 <div class="col-lg-6">
-                                    <div class="form-group">
-                                        {{ Form::label('contrat_id','Charger contrat:')}}
+                                @if(empty($mission) || auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
+                                    <div class="form-group">                                        
+                                            {{ Form::label('contrat_id','Charger contrat:')}}
                                         @if(isset($mission) && $mission->contrat_id)
                                             <a href="{{ Storage::disk('public')->url($mission->contrat->url_document) }}" target="_blank"> 
                                                 <i class="fa fa-download" aria-hidden="true"></i>
@@ -124,6 +125,7 @@
                                             {{ Form::file('contrat_id') }}
                                         @endif
                                     </div>
+                                @endif
 
                                     <div class="form-group">
                                         <dl>
@@ -200,6 +202,7 @@
                                         </div>    
                                     </div>
 
+                                @if(empty($mission) || auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
                                     <div class="form-group">
                                         <dl>
                                             <dt>{{ Form::label('offre_ids','Charger le/les offres:') }}</dt>
@@ -274,7 +277,7 @@
                                             </i>
                                         </div>    
                                     </div>
-
+                                @endif                        
                                     <div class="bottom-bar">
                                     {{ Form::submit('Enregistrer',[
                                         'class'=>'btn btn-primary pull-right',

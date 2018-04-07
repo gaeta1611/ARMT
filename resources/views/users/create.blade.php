@@ -16,6 +16,27 @@
                             'role'=>'form',
                             'class'=>'form-horizontal',
                     ]) }}
+                @if(auth()->user()->is_admin)          
+                    <div class="form-group{{ $errors->has('role') ? ' has-error' : '' }}">
+                        <label for="role" class="col-md-4 control-label">Rôle :</label>
+
+                        <div class="col-md-6">
+                        {{ Form::select('role', 
+                            $roles,
+                            old('role') ? old('role') : (isset($user) ? $user->roles()->get()->first()->id: null),
+                        [
+                            'class'=>'form-control',
+                            'id'=>'role',
+                            'required'=>true,
+                        ])}}
+                            @if ($errors->has('role'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('role') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @endif            
                     <div class="form-group{{ $errors->has('lastname') ? ' has-error' : '' }}">
                         <label for="lastname" class="col-md-4 control-label">Lastname :</label>
 

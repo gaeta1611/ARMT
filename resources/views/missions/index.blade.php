@@ -101,7 +101,7 @@
                                     <tr class="odd">
                                         <td>
                                             <a href="{{ route('missions.show',$mission->id)}}">
-                                                {{ Config('constants.options.PREFIX_MISSION').$mission->id}}
+                                                {{ $mission->user()->get()->first()->initials.$mission->id}}
                                             </a>
                                         </td>
                                         <td>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use App\Role;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
@@ -122,6 +123,12 @@ class UserController extends Controller
         $route = ['profile.update',$id];
         $method = 'PUT';
         $languages = ['en'=>'English','fr'=>'Français','nl'=>'Nederlands'];
+        $listRoles = Role::all()->toArray();
+        
+        $roles = [];
+        foreach($listRoles as $role) {
+            $roles[$role['id']] = $role['name'];
+        }
         
         return view('users.create',[
             'user'=> $user,
@@ -129,6 +136,7 @@ class UserController extends Controller
             'route' => $route,
             'method' => $method,
             'languages' => $languages,
+            'roles' => $roles,
         ]);
     }
 

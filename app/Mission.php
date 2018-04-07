@@ -93,8 +93,7 @@ class Mission extends Model
      * Récuperer l'utilisateur qui a creer cette mission
      */
     public function user(){
-        return Auth::user();
-        //return $this->hasOne('App\User','id','user_id');
+        return $this->hasOne('App\User','id','user_id');
     }
 
 }

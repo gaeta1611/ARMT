@@ -4,7 +4,8 @@
     {!! Session::pull('success') !!}
 </div>
 
-@elseif(Session::has('errors'))
+@endif
+@if(Session::has('errors'))
 <div class="alert alert-danger">
     @if(is_array(Session::get('errors')))
         <p> {{ implode ('<br>', Session::pull('errors')) }} </p>

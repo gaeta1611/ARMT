@@ -1,0 +1,17 @@
+
+<IfModule mod_rewrite.c>
+    <IfModule mod_negociation.c>
+        options -Multiviews
+    </ifModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{REQUEST_URI} "(.*)/$"
+    RewriteRule (.*) %1/public/$1 [L,R=302]
+
+</ifModule>
+
+<Files ".env">
+    Require all denied
+</Files>

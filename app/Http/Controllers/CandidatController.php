@@ -147,7 +147,7 @@ class CandidatController extends Controller
         $route = 'candidats.store';
         $method = 'POST';
         
-        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();   //TODO get only 5 best
+        $bestLangues = Langue::whereIn('designation',['francais','néerlandais','anglais'])->get();   //TODO get only 5 best
         $listeLangues = Langue::all();                 
         $listeLangues = $listeLangues->diff($bestLangues);
         

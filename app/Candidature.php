@@ -42,6 +42,13 @@ class Candidature extends Model
     }
 
     /**
+     * Récuperer la mission associée à la candidature
+     */
+    public function postule_mission (){
+        return $this->belongsTo('App\Mission');
+    }
+
+    /**
      * Récuperer les candidatures associé à ce candidat.
      */
     public function candidat(){

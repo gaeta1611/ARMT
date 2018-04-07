@@ -132,7 +132,7 @@ $(document).ready(function() {
                                                 <tr class="odd">
                                                     <td>
                                                         <a href="{{ route('missions.show',$mission->id)}}">
-                                                            {{ $mission->user()->initials.$mission->id}}
+                                                            {{ $mission->user()->get()->first()->initials.$mission->id}}
                                                         </a>
                                                     </td>
                                                     <td>

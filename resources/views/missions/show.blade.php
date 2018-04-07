@@ -265,7 +265,7 @@ $(document).ready(function() {
                                         <dt>Fonction : </dt>
                                         <dd>{{ $mission->fonction->fonction }}</dd>
                                         <dt>Référence : </dt>
-                                        <dd>{{ Config('constants.options.PREFIX_MISSION').$mission->id }}</dd>
+                                        <dd>{{ $mission->user()->get()->first()->initials.$mission->id}}</dd>
                                         <dt>Date : </dt>
                                         <dd>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</dd>
                                         <dt>Type de contrat : </dt>
@@ -279,6 +279,7 @@ $(document).ready(function() {
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
                                         <dt>Contrat :</dt>
+                                    @if(auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
                                         <dd>
                                             @if($mission->contrat_id)
                                                <a href="{{ Storage::disk('public')->url($mission->contrat->url_document) }}" target="_blank"> 
@@ -288,6 +289,9 @@ $(document).ready(function() {
                                                 Aucun contrat
                                             @endif
                                         </dd><br \>
+                                    @else
+                                    <dd style="color:red"><i class="fa fa-minus-circle"></i></dd>
+                                    @endif
 
                                         <dt>Job description : </dt>
                                         <dd>
@@ -304,6 +308,7 @@ $(document).ready(function() {
                                         </dd><br \>
 
                                         <dt>Offres : </dt>
+                                    @if(auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
                                         <dd>
                                         @if(count($mission->offres))
                                             @foreach($mission->offres as $offre)
@@ -316,6 +321,9 @@ $(document).ready(function() {
                                             Aucune offre
                                         @endif
                                         </dd>
+                                    @else
+                                        <dd style="color:red"><i class="fa fa-minus-circle"></i></dd>
+                                    @endif
                                     </dl>
                                 </div>
                             </div>

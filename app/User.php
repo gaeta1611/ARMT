@@ -36,6 +36,19 @@ class User extends Authenticatable
     ];
 
     /**
+     *  
+     * @var array proriétés virtuelles
+     */
+    protected $appends = ['is_admin'];
+
+    /**
+     * Détermine si l'utilisateur est un administrateur
+     */
+    public function getIsAdminAttribute() {
+        return $this->roles()->where('name','=','admin')->get()->isNotEmpty();
+    }
+
+    /**
      *Récupère les roles associés a cet utilisateur
      *
      * 

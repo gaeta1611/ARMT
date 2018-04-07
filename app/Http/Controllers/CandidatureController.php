@@ -41,14 +41,13 @@ class CandidatureController extends Controller
         
         //Récuperer la mission
         $missionId = Input::get('mission');
-        $prefix = Config::get('constants.options.PREFIX_MISSION');
 
         $title = 'Ajouter une candidature';
         if($id) {
             $candidat = Candidat::find($id);
             $title .= " à {$candidat->nom} {$candidat->prenom}";
         } elseif($missionId) {
-            $prefix = Config::get('constants.options.PREFIX_MISSION');
+            $prefix = Mission::find($missionId)->user()->get()->first()->initials;
             $title .= " à la mission $prefix$missionId";
         }
         $route = 'candidatures.store';
@@ -60,6 +59,7 @@ class CandidatureController extends Controller
 
         $liste=[null =>'Aucun'];
         foreach($ongoingMissions as $ongoingMission) {
+            $prefix = Mission::find($ongoingMission->id)->user()->get()->first()->initials;
             $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id} =>{$ongoingMission->client->nom_entreprise} - {$ongoingMission->fonction->fonction}";
         }
         $ongoingMissions = $liste;
@@ -114,6 +114,7 @@ class CandidatureController extends Controller
      */
     public function store(Request $request)
     {
+        //Modification en Ajax à partir de l'index des candidats
         if(preg_match("/candidats$/",$request->headers->get('referer'))) {
             $validatorData = $request->validate([
                 'mission_id'=>'required',
@@ -171,12 +172,19 @@ class CandidatureController extends Controller
             ]);
 
             $candidature = new Candidature(Input::all());
+            $missionId = Input::all('mission_id');
 
             if($candidature->save()){
                 Session::put('success','La candidature a bien été enregistré');
 
                 $candidatId = Input::get('candidat_id');
 
+                //L'ajout de la candidature a été initié a partir d'une missions
+                if(preg_match("/\?mission=\d$/",$request->headers->get('referer'))) {
+                    return redirect()->route('missions.show',$missionId);
+                }
+                
+                //L'ajout de la candidature a été initié a partir d'un candidt
                 return redirect()->route('candidats.show',$candidatId);
             }
             else{
@@ -215,7 +223,7 @@ class CandidatureController extends Controller
         
         //Récuperer la mission
         $missionId = $candidature->mission_id;
-        $prefix = Config::get('constants.options.PREFIX_MISSION');
+        $prefix = $candidature->mission()->user->get()->first()->initials;
 
         $candidat = Candidat::find($candidature->candidat_id);
         $candidatId = $candidature->candidat_id;

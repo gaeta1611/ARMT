@@ -124,6 +124,7 @@ class MissionController extends Controller
         $extraSuccessMsg = '';
 
         $mission = new Mission(Input::all());
+        $mission->user_id = auth()->user()->id;
         $data = Input::all('fonction');
 
         //Retrouver la fonction correspondante ou l'ajouter dans la table Fonctions
@@ -155,6 +156,7 @@ class MissionController extends Controller
             $contrat->type = 'Contrat';
             $contrat->url_document = $url;
             $contrat->filename = $file->getClientOriginalName();
+            $contrat->user_id = auth()->user()->id;
 
             if(!$contrat->save()){
                 Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
@@ -189,6 +191,7 @@ class MissionController extends Controller
                     $job_desc->url_document = $url;
                     $job_desc->filename = $jobFiles[$i]->getClientOriginalName();
                     $job_desc->mission_id = $mission->id;
+                    $job_desc->user_id = auth()->user()->id;
         
                     if(!$job_desc->save()){
                         Session::push('errors','Erreur lors de l\'enregristrement du document (job description)!');
@@ -219,6 +222,9 @@ class MissionController extends Controller
                         $offre->url_document = $url;
                         $offre->filename = $offreFiles[$i]->getClientOriginalName();
                         $offre->mission_id = $mission->id;
+                        $offre->user_id = auth()->user()->id;
+                        
+                        
             
                         if(!$offre->save()){
                             Session::push('errors','Erreur lors de l\'enregristrement du document (offre)!');
@@ -242,7 +248,7 @@ class MissionController extends Controller
     {   
         $mission = Mission::find($id);
         $client = Client::find($mission->client_id);
-        $title = 'Mission : ' .Config('constants.options.PREFIX_MISSION').($mission->id);
+        $title = 'Mission : ' .$mission->user()->get()->first()->initials.($mission->id);
 
         foreach($mission->candidatures as $candidature) {
             $candidature->F2F = null;
@@ -278,13 +284,17 @@ class MissionController extends Controller
     {
         
         //Récuper la mission à modifier    
-        $mission = mission::find($id);
+        $mission = Mission::find($id);
+
+        if(!$mission) {
+            return redirect()->route('missions.index');
+        }
 
         //Récuperer le client pour lequel on modifie la mission
         $oldClient = Client::find($mission->client_id);
         
         //Définir le titre de la page
-        $title = 'Modifier la mission: '.Config('constants.options.PREFIX_MISSION').($mission->id);
+        $title = 'Modifier la mission: '.$mission->user()->get()->first()->initials.$mission->id;
 
         //Définir les paramètres du formulaire
         $route = ['missions.update',$id];
@@ -379,65 +389,72 @@ class MissionController extends Controller
 
         //Récuperer le  nouveau contrat chargé dans le formulaire
         $file = $request->file('contrat_id');
-        
-        if($file){
 
-            //Déplacer le fichier dans le dossier de téléchargement public
-            $filename = Storage::putFile('public/uploads/contrats',$file);
+        //Seul l'admin ou le créateur de la mission peut modifier le contrat
+        if(auth()->user()->is_admin || auth()->user()->id==$mission->user_id) {
+            if($file){
 
-            //Récuperer le nouveau nom de fichier
-            $filename = strrchr($filename,"/");
-            
-            //Récuperer l'url du dossier de téléchargement
-            //à partir du fichier de config config/filesystems.php
-            $url = '/uploads/contrats'.$filename;
+                //Déplacer le fichier dans le dossier de téléchargement public
+                $filename = Storage::putFile('public/uploads/contrats',$file);
 
-            //Enregistrer le document dans la base de donnée
-            $contrat = new Document ();
-            $contrat->type = 'Contrat';
-            $contrat->url_document = $url;
-            $contrat->filename = $file->getClientOriginalName();
-
-            if($contrat->save()){
-                $oldContratId = $mission->contrat_id;
-                $mission->contrat_id = $contrat->id;
+                //Récuperer le nouveau nom de fichier
+                $filename = strrchr($filename,"/");
                 
+                //Récuperer l'url du dossier de téléchargement
+                //à partir du fichier de config config/filesystems.php
+                $url = '/uploads/contrats'.$filename;
+
+                //Enregistrer le document dans la base de donnée
+                $contrat = new Document ();
+                $contrat->type = 'Contrat';
+                $contrat->url_document = $url;
+                $contrat->filename = $file->getClientOriginalName();
+                $contrat->user_id = auth()->user()->id;
+                
+
+                if($contrat->save()){
+                    $oldContratId = $mission->contrat_id;
+                    $mission->contrat_id = $contrat->id;
+                    
+                    //Suppression de l'ancien contrat
+                    if($request->get('delete')) {
+                        $oldContrat = Document::find($oldContratId);
+                        
+                        if(!Storage::disk('public')->delete($oldContrat->url_document)){
+                            Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                        } else {
+                            if($oldContrat->delete()) {
+                                Session::push('errors','L\ancien contrat n\'a pas pu être supprimé de la DB !');
+                            }
+                        }
+                    }
+                } else{
+                    Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
+                }
+            //Il n'y a pas de nouveau contrat => sauver OU supprimer ancien contrat
+            } elseif(empty($file) && !empty($request->get('contrat_id'))) {
                 //Suppression de l'ancien contrat
                 if($request->get('delete')) {
-                    $oldContrat = Document::find($oldContratId);
-                    
+                    $oldContrat = Document::find($request->get('contrat_id'));
+
                     if(!Storage::disk('public')->delete($oldContrat->url_document)){
                         Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
                     } else {
-                        if($oldContrat->delete()) {
-                            Session::push('errors','L\ancien contrat n\'a pas pu être supprimé de la DB !');
+                        if(!$oldContrat->delete()) {
+                            Session::push('errors','L\ancien contrat n\'a pas pu être supprimé !');
                         }
                     }
-                }
-            } else{
-                Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
-            }
-        //Il n'y a pas de nouveau contrat => sauver OU supprimer ancien contrat
-        } elseif(empty($file) && !empty($request->get('contrat_id'))) {
-            //Suppression de l'ancien contrat
-            if($request->get('delete')) {
-                $oldContrat = Document::find($request->get('contrat_id'));
 
-                if(!Storage::disk('public')->delete($oldContrat->url_document)){
-                    Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
-                } else {
-                    if(!$oldContrat->delete()) {
-                        Session::push('errors','L\ancien contrat n\'a pas pu être supprimé !');
-                    }
+                    $mission->contrat_id = null;
+                } else {  //Sauver ancien contrat
+                    $mission->contrat_id = $request->get('contrat_id');
                 }
-
+            //Aucun contrat pour cette mission
+            } else {
                 $mission->contrat_id = null;
-            } else {  //Sauver ancien contrat
-                $mission->contrat_id = $request->get('contrat_id');
             }
-        //Aucun contrat pour cette mission
-        } else {
-            $mission->contrat_id = null;
+        } else { //Modification du contat non autorisée
+            unset($data['contrat_id']);
         }
     
         
@@ -469,6 +486,8 @@ class MissionController extends Controller
                     $job_desc->url_document = $url;
                     $job_desc->filename = $jobFiles[$i]->getClientOriginalName();
                     $job_desc->mission_id = $mission->id;
+                    $job_desc->user_id = auth()->user()->id;
+                    
         
                     if(!$job_desc->save()){
                         Session::push('errors','Erreur lors de l\'enregristrement du document (job description)!');
@@ -517,6 +536,8 @@ class MissionController extends Controller
                         $offre->url_document = $url;
                         $offre->filename = $offreFiles[$i]->getClientOriginalName();
                         $offre->mission_id = $mission->id;
+                        $offre->user_id = auth()->user()->id;
+                        
             
                         if(!$offre->save()){
                             Session::push('errors','Erreur lors de l\'enregristrement du document (offre)!');

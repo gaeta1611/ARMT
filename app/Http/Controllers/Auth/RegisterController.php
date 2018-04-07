@@ -10,6 +10,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
+use App\Role;
+
 
 
 class RegisterController extends Controller
@@ -108,7 +110,16 @@ class RegisterController extends Controller
             'password' => bcrypt($data['password']),
         ]);
 
-        $user->roles()->attach(Role::where('name','employee')->first());
+        $role = Role::find($data['role']);
+
+        if($role) {
+            $user->roles()->attach($role);
+        } else {
+            $user->roles()->attach(Role::where('name','employee')->first());
+        }
+
+        //return $user
+        return auth()->user();
 
         return $user;
     }
@@ -185,6 +196,19 @@ class RegisterController extends Controller
         }
        
         //Modificaton éventuelle du rôle(action réservé aux admin)
+        $role = Role::find($data['role']);
+
+        $userRoles = auth()->user()->roles()->get()->toArray();
+        array_walk($userRoles, function(&$item) { $item = $item['name']; });
+
+        if($role && in_array('admin',$userRoles)) {
+            if(auth()->user()->id==$id && $role->name!='admin') {
+                Session::push('errors','Un administrateur ne peut pas devenir employé! Le rôle n\'a pas été modifié');
+            }else {
+                $user->roles()->sync($role);
+            }
+        } 
+
 
         if($user->update($data)){
             Session::put('success',"L'utilisateur a bien été enregistré");
@@ -208,6 +232,12 @@ class RegisterController extends Controller
         $route = 'register';
         $method = 'POST';
         $languages = ['en'=>'English','fr'=>'Français','nl'=>'Nederlands'];
+        $listRoles = Role::all()->toArray();
+        
+        $roles = [];
+        foreach($listRoles as $role) {
+            $roles[$role['id']] = $role['name'];
+        }
 
 
         return view('users.create',[
@@ -215,6 +245,7 @@ class RegisterController extends Controller
             'route' => $route,
             'method' => $method,
             'languages' => $languages,
+            'roles' => $roles,
         ]);
     }
 
