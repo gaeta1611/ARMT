@@ -14,6 +14,7 @@ use App\Role;
 
 
 
+
 class RegisterController extends Controller
 {
     /*
@@ -43,7 +44,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        parent::__construct();
     }
 
     /**
@@ -54,33 +55,6 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {  
-        $messages = [
-            'lastname.required'=>'Veuillez entrer le nom',
-            'lastname.max'=>'Le nom  ne peut pas dépasser 60 caractères',
-
-            'firstname.required'=>'Veuillez entrer le prénom',
-            'firstname.max'=>'Le prénomne peut pas dépasser 60 caractères',
-
-            'initials.required'=>'Veuillez entrer les initiales du candidat',
-            'initials.max'=>'Veuillez entrer 2 caractères pour les initiales',
-            'initials.unique'=>'Ces initiales existent déjà',
-
-            'language.required'=>'Veuillez une langue préférée',
-            'language.max'=>'Le choix de la langue ne peut pas dépasser 2 caractères',
-
-            'login.required'=>'Veuillez entrer le login',
-            'login.max'=>'Le login ne peut pas dépasser 20 caractères',
-            'login.unique'=>'Ce login existent déjà',
-
-            'email.required'=>'Veuillez entrer un email',
-            'email.email'=>'Veuillez entrer un email valide',
-            'email.unique'=>'Cet email existe déjà',
-            'email.max'=>'L\email ne peut pas dépasser 250 caractères',
-
-            'password.required'=>'Veuillez entrer un mot de passe',
-            'password.min'=>'Le mot de passe doit comporter au moins 6 caractères',
-            'password.confirmed'=>'Veuillez confirmer le mot de passe doit',
-        ];
         return Validator::make($data, [
             'lastname' => 'required|string|max:60',
             'firstname' => 'required|string|max:60',
@@ -89,7 +63,7 @@ class RegisterController extends Controller
             'login' => 'required|string|max:20|unique:users',
             'email' => 'required|string|email|max:250|unique:users',
             'password' => 'required|string|min:6|confirmed',
-        ],$messages);
+        ]);
     }
 
     /**
@@ -134,21 +108,8 @@ class RegisterController extends Controller
     public function update(Request $request, $id)
     {
         $validatorData = $request->validate([
-            //'lastname' => 'required|string|max:60',
-            //'firstname' => 'required|string|max:60',
-            /*'initials' => [
-                'required',
-                'string',
-                'max:2',
-                Rule::unique('users')->ignore($id),
-            ],*/
+            'role' => 'nullable|numeric',
             'language' => 'required|string|max:2',
-            /*'login' => [
-                'required',
-                'string',
-                'max:20',
-                Rule::unique('users')->ignore($id),
-            ],*/
             'email' => [
                 'required',
                 'string',
@@ -157,31 +118,6 @@ class RegisterController extends Controller
                 Rule::unique('users')->ignore($id),
             ],
             'password' => 'nullable|string|min:6|confirmed',
-        ],[
-            'lastname.required'=>'Veuillez entrer le nom',
-            'lastname.max'=>'Le nom  ne peut pas dépasser 60 caractères',
-
-            'firstname.required'=>'Veuillez entrer le prénom',
-            'firstname.max'=>'Le prénomne peut pas dépasser 60 caractères',
-
-            'initials.required'=>'Veuillez entrer les initiales du candidat',
-            'initials.max'=>'Veuillez entrer 2 caractères pour les initiales',
-            'initials.unique'=>'Ces initiales existent déjà',
-
-            'language.required'=>'Veuillez une langue préférée',
-            'language.max'=>'Le choix de la langue ne peut pas dépasser 2 caractères',
-
-            'login.required'=>'Veuillez entrer le login',
-            'login.max'=>'Le login ne peut pas dépasser 20 caractères',
-            'login.unique'=>'Ce login existent déjà',
-
-            'email.required'=>'Veuillez entrer un email',
-            'email.email'=>'Veuillez entrer un email valide',
-            'email.unique'=>'Cet email existe déjà',
-            'email.max'=>'L\email ne peut pas dépasser 250 caractères',
-
-            'password.min'=>'Le mot de passe doit comporter au moins 6 caractères',
-            'password.confirmed'=>'Veuillez confirmer le mot de passe doit',
         ]);
 
         $user = User::find($id);
@@ -203,7 +139,7 @@ class RegisterController extends Controller
 
         if($role && in_array('admin',$userRoles)) {
             if(auth()->user()->id==$id && $role->name!='admin') {
-                Session::push('errors','Un administrateur ne peut pas devenir employé! Le rôle n\'a pas été modifié');
+                Session::push('errors',__('general.set_role_admin_to_employee_forbidden'));
             }else {
                 $user->roles()->sync($role);
             }
@@ -211,10 +147,10 @@ class RegisterController extends Controller
 
 
         if($user->update($data)){
-            Session::put('success',"L'utilisateur a bien été enregistré");
+            Session::put('success',__('general.record_saved',['record'=>'user']));
 
         } else {
-            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+            Session::push('errors',__('general.error_saving'));
 
             return redirect()->route('users.edit',$id);
         }
@@ -228,7 +164,6 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm() 
     {
-        $title = 'Ajouter un utilisateur';
         $route = 'register';
         $method = 'POST';
         $languages = ['en'=>'English','fr'=>'Français','nl'=>'Nederlands'];
@@ -241,7 +176,6 @@ class RegisterController extends Controller
 
 
         return view('users.create',[
-            'title' => $title,
             'route' => $route,
             'method' => $method,
             'languages' => $languages,

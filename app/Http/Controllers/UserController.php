@@ -101,12 +101,9 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-        $title = 'Utilisateur : '.($user->firstname).' '.($user->lastname);
-
 
         return view('users.show',[
             'user'=>$user,
-            'title' =>$title,
             ]);
     }
 

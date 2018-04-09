@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Liste des utilisateurs')
+@section('title',__('general.record_list',['record'=>trans_choice('general.user',10)]))
 
 @section('css')
 <!-- DataTables CSS -->
@@ -31,7 +31,7 @@
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Liste des utilisateurs</h1>
+                    <h1 class="page-header">{{ ucfirst(__('general.record_list',['record'=>trans_choice('general.user',2)])) }}</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -44,12 +44,12 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-users">
                                 <thead>
                                     <tr>
-                                        <th>Initiales</th>
-                                        <th>Utilisateur</th>
-                                        <th>Email</th>
-                                        <th>Langue</th>
-                                        <th>Date de création</th>
-                                        <th>Supprimer</th>
+                                        <th>{{ ucfirst(__('validation.attributes.initials')) }}</th>
+                                        <th>{{ ucfirst(trans_choice('general.user',1)) }}</th>
+                                        <th>{{ ucfirst(__('validation.attributes.email')) }}</th>
+                                        <th>{{ ucfirst(__('validation.attributes.language')) }}</th>
+                                        <th>{{ ucfirst(__('general.created_at')) }}</th>
+                                        <th>{{ ucfirst(__('general.delete')) }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,14 +69,17 @@
                                                 'route'=>['users.destroy',$user->id],
                                                 'method'=>'DELETE',
                                                 'role'=>'form',
-                                                'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce user")'
+                                                'onsubmit' => 'return confirm("'.__('general.delete_confirmation',[
+                                                    'pronoun'=>trans_choice('general.pronouns.this',2), 
+                                                    'record'=>trans_choice('general.user',1),
+                                                ]).'")'
                                             ]) }}
-                                                <button class="fa fa-trash" aria-hidden="true" title="supprimer user"></button>                                        
+                                                <button class="fa fa-trash" aria-hidden="true" title="{{ __('general.delete_record',['record'=>trans_choice('general.user',1)]) }}"></button>                                        
                                             {{ Form::close() }}
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="5">Aucun Utilisateur.</td></tr>
+                                    <tr><td colspan="5">{{ __('general.no_record',['record'=>trans_choice('general.user',1)]) }}</td></tr>
                                 @endforelse
                                 </tbody>
                             </table>

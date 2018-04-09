@@ -13,22 +13,10 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/', function (Request $request) {
-    $user = $request->user();
-    if($user && $user->authorizeRoles(['admin','employee'])) {
-        return view('index');
-    }
-
-   return view('auth.login');
-})->name('home');
-
-Route::get('/login', function () {
-    return view('login');
-});
+Route::get('/', 'HomeController@index')->name('home');
 
 
 Route::resource('clients','ClientController');
-
 
 Route::resource('missions','MissionController');
 Route::get('/missions/create/{id?}','MissionController@create',['id'])
@@ -55,4 +43,10 @@ Auth::routes();
 Route::put('register/{id}','Auth\\RegisterController@update',['id'])
         ->name('profile.update');
 Route::resource('users','UserController');
+
+Route::get('/language/{lang}', function($lang){
+        session(['lang'=>$lang]);
+
+        return back();
+});
 

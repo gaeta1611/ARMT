@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title',__('general.add_record',['record'=>trans_choice('general.user',1)]))
+
 @include('includes.sidebar')
 
 @section('content')
@@ -7,7 +9,7 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default" id="frmRegister">
-                <div class="panel-heading">User Profile</div>
+                <div class="panel-heading">{{__('general.user_profile')}}</div>
 
                 <div class="panel-body">
                     {{ Form::open([
@@ -18,7 +20,7 @@
                     ]) }}
                 @if(auth()->user()->is_admin)          
                     <div class="form-group{{ $errors->has('role') ? ' has-error' : '' }}">
-                        <label for="role" class="col-md-4 control-label">Rôle :</label>
+                        <label for="role" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.role')) }} :</label>
 
                         <div class="col-md-6">
                         {{ Form::select('role', 
@@ -38,7 +40,7 @@
                     </div>
                 @endif            
                     <div class="form-group{{ $errors->has('lastname') ? ' has-error' : '' }}">
-                        <label for="lastname" class="col-md-4 control-label">Lastname :</label>
+                        <label for="lastname" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.last_name')) }} :</label>
 
                             <div class="col-md-6">
                             @if(isset($user))
@@ -56,7 +58,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('firstname') ? ' has-error' : '' }}">
-                            <label for="firstname" class="col-md-4 control-label">Firstname :</label>
+                            <label for="firstname" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.first_name')) }} :</label>
 
                             <div class="col-md-6">
                             @if(isset($user))
@@ -74,7 +76,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('initials') ? ' has-error' : '' }}">
-                            <label for="initials" class="col-md-4 control-label">Initials :</label>
+                            <label for="initials" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.initials')) }} :</label>
 
                             <div class="col-md-6">
                             @if(isset($user))
@@ -92,7 +94,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('language') ? ' has-error' : '' }}">
-                            <label for="language" class="col-md-4 control-label">Language :</label>
+                            <label for="language" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.language')) }} :</label>
 
                             <div class="col-md-6">
                             {{ Form::select('language', 
@@ -112,7 +114,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('login') ? ' has-error' : '' }}">
-                            <label for="login" class="col-md-4 control-label">Login :</label>
+                            <label for="login" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.login')) }} :</label>
 
                             <div class="col-md-6">
                             @if(isset($user))
@@ -130,7 +132,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                            <label for="email" class="col-md-4 control-label">E-Mail :</label>
+                            <label for="email" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.email')) }} :</label>
 
                             <div class="col-md-6">
                                 <input id="email" type="email" class="form-control" name="email" value="{{ old('email') ?? (isset($user) ? $user->email : '') }}" required>
@@ -144,7 +146,7 @@
                         </div>
                                   
                         <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-                            <label for="password" class="col-md-4 control-label">Password :</label>
+                            <label for="password" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.password')) }} :</label>
 
                             <div class="col-md-6">
                                 <input id="password" type="password" class="form-control" name="password" {{ empty($user) ? 'required':''}}>
@@ -157,7 +159,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="password-confirm" class="col-md-4 control-label">Confirm Password :</label>
+                            <label for="password-confirm" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.password_confirmation')) }} :</label>
 
                             <div class="col-md-6">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" {{ empty($user) ? 'required':''}}>
@@ -166,10 +168,10 @@
 
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4 bottom-bar">
-                                {{ Form::submit('Register',[
+                                {{ Form::submit(__('general.save'),[
                                 'class'=>'btn btn-primary pull-right',
                                 ]) }}
-                                <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Cancel</a></button>
+                                <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">{{__('general.cancel')}}</a></button>
                             </div>
                         </div>
                     </form>

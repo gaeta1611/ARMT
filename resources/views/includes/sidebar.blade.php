@@ -13,45 +13,45 @@
                             <!-- /input-group -->
                         </li>
                         <li>
-                            <a href="{{ route('home') }}"><i class="fa fa-dashboard fa-fw"></i> Accueil</a>
+                            <a href="{{ route('home') }}"><i class="fa fa-dashboard fa-fw"></i> {{__('general.home')}}</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-briefcase fa-fw"></i> Clients & Prospects<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-briefcase fa-fw"></i> {{ucfirst(trans_choice('general.client',2))}} &amp; {{ucfirst(trans_choice('general.prospect',2))}}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="{{ route('clients.index',['prospect'=>false]) }}">Rechercher <i class="fa fa-search"></i></a>
+                                    <a href="{{ route('clients.index',['prospect'=>false]) }}">{{__('general.search')}} <i class="fa fa-search"></i></a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('clients.create')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
+                                    <a href="{{ route('clients.create')}}">{{__('general.add')}} <i class="fa fa-plus-circle"></i></a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-user fa-fw"></i> Candidats<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-user fa-fw"></i> {{ucfirst(trans_choice('general.candidate',2))}}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="{{ route('candidats.index')}}">Rechercher <i class="fa fa-search"></i></a>
+                                    <a href="{{ route('candidats.index')}}">{{__('general.search')}} <i class="fa fa-search"></i></a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('candidats.create')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
+                                    <a href="{{ route('candidats.create')}}">{{__('general.add')}} <i class="fa fa-plus-circle"></i></a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
                         
                         <li>
-                            <a href="{{ route('missions.index',['filter'=>'Statut=En cours']) }}"><i class="fa fa-code-fork fa-fw"></i> Missions</a>
+                            <a href="{{ route('missions.index',['filter'=>'Statut=En cours']) }}"><i class="fa fa-code-fork fa-fw"></i> {{ucfirst(trans_choice('general.mission',2))}}</a>
                         </li>
                     @if(in_array('admin',auth()->user()->roles()->select('name')->get()->toArray()[0]))
                         <li>
-                            <a href="#"><i class="fa fa-users"></i> Utilisateurs<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-users"></i> {{ucfirst(trans_choice('general.user',2))}}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="{{ route('users.index')}}">Liste <i class="fa fa-search"></i></a>
+                                    <a href="{{ route('users.index')}}">{{__('general.list')}} <i class="fa fa-search"></i></a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('register')}}">Ajouter <i class="fa fa-plus-circle"></i></a>
+                                    <a href="{{ route('register')}}">{{__('general.add')}} <i class="fa fa-plus-circle"></i></a>
                                 </li>
                             </ul>
                             <!-- /.nav-second-level -->

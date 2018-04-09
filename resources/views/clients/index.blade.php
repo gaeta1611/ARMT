@@ -31,7 +31,7 @@
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Liste des clients & prospects</h1>
+                    <h1 class="page-header">{{ __('general.titles.list_client_prospect') }} </h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -47,10 +47,10 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-clients">
                                 <thead>
                                     <tr>
-                                        <th>Clients</th>
-                                        <th>Date</th>
-                                        <th>Supprimer</th>
-                                        <th>Ajouter fiche</th>
+                                        <th>{{ucfirst(trans_choice('general.client',2))}}</th>
+                                        <th>{{ ucfirst(__('general.date')) }}</th>
+                                        <th>{{ ucfirst(__('general.delete')) }}</th>
+                                        <th>{{__('general.add_record',['record'=>trans_choice('general.mission',1)])}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -67,9 +67,12 @@
                                                 'route'=>['clients.destroy',$client->id],
                                                 'method'=>'DELETE',
                                                 'role'=>'form',
-                                                'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce client")'
+                                                'onsubmit' => 'return confirm("'.__('general.delete_confirmation',[
+                                                    'pronoun'=>trans_choice('general.pronouns.this',2), 
+                                                    'record'=>trans_choice('general.user',1),
+                                                ]).'")'
                                             ]) }}
-                                                <button class="fa fa-trash" aria-hidden="true" title="supprimer client"></button>                                        
+                                                <button class="fa fa-trash" aria-hidden="true" title="{{ __('general.delete_record',['record'=>trans_choice('general.user',1)]) }}"></button>                                        
                                             {{ Form::close() }}
                                         </td>
                                         <td style="text-align: center">

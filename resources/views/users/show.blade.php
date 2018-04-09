@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title',$title)
+@section('title',ucfirst(trans_choice('general.user',1)).' : '.($user->firstname).' '.($user->lastname))
 
 @section('css')
 @endsection
@@ -13,7 +13,7 @@
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">{{ $title }}</h1>
+                    <h1 class="page-header">{{ ucfirst(trans_choice('general.user',1)).' : '.($user->firstname).' '.($user->lastname) }}</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -25,17 +25,17 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <dl class="dl-horizontal">
-                                        <dt>Nom : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.last_name')) }} : </dt>
                                         <dd>{{ $user->lastname }}</dd>
-                                        <dt>Prénom : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.first_name')) }} : </dt>
                                         <dd>{{ $user->firstname }}</dd>
-                                        <dt>Initiales : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.initials')) }} :  </dt>
                                         <dd>{{ $user->initials }}</dd>
-                                        <dt>Login : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.login')) }} : </dt>
                                         <dd>{{ $user->login }}</dd>
-                                        <dt>Email : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.email')) }} : </dt>
                                         <dd>{{ $user->email }}</dd>
-                                        <dt>Langue : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.language')) }} : </dt>
                                         <dd>{{ $user->language }}</dd>
                                     </dl>
                                 </div>
@@ -50,7 +50,7 @@
                                         'style' => 'display:inline'
                                     ]) }}
 
-                                    {{ Form::submit('Modifier',['class'=>'btn btn-warning'])}}
+                                    {{ Form::submit(__('general.edit'),['class'=>'btn btn-warning'])}}
                                     {{ Form::close() }}
                         
                                     {{Form::open([
@@ -58,10 +58,13 @@
                                         'method'=>'DELETE',
                                         'role'=>'form',
                                         'style' => 'display:inline',
-                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cet utilisateur")'
+                                        'onsubmit' => 'return confirm("'.__('general.delete_confirmation',[
+                                            'pronoun'=>trans_choice('general.pronouns.this',2), 
+                                            'record'=>trans_choice('general.user',1),
+                                        ]).'")'
                                     ]) }}
                                     
-                                    {{ Form::submit('Supprimer',['class'=>'btn btn-danger'])}}
+                                    {{ Form::submit(__('general.delete'),['class'=>'btn btn-danger'])}}
                                     {{ Form::close() }}
                                 </div>
                             </div>

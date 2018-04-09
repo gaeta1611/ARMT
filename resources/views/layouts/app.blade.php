@@ -20,6 +20,10 @@
     <!-- SB admin CSS -->
     <link href="{{ asset('css/sb-admin-2.css')}}" rel="stylesheet">
 
+    <!-- Bootstrap Language selector CSS -->
+    <link href="{{ asset('../vendor/bootstrap-select/bootstrap-select/dist/css/bootstrap-select.min.css')}}" rel="stylesheet">
+    <link href="{{ asset('../vendor/components/flag-icon-css/css/flag-icon.min.css')}}" rel="stylesheet">
+
     <!-- Custom CSS -->
     <link href="{{ asset('css/style.css')}}" rel="stylesheet">
 
@@ -63,7 +67,17 @@
 
             
             
-            <ul class="nav navbar-top-links navbar-right">  
+            <ul class="nav navbar-top-links navbar-right"> 
+                <li class="dropdown">
+                   <select class="selectpicker" data-width="fit">
+                   <option lang="en" {{ (session()->has('lang') && session('lang')=='en') ? 'selected' : ''}} 
+                        data-content='<span class="flag-icon flag-icon-us"></span> English'>English</option>
+                   <option  lang="nl" {{ (session()->has('lang') && session('lang')=='nl') ? 'selected' : ''}}
+                        data-content='<span class="flag-icon flag-icon-nl"></span> Nederlands'>Nederlands</option>
+                   <option  lang="fr" {{ (session()->has('lang') && session('lang')=='fr') ? 'selected' : ''}}
+                        data-content='<span class="flag-icon flag-icon-fr"></span> Français'>Français</option>
+                   </select> 
+                </li>
             @if(auth()->user())
                 <!-- /.dropdown -->
                 <li class="dropdown">
@@ -120,12 +134,29 @@
     <script src="{{ asset('js/data/morris-data.js') }}"></script>
     -->
 
-    <!-- Custom Theme JavaScript -->
+    <!-- SB Theme JavaScript -->
     <script src="{{ asset('js/sb-admin-2.js') }}"></script>
 
+    <!-- Bootstrap Language selector JavaScript -->
+    <script src="{{ asset('../vendor/bootstrap-select/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+
+    <!-- Activate language selector-->
+    <script>
+        $(function(){
+            const APP_URL = '{{ Config::get('app.url') }}';
+
+            $('.selectpicker').selectpicker();
+
+            $('.selectpicker').on('change',function() {
+                var langue = $(this).find('option:selected').attr('lang');
+                location.href = APP_URL+'/public/language/'+langue;
+            });
+        });
+    </script>
+
+    <!-- Custom Theme JavaScript -->
     @section('js')
     @show
-
 
 </body>
 
