@@ -77,5 +77,12 @@ class Candidat extends Model
         return $this->hasMany('App\CandidatDiplomeEcole','candidat_id');
     }
 
+    /**
+    * Récuperer les cvs associés à cette mission
+    */
+    public function cvs(){
+        return $this->hasMany('App\Document')->where(['type'=>'CV']);
+    }
+
 
 }

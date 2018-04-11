@@ -137,6 +137,7 @@ class MissionController extends Controller
         $mission->fonction_id = $fonction->id;
         
         //Récuperer le fichier chargé dans le formulaire
+        $mission->contrat_id = null;        
         $file = $request->file('contrat_id');
         
         if($file){
@@ -160,10 +161,10 @@ class MissionController extends Controller
 
             if(!$contrat->save()){
                 Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
+            } else {
+                $mission->contrat_id = $contrat->id;
             }
         }
-        
-        $mission->contrat_id = $file ? $contrat->id:null;
         
         if($mission->save()){
             Session::put('success','La mission a bien été enregistrée'.'<br \>'.$extraSuccessMsg);
@@ -502,7 +503,7 @@ class MissionController extends Controller
                 foreach($deleteJobFileIds as $deleteFileId){
                     $oldJobDesc = Document::find($deleteFileId);
                     if(!Storage::disk('public')->delete($oldJobDesc->url_document)){
-                        Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                        Session::push('errors','L\ancien job description n\'a pas pu être supprimé du disque !');
                     } else {
                         if(!$oldJobDesc->delete()) {
                             Session::push('errors','L\ancien job description n\'a pas pu être supprimé !');

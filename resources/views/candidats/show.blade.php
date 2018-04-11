@@ -111,12 +111,22 @@ $(document).ready(function() {
                                         @endforelse
                                         <br \>
                                         <dt>Langues : <dt>
-                                        @foreach($candidat->langues as $langue)
+                                        @forelse($candidat->langues as $langue)
                                         <dd>{{$langue->designation}} (niveau : {{$langue->pivot->niveau}})</dd>
-                                        @endforeach
-                                        <dt>CV :</dt>
-                                        <dd>      
-                                        </dd>
+                                        @empty
+                                        <dd></dd>
+                                        @endforelse <br \>
+                                        <dt>CV : </dt>
+                                        @forelse($candidat->cvs as $cv)
+                                        <dd>
+                                            <a href="{{ Storage::disk('public')->url($cv->url_document) }}" target="_blank"> 
+                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                {{ $cv->description }}
+                                            </a>
+                                        </dd> 
+                                        @empty
+                                            <dd>Aucun CV</dd>
+                                        @endforelse
                                     </dl>
                                 </div>
                                 
@@ -165,11 +175,12 @@ $(document).ready(function() {
                                                     <th></th>
                                                     <th>Modifier</th>
                                                     <th>A postulé</th>
+                                                    <th title="Lettre de motivation">LM</th>
                                                     <th>Date</th>
                                                     <th>Média</th>
                                                     <th>Correspond</th>
                                                     <th>Status</th>
-                                                    <th>Etat d'avancement</th>
+                                                    <th title="Etat d'avancement">Avancement</th>
                                                     <th>Mission</th>
                                                     <th>Rapport interview</th>
                                                     <th>Remarques</th>
@@ -190,6 +201,15 @@ $(document).ready(function() {
                                                         <a href="{{ route('missions.show',$candidature->postule_mission_id)}}">
                                                             {{ $candidature->postule_mission->user->initials.$candidature->postule_mission_id }}
                                                         </a>
+                                                        @else
+                                                            Aucun
+                                                        @endif
+                                                    </td>
+                                                    <td style="text-align:center" >
+                                                        @if($candidature->motivation)
+                                                            <a href="{{ Storage::disk('public')->url($candidature->motivation->url_document) }}" target="_blank"> 
+                                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                            </a>
                                                         @else
                                                             Aucun
                                                         @endif

@@ -18,11 +18,13 @@ use App\CandidatDiplomeEcole;
 use App\DiplomeEcole;
 use App\ModeCandidature;
 use App\Candidature;
+use App\Document;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Rule;
 use Carbon;
+use Illuminate\Support\Facades\Storage;
 
 
 class CandidatController extends Controller
@@ -70,7 +72,7 @@ class CandidatController extends Controller
         $ongoingMissions = $liste;
 
         //Récuperer les données du formulaire de recherche
-        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();   //TODO get only 5 best
+        $bestLangues = Langue::whereIn('designation',['francais','néerlandais','anglais'])->get();   //TODO get only 5 best
         $listeLangues = Langue::all();                 
         $listeLangues = $listeLangues->diff($bestLangues);
         
@@ -358,6 +360,37 @@ class CandidatController extends Controller
                 }
             }
 
+        //Déplacer le cv dans le dossier uploads
+        $cvFiles = $request->file('cv_ids');
+        
+            if($cvFiles){
+                for($i=0;$i<count($cvFiles);$i++){
+        
+                    //Déplacer le fichier dans le dossier de téléchargement public
+                    $filename = Storage::putFile('public/uploads/cvs',$cvFiles[$i]);
+        
+                    //Récuperer le nouveau nom de fichier
+                    $filename = strrchr($filename,"/");
+        
+                    //Récuperer l'url du dossier de téléchargement
+                    //à partir du fichier de config config/filesystems.php
+                    $url = '/uploads/cvs'.$filename;
+        
+                    //Enregistrer le document dans la base de donnée
+                    $cv = new Document ();
+                    $cv-> type ='CV';
+                    $cv-> description = $request->input('descriptionsForCV') [$i];
+                    $cv->url_document = $url;
+                    $cv->filename = $cvFiles[$i]->getClientOriginalName();
+                    $cv->mission_id = null;
+                    $cv->candidat_id = $candidat->id;
+                    $cv->user_id = auth()->user()->id;
+        
+                    if(!$cv->save()){
+                        Session::push('errors','Erreur lors de l\'enregristrement du document (cv)!');
+                    }
+                }
+            }    
         }
         else{
             Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
@@ -447,7 +480,7 @@ class CandidatController extends Controller
         $method = 'PUT';
         
         $listeLangues = Langue::all();
-        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais'])->get();      
+        $bestLangues = Langue::whereIn('designation',['francais','néerlandais','anglais'])->get();      
         $candidatLangues = $candidat->langues()->get();
         
         if($candidatLangues->count()) {
@@ -770,6 +803,56 @@ class CandidatController extends Controller
                         
                     }
                 }
+            }
+        //Mise a jour des documents(cv)
+        //Ajout des nouveaux documents
+        //Déplacer le cv dans le dossier uploads
+        $cvFiles = $request->file('cv_ids');
+        
+            if($cvFiles){
+                for($i=0;$i<count($cvFiles);$i++){
+        
+                    //Déplacer le fichier dans le dossier de téléchargement public
+                    $filename = Storage::putFile('public/uploads/cvs',$cvFiles[$i]);
+        
+                    //Récuperer le nouveau nom de fichier
+                    $filename = strrchr($filename,"/");
+        
+                    //Récuperer l'url du dossier de téléchargement
+                    //à partir du fichier de config config/filesystems.php
+                    $url = '/uploads/cvs'.$filename;
+        
+                    //Enregistrer le document dans la base de donnée
+                    $cv = new Document ();
+                    $cv-> type ='CV';
+                    $cv->description = $request->input('descriptionsForCV') [$i];
+                    $cv->url_document = $url;
+                    $cv->filename = $cvFiles[$i]->getClientOriginalName();
+                    $cv->mission_id = null;
+                    $cv->candidat_id = $id;
+                    $cv->user_id = auth()->user()->id;
+                    
+        
+                    if(!$cv->save()){
+                        Session::push('errors','Erreur lors de l\'enregristrement du document (CV)!');
+                    }
+                }
+            }
+
+        //Suppression des anciens documents (cv)
+            $deleteCVFileIds = $request->get('deleteCVFileIds');
+
+            if($deleteCVFileIds){
+                foreach($deleteCVFileIds as $deleteFileId){
+                    $oldCV = Document::find($deleteFileId);
+                    if(!Storage::disk('public')->delete($oldCV->url_document)){
+                        Session::push('errors','L\ancien CV n\'a pas pu être supprimé du disque !');
+                    } else {
+                        if(!$oldCV->delete()) {
+                            Session::push('errors','L\ancien CV n\'a pas pu être supprimé !');
+                        }
+                    }
+                }
             } 
         }
         else {
@@ -900,7 +983,7 @@ class CandidatController extends Controller
         $ongoingMissions = $liste;
 
         //Récuperer les données du formulaire de recherche
-        $bestLangues = Langue::whereIn('designation',['francais','néerlendais','anglais']);  //TODO get only 5 best
+        $bestLangues = Langue::whereIn('designation',['francais','néerlandais','anglais']);  //TODO get only 5 best
         $extraLangues = $request->query('langue');
         if($extraLangues) {
             $langueIds = [];

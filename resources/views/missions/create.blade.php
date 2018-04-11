@@ -154,7 +154,7 @@
                                             <div>
                                                 {{ Form::label('descriptionsForJob[]','Description:')}}
                                                 {{ Form::text('descriptionsForJob[]',
-                                                    old('descriptionsForJob[]')?? (isset($mission) ? $mission->description:''),
+                                                    old('descriptionsForJob[]')?? '',
                                                     [
                                                         'placeholder'=>'ex: Français',
                                                         'class'=>'form-control',
@@ -230,7 +230,7 @@
                                             <div>
                                                 {{ Form::label('descriptionsForOffre[]','Description:')}}
                                                 {{ Form::text('descriptionsForOffre[]',
-                                                    old('descriptionsForOffre[]')?? (isset($mission) ? $mission->description:''),
+                                                    old('descriptionsForOffre[]')?? '',
                                                     [
                                                         'placeholder'=>'ex: à confirmer',
                                                         'class'=>'form-control',

@@ -95,6 +95,33 @@
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
+                                    <div class="form-group">
+                                        {{ Form::label('lettre_motivation_id','Charger la lettre de motivation:') }}
+                                        @if(isset($candidature) && ($lettre_motivation = $candidature->motivation()->first()))
+                                            <a href="{{ Storage::disk('public')->url($lettre_motivation->url_document) }}" target="_blank"> 
+                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                {{ $lettre_motivation->filename }}
+                                            </a>
+                                            <i class="fa fa-times" aria-hidden="true" 
+                                                style="margin-top:10px;font-size: 1.5em;color:orangered"
+                                                onmouseover="$(this).css('cursor','pointer')"
+                                                onclick="$(this).parent().find('a:first-of-type').remove();
+                                                        $(this).parent().find('input[type=file]')
+                                                                .css('display','block')
+                                                                .attr('disabled',false);
+                                                        $(this).parent().append('<input type=hidden name=deleteMotivation value=1>')                               
+                                                        $(this).remove();">
+                                            </i>
+                                            {{ Form::hidden('lettre_motivation_id', $candidature->lettre_motivation_id) }}
+                                            {{ Form::file('lettre_motivation_id',
+                                            [
+                                                'style'=>'display:none',
+                                                'disabled'=>'disabled'
+                                            ]) }}
+                                        @else
+                                            {{ Form::file('lettre_motivation_id') }}
+                                        @endif
+                                    </div>       
                                 </div>
 
                                 <div class="col-lg-6">
@@ -122,7 +149,7 @@
                                                         $(this).parent().find('input[type=file]')
                                                                 .css('display','block')
                                                                 .attr('disabled',false);
-                                                        $(this).parent().append('<input type=hidden name=delete value=1>')                               
+                                                        $(this).parent().append('<input type=hidden name=deleteRapport value=1>')                               
                                                         $(this).remove();">
                                             </i>
                                             {{ Form::hidden('rapport_interview_id', $candidature->rapport_interview_id) }}

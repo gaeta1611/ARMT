@@ -21,7 +21,7 @@ return [
     'cancel' => "Annuler",
     'record_list' => "Liste des :record",
     'created_at' => 'Date de création',
-    'delete' => 'Supprimer bob',
+    'delete' => 'Supprimer',
     'delete_confirmation' => 'Etes vous sur de vouloir supprimer :pronoun :record ?',
     'delete_record' => 'Supprimer :record',
     'pronouns' => [

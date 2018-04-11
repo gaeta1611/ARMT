@@ -1007,6 +1007,81 @@
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
+
+                                    <div class="form-group">
+                                        <dl>
+                                            <dt>{{ Form::label('cvs','Charger le/les CV:') }}</dt>
+                                        @if(isset($candidat) && $candidat->cvs)
+                                            <dd style="margin-left:15px">
+                                            @foreach($candidat->cvs as $cv)
+                                                <p style="margin:0">
+                                                    <a href="{{ Storage::disk('public')->url($cv->url_document) }}" target="_blank"> 
+                                                        <i class="fa fa-download" aria-hidden="true"></i>
+                                                        {{ $cv->description }}
+                                                        </a>
+                                                        <i class="fa fa-times" aria-hidden="true" 
+                                                        style="margin-top:10px;font-size: 1.1em;color:orangered"
+                                                        onmouseover="$(this).css('cursor','pointer')"
+                                                        onclick="$(this).prev('a').remove();
+                                                                $(this).parent().parent('dd').append('<input type=hidden name=deleteCVFileIds[] value={{ $cv->id }}>')  
+                                                                $(this).parent('p').remove();">
+                                                        </i>
+                                                </p>
+                                            @endforeach
+                                            <dd>
+                                        @endif
+                                        </dl>
+                                        <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
+                                            <div>
+                                                {{ Form::label('descriptionsForCV[]','Description:')}}
+                                                {{ Form::text('descriptionsForCV[]',
+                                                    old('descriptionsForCV[]')?? '',
+                                                    [
+                                                        'placeholder'=>'ex: 30/04/2018',
+                                                        'class'=>'form-control',
+                                                        'style'=>'display:inline;width:auto;height:1.8em;margin-bottom:5px'
+                                                ]) }}
+
+
+                                                {{ Form::file('cv_ids[]') }}
+                                            </div>
+
+                                            <i class="fa fa-plus-square" aria-hidden="true" 
+                                            style="margin-top:10px;font-size: 1.5em;color:blue"
+                                            onmouseover="$(this).css({'cursor':'pointer','color':'Darkblue'})"
+                                            onmouseout="$(this).css({'cursor':'pointer','color':'blue'})"
+                                            onclick="$divs = $(this).parent().find('div')
+                                                    $lastDiv = $divs.last();
+                                                    if($divs.length==1 && $lastDiv.find('input[type=file]').attr('disabled')){
+                                                        $lastDiv.css('display','block');
+                                                        $lastDiv.find('input[type=file]').attr('disabled',false);                      
+                                                     }
+                                                     else{
+                                                        $div = $lastDiv.clone();
+                                                        $div.insertBefore($(this));
+                                                        $div.parent().find('input[type=file]').last().val('');
+                                                        $div.parent().find('input[type=text]').last().val('');
+                                                         
+                                                     }">
+                                            </i>
+                                            <i class="fa fa-minus-square" aria-hidden="true" 
+                                            style="margin-top:10px;font-size: 1.5em;color:orangered"
+                                            onmouseover="$(this).css({'cursor':'pointer','color':'darkred'})"
+                                            onmouseout="$(this).css({'cursor':'pointer','color':'orangered'})"
+                                            onclick="$divs = $(this).parent().find('div');
+                                                     if($divs.length>1){
+                                                        $divs.last().remove();
+                                                     }
+                                                     else{
+                                                         $divs.last().css('display','none');
+                                                         $divs.last().find('input[type=file]')
+                                                                    .attr('disabled',true)
+                                                                    .val('');
+                                                         $div.last().find('input[type=text]').val('');
+                                                     }">
+                                            </i>
+                                        </div>    
+                                    </div>
                     
                                     <div class="bottom-bar">
                                     {{ Form::submit('Enregistrer',[

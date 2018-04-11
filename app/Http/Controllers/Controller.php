@@ -17,7 +17,7 @@ class Controller extends BaseController
 
         $this->middleware(function($request, $next) {
             if(!session()->has('lang')) {
-                session('lang',auth()->user()->language);
+                session()->put('lang',auth()->user()->language);
             }
 
             App::setLocale(session('lang','en'));

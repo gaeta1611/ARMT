@@ -47,7 +47,7 @@ class CandidatureController extends Controller
             $candidat = Candidat::find($id);
             $title .= " à {$candidat->nom} {$candidat->prenom}";
         } elseif($missionId) {
-            $prefix = Mission::find($missionId)->user()->get()->first()->initials;
+            $prefix = Mission::find($missionId)->user->initials;
             $title .= " à la mission $prefix$missionId";
         }
         $route = 'candidatures.store';
@@ -59,7 +59,7 @@ class CandidatureController extends Controller
 
         $liste=[null =>'Aucun'];
         foreach($ongoingMissions as $ongoingMission) {
-            $prefix = Mission::find($ongoingMission->id)->user()->get()->first()->initials;
+            $prefix = Mission::find($ongoingMission->id)->user->initials;
             $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id} =>{$ongoingMission->client->nom_entreprise} - {$ongoingMission->fonction->fonction}";
         }
         $ongoingMissions = $liste;
@@ -152,7 +152,7 @@ class CandidatureController extends Controller
                 'date_reponse'=>'nullable|date',
                 'date_F2F'=>'nullable|date',
                 'date_rencontre_client'=>'nullable|date',
-                'rapport_interview_id'=>'nullable|numeric',
+                //'rapport_interview_id'=>'nullable|numeric',
                 
     
             ],[
@@ -168,11 +168,69 @@ class CandidatureController extends Controller
                 'date_reponse.date'=>'Le type du champ date_reponse est incorrecte',
                 'date_F2F.date'=>'Le type du champ date_F2F est incorrecte',
                 'date_rencontre_client.date'=>'Le type du champ date_rencontre_client est incorrecte',
-                'rapport_interview_id.numeric'=>'Le type du champ rapport_interview_id est incorrecte',
+                //'rapport_interview_id.numeric'=>'Le type du champ rapport_interview_id est incorrecte',
             ]);
 
             $candidature = new Candidature(Input::all());
             $missionId = Input::all('mission_id');
+
+            //Récuperer le fichier chargé dans le formulaire
+            $candidature->rapport_interview_id = null;
+            $file = $request->file('rapport_interview_id');
+        
+            if($file){
+                //Déplacer le fichier dans le dossier de téléchargement public
+                $filename = Storage::putFile('public/uploads/rapports',$file);
+
+                //Récuperer le nouveau nom de fichier
+                $filename = strrchr($filename,"/");
+                
+                //Récuperer l'url du dossier de téléchargement
+                //à partir du fichier de config config/filesystems.php
+                $url = '/uploads/rapports'.$filename;
+
+                //Enregistrer le document dans la base de donnée
+                $doc = new Document ();
+                $doc->type = 'Rapport d\'interview';
+                $doc->url_document = $url;
+                $doc->filename = $file->getClientOriginalName();
+                $doc->user_id = auth()->user()->id;
+
+                if(!$doc->save()){
+                    Session::push('errors','Erreur lors de l\'enregristrement du document (rapport interview)!');
+                } else {
+                    $candidature->rapport_interview_id = $doc->id;
+                }
+            }
+
+            //Récuperer le fichier chargé dans le formulaire
+            $candidature->lettre_motivation_id = null;
+            $file = $request->file('lettre_motivation_id');
+        
+            if($file){
+                //Déplacer le fichier dans le dossier de téléchargement public
+                $filename = Storage::putFile('public/uploads/motivations',$file);
+
+                //Récuperer le nouveau nom de fichier
+                $filename = strrchr($filename,"/");
+                
+                //Récuperer l'url du dossier de téléchargement
+                //à partir du fichier de config config/filesystems.php
+                $url = '/uploads/motivations'.$filename;
+
+                //Enregistrer le document dans la base de donnée
+                $doc = new Document ();
+                $doc->type = 'Lettre de motivation';
+                $doc->url_document = $url;
+                $doc->filename = $file->getClientOriginalName();
+                $doc->user_id = auth()->user()->id;
+
+                if(!$doc->save()){
+                    Session::push('errors','Erreur lors de l\'enregristrement du document (lettre de motivation)!');
+                } else {
+                    $candidature->lettre_motivation_id = $doc->id;
+                }
+            }
 
             if($candidature->save()){
                 Session::put('success','La candidature a bien été enregistré');
@@ -192,10 +250,7 @@ class CandidatureController extends Controller
             }
             
         }
-        
-
-        
-        
+              
     }
 
     /**
@@ -223,7 +278,6 @@ class CandidatureController extends Controller
         
         //Récuperer la mission
         $missionId = $candidature->mission_id;
-        $prefix = $candidature->mission()->user->get()->first()->initials;
 
         $candidat = Candidat::find($candidature->candidat_id);
         $candidatId = $candidature->candidat_id;
@@ -239,6 +293,7 @@ class CandidatureController extends Controller
 
         $liste=[null =>'Aucun'];
         foreach($ongoingMissions as $ongoingMission) {
+            $prefix = Mission::find($ongoingMission->id)->user->initials;
             $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id} =>{$ongoingMission->client->nom_entreprise} - {$ongoingMission->fonction->fonction}";
         }
         $ongoingMissions = $liste;
@@ -360,13 +415,14 @@ class CandidatureController extends Controller
             $rapport->type = 'Rapport d\'interview';
             $rapport->url_document = $url;
             $rapport->filename = $file->getClientOriginalName();
+            $rapport->user_id = auth()->user()->id;
 
             if($rapport->save()){
                 $oldRapportId = $candidature->rapport_interview_id;
                 $candidature->rapport_interview_id = $rapport->id;
                 
                 //Suppression de l'ancien rapport d'interview
-                if($request->get('delete')) {
+                if($request->get('deleteRapport')) {
                     $oldRapport = Document::find($oldRapportId);
                     
                     if(!Storage::disk('public')->delete($oldRapport->url_document)){
@@ -383,7 +439,7 @@ class CandidatureController extends Controller
         //Il n'y a pas de nouveau rapport d'interview => sauver OU supprimer ancien rapport interview
         } elseif(empty($file) && !empty($request->get('rapport_interview_id'))) {
             //Suppression de l'ancien rapport d'interview
-            if($request->get('delete')) {
+            if($request->get('deleteRapport')) {
                 $oldRapport = Document::find($request->get('rapport_interview_id'));
 
                 if(!Storage::disk('public')->delete($oldRapport->url_document)){
@@ -404,6 +460,73 @@ class CandidatureController extends Controller
         }
 
         $data['rapport_interview_id'] = $candidature->rapport_interview_id;
+
+        //Mise a jour du document (lettre de motivation)
+        //Récuperer la  nouvelle lettre de motivation chargé dans le formulaire
+        $file = $request->file('lettre_motivation_id');
+        
+        if($file){
+
+            //Déplacer le fichier dans le dossier de téléchargement public
+            $filename = Storage::putFile('public/uploads/motivations',$file);
+
+            //Récuperer le nouveau nom de fichier
+            $filename = strrchr($filename,"/");
+            
+            //Récuperer l'url du dossier de téléchargement
+            //à partir du fichier de config config/filesystems.php
+            $url = '/uploads/motivations'.$filename;
+
+            //Enregistrer le document dans la base de donnée
+            $motivation = new Document ();
+            $motivation->type = 'Lettre de motivation';
+            $motivation->url_document = $url;
+            $motivation->filename = $file->getClientOriginalName();
+            $motivation->user_id = auth()->user()->id;
+
+            if($motivation->save()){
+                $oldMotivationtId = $candidature->lettre_motivation_id;
+                $candidature->lettre_motivation_id = $motivation->id;
+                
+                //Suppression de l'ancienne lettre de motivation
+                if($request->get('deleteMotivation')) {
+                    $oldMotivation = Document::find($oldMotivationId);
+                    
+                    if(!Storage::disk('public')->delete($oldMotivation->url_document)){
+                        Session::push('errors','L\ancienne lettre de motivation n\'a pas pu être supprimé du disque !');
+                    } else {
+                        if($oldMotivation->delete()) {
+                            Session::push('errors','L\ancienne lettre de motivation n\'a pas pu être supprimé de la DB !');
+                        }
+                    }
+                }
+            } else{
+                Session::push('errors','Erreur lors de l\'enregristrement du document (lettre de motivation)!');
+            }
+        //Il n'y a pas de nouvelle lettre de motivation => sauver OU supprimer ancienne lettre de motivation
+        } elseif(empty($file) && !empty($request->get('lettre_motivation_id'))) {
+            //Suppression de l'ancienne lettre de motivation
+            if($request->get('deleteMotivation')) {
+                $oldMotivation = Document::find($request->get('lettre_motivation_id'));
+
+                if(!Storage::disk('public')->delete($oldMotivation->url_document)){
+                    Session::push('errors','L\ancienne lettre de motivation n\'a pas pu être supprimé du disque !');
+                } else {
+                    if(!$oldMotivation->delete()) {
+                        Session::push('errors','L\ancienne lettre de motivation  n\'a pas pu être supprimé !');
+                    }
+                }
+
+                $candidature->lettre_motivation_id = null;
+            } else {  //Sauver ancienne lettre de motivation
+                $candidature->lettre_motivation_id = $request->get('lettre_motivation_id');
+            }
+        //Aucune lettre de motivation pour cette candidature
+        } else {
+            $candidature->lettre_motivation_id = null;
+        }
+
+        $data['lettre_motivation_id'] = $candidature->lettre_motivation_id;
         try {
             if($candidature->update($data)){
                 Session::put('success','La candidature a bien été enregistré');

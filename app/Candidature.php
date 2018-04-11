@@ -22,6 +22,7 @@ class Candidature extends Model
         'mode_reponse_id',
         'date_reponse',
         'rapport_interview_id',
+        'lettre_motivation_id',
         'remarques',
         'mode_candidature_id',
         'created_at',
@@ -92,14 +93,21 @@ class Candidature extends Model
     }
 
     /**
-     * Récuperer les rapports d'interview associés à cette candidature
+     * Récuperer le rapports d'interview associés à cette candidature
      */
     public function rapport(){
         return $this->hasOne('App\Document','id','rapport_interview_id');
     }
 
     /**
-     * Récuperer les interviews associés à cette candidature
+     * Récuperer le lettre de motivation associés à cette candidature
+     */
+    public function motivation(){
+        return $this->hasOne('App\Document','id','lettre_motivation_id');
+    }
+
+    /**
+     * Récuperer les dates d'interviews associés à cette candidature
      */
     public function interviews(){
         return $this->hasMany('App\Interview');

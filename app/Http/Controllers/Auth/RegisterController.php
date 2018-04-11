@@ -132,16 +132,18 @@ class RegisterController extends Controller
         }
        
         //Modificaton éventuelle du rôle(action réservé aux admin)
-        $role = Role::find($data['role']);
+        if(isset($data['role'])) {
+            $role = Role::find($data['role']);
 
-        $userRoles = auth()->user()->roles()->get()->toArray();
-        array_walk($userRoles, function(&$item) { $item = $item['name']; });
+            $userRoles = auth()->user()->roles()->get()->toArray();
+            array_walk($userRoles, function(&$item) { $item = $item['name']; });
 
-        if($role && in_array('admin',$userRoles)) {
-            if(auth()->user()->id==$id && $role->name!='admin') {
-                Session::push('errors',__('general.set_role_admin_to_employee_forbidden'));
-            }else {
-                $user->roles()->sync($role);
+            if($role && in_array('admin',$userRoles)) {
+                if(auth()->user()->id==$id && $role->name!='admin') {
+                    Session::push('errors',__('general.set_role_admin_to_employee_forbidden'));
+                }else {
+                    $user->roles()->sync($role);
+                }
             }
         } 
 

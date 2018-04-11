@@ -294,33 +294,29 @@ $(document).ready(function() {
                                     @endif
 
                                         <dt>Job description : </dt>
+                                        @forelse($mission->job_descriptions as $job_description)
                                         <dd>
-                                        @if(count($mission->job_descriptions))
-                                            @foreach($mission->job_descriptions as $job_description)
-                                               <a href="{{ Storage::disk('public')->url($job_description->url_document) }}" target="_blank"> 
-                                                   <i class="fa fa-download" aria-hidden="true"></i>
-                                                   {{ $job_description->description }}
-                                                </a></br>
-                                            @endforeach
-                                        @else
-                                            Aucun job description
-                                        @endif
-                                        </dd><br \>
+                                            <a href="{{ Storage::disk('public')->url($job_description->url_document) }}" target="_blank"> 
+                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                {{ $job_description->description }}
+                                            </a>
+                                        </dd>
+                                        @empty
+                                            <dd>Aucun job description</dd>
+                                        @endforelse <br \>
 
                                         <dt>Offres : </dt>
                                     @if(auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
+                                        @forelse($mission->offres as $offre)
                                         <dd>
-                                        @if(count($mission->offres))
-                                            @foreach($mission->offres as $offre)
-                                               <a href="{{ Storage::disk('public')->url($offre->url_document) }}" target="_blank"> 
-                                                   <i class="fa fa-download" aria-hidden="true"></i>
-                                                   {{ $offre->description }}
-                                                </a></br>
-                                            @endforeach
-                                        @else
-                                            Aucune offre
-                                        @endif
+                                            <a href="{{ Storage::disk('public')->url($offre->url_document) }}" target="_blank"> 
+                                                <i class="fa fa-download" aria-hidden="true"></i>
+                                                {{ $offre->description }}
+                                            </a>
                                         </dd>
+                                        @empty
+                                            <dd>Aucune offre</dd>
+                                        @endforelse
                                     @else
                                         <dd style="color:red"><i class="fa fa-minus-circle"></i></dd>
                                     @endif
