@@ -11,14 +11,14 @@
 
     <title>{{ config('app.name') }} :: @yield('title')</title>
 
-    <!-- Bootstrap Core CSS -->
-    <link href="{{ asset('../vendor/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
-
+   <!-- Bootstrap Core CSS -->
+   <link href="{{ asset('../vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+   
     <!-- MetisMenu CSS -->
-    <link href="{{ asset('../vendor/metisMenu/metisMenu.min.css')}}" rel="stylesheet">
-
-    <!-- SB admin CSS -->
-    <link href="{{ asset('css/sb-admin-2.css')}}" rel="stylesheet">
+    <link href="{{ asset('../vendor/metisMenu/metisMenu.min.css') }}" rel="stylesheet">
+   
+    <!-- SB Admin CSS -->
+    <link href="{{ asset('css/sb-admin-2.css') }}" rel="stylesheet">
 
     <!-- Bootstrap Language selector CSS -->
     <link href="{{ asset('../vendor/bootstrap-select/bootstrap-select/dist/css/bootstrap-select.min.css')}}" rel="stylesheet">
@@ -86,11 +86,11 @@
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li class="user-login"><em>{{ auth()->user()->login}}</em></li>
-                        <li><a href="{{ route('users.show',auth()->user()->id) }}"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
+                        <li><a href="{{ route('users.show',auth()->user()->id) }}"><i class="fa fa-user fa-fw"></i> {{ __('general.user_profile') }}</a></li>
                         <!-- <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a></li>-->
                         <li class="divider"></li>
                         <li><a href="{{ route('logout') }}"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fa fa-sign-out fa-fw"></i> {{ __('general.logout') }}</a>
                             <form id="logout-form" action="{{ route('logout')}}" method="POST" style="display: none;">
                                 {{ csrf_field() }}
                             </form>

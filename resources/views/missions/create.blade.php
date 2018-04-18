@@ -42,7 +42,7 @@
                                     
                                     <div class="form-group">
                                         
-                                        {{ Form::label('client_id','Nom du client:')}}
+                                        {{ Form::label('client_id',ucfirst(trans_choice('general.client',1)).' : ')}}
                                         {{ Form::select('client_id',
                                             $clients,
                                             (isset($oldClient) ? $oldClient->id : null),
@@ -52,7 +52,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('fonction','Fonction:')}}<span class="required">*</span>
+                                        {{ Form::label('fonction',ucfirst(trans_choice('general.function',1)).' : ')}}<span class="required">*</span>
                                         {{ Form::text('fonction',
                                             old('fonction')?? (isset($mission) ? $mission->fonction->fonction: ''),
                                             [
@@ -68,7 +68,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('type_contrat_id','Type de contrat:')}}
+                                        {{ Form::label('type_contrat_id',__('general.contract_type').' : ')}}
                                         {{ Form::select('type_contrat_id', 
                                             $typesContrat,
                                             (isset($mission) ? $mission->type_contrat_id: null),
@@ -78,7 +78,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('status','Status de la mission:')}}
+                                        {{ Form::label('status',__('general.mission_status').' : ')}}
                                         {{ Form::select('status',
                                             $listeStatus,
                                             (isset($mission) ? $mission->status: 'En cours'),
@@ -87,7 +87,7 @@
                                         ]) }}
                                     </div>
                                     <div class="form-group">
-                                        {{ Form::label('remarques','Remarques:')}}
+                                        {{ Form::label('remarques',__('general.notice').' : ')}}
                                         {{ Form::textarea('remarques',
                                             old('remarques')?? (isset($mission) ? $mission->remarques:''),
                                             [
@@ -99,7 +99,7 @@
                                 <div class="col-lg-6">
                                 @if(empty($mission) || auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
                                     <div class="form-group">                                        
-                                            {{ Form::label('contrat_id','Charger contrat:')}}
+                                            {{ Form::label('contrat_id',__('general.load_contract').' : ')}}
                                         @if(isset($mission) && $mission->contrat_id)
                                             <a href="{{ Storage::disk('public')->url($mission->contrat->url_document) }}" target="_blank"> 
                                                 <i class="fa fa-download" aria-hidden="true"></i>
@@ -129,7 +129,7 @@
 
                                     <div class="form-group">
                                         <dl>
-                                            <dt>{{ Form::label('job_description_ids','Charger le/les job descriptions:') }}</dt>
+                                            <dt>{{ Form::label('job_description_ids',__('general.load_job_description').' : ')}}</dt>
                                         @if(isset($mission) && $mission->job_descriptions)
                                             <dd style="margin-left:15px">
                                             @foreach($mission->job_descriptions as $job_description)
@@ -152,7 +152,7 @@
                                         </dl>
                                         <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
                                             <div>
-                                                {{ Form::label('descriptionsForJob[]','Description:')}}
+                                                {{ Form::label('descriptionsForJob[]',__('general.description').' : ')}}
                                                 {{ Form::text('descriptionsForJob[]',
                                                     old('descriptionsForJob[]')?? '',
                                                     [
@@ -205,7 +205,7 @@
                                 @if(empty($mission) || auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
                                     <div class="form-group">
                                         <dl>
-                                            <dt>{{ Form::label('offre_ids','Charger le/les offres:') }}</dt>
+                                            <dt>{{ Form::label('offre_ids',__('general.load_offer').' : ')}}</dt>
                                         @if(isset($mission) && $mission->offres)
                                             <dd style="margin-left:15px">
                                             @foreach($mission->offres as $offre)
@@ -228,7 +228,7 @@
                                         </dl>
                                         <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
                                             <div>
-                                                {{ Form::label('descriptionsForOffre[]','Description:')}}
+                                                {{ Form::label('descriptionsForOffre[]',__('general.description').' : ')}}
                                                 {{ Form::text('descriptionsForOffre[]',
                                                     old('descriptionsForOffre[]')?? '',
                                                     [
@@ -279,10 +279,10 @@
                                     </div>
                                 @endif                        
                                     <div class="bottom-bar">
-                                    {{ Form::submit('Enregistrer',[
+                                    {{ Form::submit(__('general.save'),[
                                         'class'=>'btn btn-primary pull-right',
                                     ]) }}
-                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
+                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">{{__('general.cancel')}}</a></button>
                                     </div>
                                 </div>
                             </div>

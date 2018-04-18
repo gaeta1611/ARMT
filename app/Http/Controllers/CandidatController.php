@@ -63,10 +63,10 @@ class CandidatController extends Controller
         
         //Récuperer les missions en cours
         $ongoingMissions = Mission::ongoingMissions();
-        $prefix = Config::get('constants.options.PREFIX_MISSION');
 
         $liste=[0=>''];
         foreach($ongoingMissions as $ongoingMission) {
+            $prefix = Mission::find($ongoingMission->id)->user->initials;
             $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id}&nbsp;";;
         }
         $ongoingMissions = $liste;
@@ -78,7 +78,7 @@ class CandidatController extends Controller
         
         $showLangues = $bestLangues;
 
-        $autresLangues = [0=>'Autres'];
+        $autresLangues = [0=>__('general.other')];
         foreach($listeLangues as $langue) {
             $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }
@@ -145,7 +145,7 @@ class CandidatController extends Controller
      */
     public function create()
     {
-        $title = 'Ajouter candidat';
+        $title = __('general.titles.add_candidate');
         $route = 'candidats.store';
         $method = 'POST';
         
@@ -155,7 +155,7 @@ class CandidatController extends Controller
         
         $showLangues = $bestLangues;
 
-        $autresLangues = [0=>'Autres'];
+        $autresLangues = [0=>__('general.other')];
         foreach($listeLangues as $langue) {
             $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }
@@ -224,38 +224,38 @@ class CandidatController extends Controller
             'linkedin'=>'nullable|url|unique:candidat|max:255',
             'site'=>'nullable|url|unique:candidat|max:255',
         ],[
-            'nom.required'=>'Veuillez entrer le nom du candidat',
-            'nom.max'=>'Le nom du candidat ne peut pas dépasser 60 caractères',
+            'nom.required'=>__('general.error_lastname'),
+            'nom.max'=>__('general.error_lastname_caractere'),
 
-            'prenom.required'=>'Veuillez entrer le prénom du candidat',
-            'prenom.max'=>'Le prénom du candidat ne peut pas dépasser 60 caractères',
+            'prenom.required'=>__('general.error_firstname'),
+            'prenom.max'=>__('general.error_firsname_caractere'),
 
-            'sexe.required'=>'Veuillez entrer le sexe du candidat',
-            'sexe.max'=>'Veuillez renseigner m ou f pour le sexe du candidat',
-            'sexe.in'=>'Veuillez renseigner m ou f pour le sexe du candidat',
+            'sexe.required'=>__('general.error_sex'),
+            'sexe.max'=>__('general.error_sex_m_f'),
+            'sexe.in'=>__('general.error_sex_m_f'),
 
-            'email.required'=>'Veuillez entrer un email',
-            'email.email'=>'Type de valeur incorrecte pour l\'email',
-            'email.unique'=>'L\'adresse mail existe déjà',
-            'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
+            'email.required'=>__('general.error_email'),
+            'email.email'=>__('general.error_type_email'),
+            'email.unique'=>__('general.error_exist_email'),
+            'email.max'=>__('general.error_email_caractere'),
 
-            'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
+            'localite_id.numeric' =>__('general.error_type_localite'),
             //'code_postal.required' => 'Veuillez entrer un code postal.',
-            'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
+            'code_postal.max' =>__('general.error_zip_caractere'),
             //'localite.required' => 'Veuillez entrer une localité.',
-            'localite.max' => 'La localité ne peut dépasser 120 caractères.',
+            'localite.max' =>__('general.error_localite_caractere'),
 
-            'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
+            'date_naissance.date'=>__('general.error_type_birth_date'),
 
-            'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 caractères',
+            'telephone.max'=>__('general.error_phone_caractere'),
 
-            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin en ajoutant (http://)',
-            'linkedin.unique'=>'Ce Linkedin existe déjà dans votre DBs',
-            'linkedin.max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
+            'linkedin.url'=>__('general.error_valide_linkedin'),
+            'linkedin.unique'=>__('general.error_db_linkedin'),
+            'linkedin.max'=>__('general.error_linkedin_caractere'),
 
-            'site.url'=>'Veuillez entrer une URL valide pour le site internet (http://)',
-            'site.unique'=>'Ce site internet existe déjà dans votre DB',
-            'site.max'=>'L\' URL du site  ne peut pas dépasser 255 caractères'
+            'site.url'=>__('general.error_valide_website'),
+            'site.unique'=>__('general.error_db_website'),
+            'site.max'=>__('general.error_website_caractere'),
         ]);
 
 
@@ -271,16 +271,16 @@ class CandidatController extends Controller
             if($localite->save()) {
                 $candidat->localite_id = $localite->id;
                 
-                Session::put('success','Une nouvelle localité a été enregistrée.');
+                Session::put('success',__('general.succes_locality'));
             } else {
-                Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                Session::push('errors',__('general.error_locality'));
                 
                 return redirect()->route('candidats.create');
             }
         }
 
         if($candidat->save()){
-            Session::put('success','Le candidat a bien été enregistré');
+            Session::put('success',__('general.success_candidate_save'));
 
             $langues = Input::all('langue');
             if(isset($langues['langue'])) {
@@ -291,7 +291,7 @@ class CandidatController extends Controller
                     $candidatLangue->niveau = $langueNiveau;
 
                     if(!$candidatLangue->save()) {
-                        Session::push('errors','Erreur lors de l\'enregristrement d\'une langue pour ce candidat!');
+                        Session::push('errors',__('general.error_language_save'));
                     }
 
                 }
@@ -305,7 +305,7 @@ class CandidatController extends Controller
                     $candidatDiplomeEcole->diplome_ecole_id = $diplomeEcoleId;
 
                     if(!$candidatDiplomeEcole->save()) {
-                        Session::push('errors','Erreur lors de l\'enregristrement d\'un diplome pour ce candidat!');
+                        Session::push('errors',__('general.error_diploma_save'));
                     }
 
                 }
@@ -355,7 +355,7 @@ class CandidatController extends Controller
                 }
     
                 if($cptNotSaved) {
-                    Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement des emplois antérieus $cptNotSaved! $message");
+                    Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement des emplois antérieurs $cptNotSaved! $message");
                     
                 }
             }
@@ -387,13 +387,13 @@ class CandidatController extends Controller
                     $cv->user_id = auth()->user()->id;
         
                     if(!$cv->save()){
-                        Session::push('errors','Erreur lors de l\'enregristrement du document (cv)!');
+                        Session::push('errors',__('general.error_cv_save'));
                     }
                 }
             }    
         }
         else{
-            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+            Session::push('errors',__('general.error_general'));
         }
 
         return redirect()->route('candidatures.create.from.candidat',[$candidat->id]);
@@ -409,7 +409,7 @@ class CandidatController extends Controller
     public function show($id)
     {
         $candidat = Candidat::find($id);
-        $title = 'Candidat : '.($candidat->nom).' '.($candidat->prenom);
+        $title = trans_choice('general.candidate',1).': '.($candidat->nom).' '.($candidat->prenom);
 
         //TODO réglé relation many to one
         $localite = Localite::find($candidat->localite_id);
@@ -475,7 +475,7 @@ class CandidatController extends Controller
     public function edit($id)
     {
         $candidat = Candidat::find($id);
-        $title = 'Modifier candidat';
+        $title = __('general.edit').' : '.$candidat->nom.' '.$candidat->prenom;
         $route = ['candidats.update',$id];
         $method = 'PUT';
         
@@ -614,38 +614,38 @@ class CandidatController extends Controller
                 'max:60'
             ]
         ],[
-            'nom.required'=>'Veuillez entrer le nom du candidat',
-            'nom.max'=>'Le nom du candidat ne peut pas dépasser 60 caractères',
+            'nom.required'=>__('general.error_lastname'),
+            'nom.max'=>__('general.error_lastname_caractere'),
 
-            'prenom.required'=>'Veuillez entrer le prénom du candidat',
-            'prenom.max'=>'Le prénom du candidat ne peut pas dépasser 60 caractères',
+            'prenom.required'=>__('general.error_firstname'),
+            'prenom.max'=>__('general.error_firsname_caractere'),
 
-            'sexe.required'=>'Veuillez entrer le sexe du candidat',
-            'sexe.max'=>'Veuillez renseigner m ou f pour le sexe du candidat',
-            'sexe.in'=>'Veuillez renseigner m ou f pour le sexe du candidat',
+            'sexe.required'=>__('general.error_sex'),
+            'sexe.max'=>__('general.error_sex_m_f'),
+            'sexe.in'=>__('general.error_sex_m_f'),
 
-            'email.required'=>'Veuillez entrer une email',
-            'email.email'=>'Type de valeur incorrecte pour l\'email',
-            'email.unique'=>'L\'adresse mail existe déjà',
-            'email.max'=>'L\'email ne peut pas dépasser 120 caractères',
+            'email.required'=>__('general.error_email'),
+            'email.email'=>__('general.error_type_email'),
+            'email.unique'=>__('general.error_exist_email'),
+            'email.max'=>__('general.error_email_caractere'),
 
-            'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
+            'localite_id.numeric' =>__('general.error_type_localite'),
             //'code_postal.required' => 'Veuillez entrer un code postal.',
-            'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
+            'code_postal.max' =>__('general.error_zip_caractere'),
             //'localite.required' => 'Veuillez entrer une localité.',
-            'localite.max' => 'La localité ne peut dépasser 120 caractères.',
+            'localite.max' =>__('general.error_localite_caractere'),
 
-            'date_naissance.date'=>'Type de valeur incorrecte pour la date de naissance',
+            'date_naissance.date'=>__('general.error_type_birth_date'),
 
-            'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 caractères',
+            'telephone.max'=>__('general.error_phone_caractere'),
 
-            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin en ajoutant (http://)',
-            'linkedin.unique'=>'Ce Linkedin existe déjà',
-            'linkedin.max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
+            'linkedin.url'=>__('general.error_valide_linkedin'),
+            'linkedin.unique'=>__('general.error_db_linkedin'),
+            'linkedin.max'=>__('general.error_linkedin_caractere'),
 
-            'site.url'=>'Veuillez entrer une URL valide pour le site internet (http://)',
-            'site.unique'=>'Ce site internet existe déjà',
-            'site.max'=>'L\' URL du site  ne peut pas dépasser 255 caractères'
+            'site.url'=>__('general.error_valide_website'),
+            'site.unique'=>__('general.error_db_website'),
+            'site.max'=>__('general.error_website_caractere'),
         ]);
 
         $candidat = Candidat::find($id);
@@ -660,16 +660,16 @@ class CandidatController extends Controller
             if($localite->save()) {
                 $data['localite_id'] = $localite->id;
                 
-                Session::put('success','Une nouvelle localité a été enregistrée.');
+                Session::put('success',__('general.succes_locality'));
             } else {
-                Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                Session::push('errors',__('general.error_locality'));
                 
                 return redirect()->route('candidats.update');
             }
         }
        
         if($candidat->update($data)){
-            Session::put('success','Le candidat a bien été enregistré');
+            Session::put('success',__('general.success_candidate_save'));
 
             $langues = Input::all('langue');
             if(isset($langues['langue'])) {
@@ -680,7 +680,7 @@ class CandidatController extends Controller
                     ], ['niveau' => $langueNiveau]);
                     
                     if(!$candidatLangue->id) {
-                        Session::push('errors','Erreur lors de l\'enregristrement d\'une langue pour ce candidat!');
+                        Session::push('errors',__('general.error_language_save'));
                     }
 
                 }
@@ -711,7 +711,7 @@ class CandidatController extends Controller
                 $candidatDiplomeEcole->diplome_ecole_id = $diplomeEcoleId;
 
                 if(!$candidatDiplomeEcole->save()) {
-                    Session::push('errors','Erreur lors de l\'enregristrement d\'un diplome pour ce candidat!');
+                    Session::push('errors',__('general.error_diploma_save'));
                 }
 
             }
@@ -725,7 +725,7 @@ class CandidatController extends Controller
                 ])->first(); 
              
                 if(!$candidatDiplomeEcole->delete()) {
-                    Session::push('errors','Erreur lors de la suppression d\'un diplome pour ce candidat!');
+                    Session::push('errors',__('general.error_diploma_delete'));
                 }
 
             }
@@ -834,7 +834,7 @@ class CandidatController extends Controller
                     
         
                     if(!$cv->save()){
-                        Session::push('errors','Erreur lors de l\'enregristrement du document (CV)!');
+                        Session::push('errors',__('general.error_cv_save'));
                     }
                 }
             }
@@ -849,14 +849,14 @@ class CandidatController extends Controller
                         Session::push('errors','L\ancien CV n\'a pas pu être supprimé du disque !');
                     } else {
                         if(!$oldCV->delete()) {
-                            Session::push('errors','L\ancien CV n\'a pas pu être supprimé !');
+                            Session::push('errors',__('general.error_cv_delete'));
                         }
                     }
                 }
             } 
         }
         else {
-            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+            Session::push('errors',__('general.error_general'));
         }
 
         return redirect()->route('candidats.show',$id);
@@ -873,15 +873,17 @@ class CandidatController extends Controller
     {
         $candidat = Candidat::find($id);
 
+        //Todu : Suppresion des fichiers
+
         try {
             if(isset($candidat) && $candidat->delete()){
-                Session::put('success','Le candidat a bien été supprimé');
+                Session::put('success',__('general.success_candidate_delete'));
             }else {
-                Session::push('errors','Une erreur s\'est produite lors de la suppression du candidat!');
+                Session::push('errors',__('general.error_candidate_delete'));
             }
 
         } catch (\Exception $ex){
-                Session::push('errors','Impossible de supprimer ce candidat');
+                Session::push('errors',__('general.impossible_candidate_delete'));
         }
 
         return redirect()->route('candidats.index');
@@ -1060,12 +1062,4 @@ class CandidatController extends Controller
         ]);
     }
 
-    /**
-     * Retrieve all the candidate that correspond to criteria in given form
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function searchBy()
-    {
-    }
 }

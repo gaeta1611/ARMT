@@ -27,8 +27,6 @@ class MissionController extends Controller
         //Récuperer les données
         $missions = Mission::all();
         
-        //Traiter les données
-        
         //Envoyer les données à la vue ou rediriger
         return view ('missions.index')->with('missions',$missions);
         
@@ -45,7 +43,7 @@ class MissionController extends Controller
         $oldClient = Client::find($id);
 
         //Définir le titre de la page
-        $title = 'Ajouter mission';
+        $title = __('general.titles.add_mission');
         //Définir les paramètres du formulaire
         $route = 'missions.store';
         $method = 'POST';
@@ -108,7 +106,7 @@ class MissionController extends Controller
             //'contrat_id'=>'nullable',
             //'job_description_id'=>'nullable',
             
-            
+            //__('general.'),
         ],[
             'client_id.required'=>'Veuillez entrer le nom du client',
             
@@ -249,7 +247,7 @@ class MissionController extends Controller
     {   
         $mission = Mission::find($id);
         $client = Client::find($mission->client_id);
-        $title = 'Mission : ' .$mission->user()->get()->first()->initials.($mission->id);
+        $title = ucfirst(trans_choice('general.mission',1)).' : '.$mission->user()->get()->first()->initials.($mission->id);
 
         foreach($mission->candidatures as $candidature) {
             $candidature->F2F = null;
@@ -295,7 +293,7 @@ class MissionController extends Controller
         $oldClient = Client::find($mission->client_id);
         
         //Définir le titre de la page
-        $title = 'Modifier la mission: '.$mission->user()->get()->first()->initials.$mission->id;
+        $title = __('general.titles.edit_mission').' : '.$mission->user()->get()->first()->initials.$mission->id;
 
         //Définir les paramètres du formulaire
         $route = ['missions.update',$id];

@@ -104,7 +104,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        {{ Form::label('prospect','Type:')}}<span class="required">*</span>
+                                        {{ Form::label('prospect',__('general.type'))}} :<span class="required">*</span>
                                         {{ Form::radio('prospect','1',
                                             old('prospect')=='1'|| (isset($client) && $client->prospect==1),
                                             (isset($client) && !$client->prospect)?[
@@ -113,7 +113,7 @@
                                             ]:[
                                                 'id'=>'prospect',
                                             ])}}
-                                        {{ Form::label('prospect','Prospect')}}
+                                        {{ Form::label('prospect',ucfirst(trans_choice('general.prospect',1)))}}
                                         {{ Form::radio('prospect','0',
                                             old('prospect')=='0'|| (isset($client) && $client->prospect==0),
                                             (isset($client) && !$client->prospect)?[
@@ -122,10 +122,10 @@
                                             ]:[
                                                 'id'=>'client',
                                             ])}}
-                                        {{ Form::label('client','Client')}} 
+                                        {{ Form::label('client',ucfirst(trans_choice('general.client',1)))}}
                                     </div>
                                     <div class="form-group">
-                                        {{ Form::label('nom_entreprise','Nom entreprise:')}}<span class="required">*</span>
+                                        {{ Form::label('nom_entreprise',__('general.company_name'))}} :<span class="required">*</span>
                                         {{ Form::text('nom_entreprise',
                                             old('nom_entreprise')?? (isset($client) ? $client->nom_entreprise:''),
                                             [
@@ -135,7 +135,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('tva','TVA:')}}
+                                        {{ Form::label('tva',__('general.vat'))}} :
                                         {{ Form::text('tva',
                                             old('tva')?? (isset($client) ? $client->tva:''),
                                             [
@@ -145,7 +145,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('personne_contact','Personne de contact:')}}
+                                        {{ Form::label('personne_contact',__('general.contact_person'))}} :
                                         {{ Form::text('personne_contact',
                                             old('personne_contact')?? (isset($client) ? $client->personne_contact:''),
                                             [
@@ -155,7 +155,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('telephone','Téléphone:')}}
+                                        {{ Form::label('telephone',__('general.phone'))}} :
                                         {{ Form::text('telephone',
                                             old('telephone')?? (isset($client) ? $client->telephone:''),
                                             [
@@ -165,7 +165,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('Email','Email:')}}<span class="required">*</span>
+                                        {{ Form::label('Email',ucfirst(__('validation.attributes.email')))}} :<span class="required">*</span>
                                         <div class="form-group input-group">
                                             <span class="input-group-addon">@</span>
                                             {{ Form::email('email',
@@ -187,7 +187,7 @@
                                         ]) }}
                                         <div class="row">
                                             <div class="col-lg-4 col-xs-4">
-                                                {{ Form::label('code_postal','Code postal:') }}
+                                                {{ Form::label('code_postal',__('general.zip_code'))}} :
                                                 {{ Form::text('code_postal',
                                                 old('code_postal')?? (isset($client) ? $client->localite->code_postal : ''),
                                                 [
@@ -196,7 +196,7 @@
                                                 ]) }}
                                             </div>
                                             <div class="col-lg-8 col-xs-8">
-                                                {{ Form::label('localite','Localité:') }}
+                                                {{ Form::label('localite',__('general.locality'))}} :
                                                 {{ Form::text('localite',
                                                 old('localite')?? (isset($client) ? $client->localite->localite : ''),
                                                 [
@@ -213,7 +213,7 @@
                                     </div>
                                 </div>
                                     <div class="form-group">
-                                        {{ Form::label('adresse','Adresse:')}}
+                                        {{ Form::label('adresse',__('general.address'))}} :
                                         {{ Form::text('adresse',
                                             old('adresse')?? (isset($client) ? $client->adresse:''),
                                             [
@@ -223,7 +223,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('site','Site internet:')}}
+                                        {{ Form::label('site',__('general.website'))}} :
                                         {{ Form::url('site',
                                             old('site')?? (isset($client) ? $client->site:''),
                                             [
@@ -233,7 +233,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('linkedin','LinkedIn:')}}
+                                        {{ Form::label('linkedin',__('general.linkedin'))}} :
                                         {{ Form::url('linkedin',
                                             old('linkedin')?? (isset($client) ? $client->linkedin:''),
                                             [
@@ -243,10 +243,10 @@
                                     </div>
 
                                     <div class="bottom-bar">
-                                    {{ Form::submit('Enregistrer',[
+                                    {{ Form::submit(__('general.save'),[
                                         'class'=>'btn btn-primary pull-right',
                                     ]) }}
-                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
+                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">{{__('general.cancel')}}</a></button>
                                     </div>
                                 </div>
                             </div>

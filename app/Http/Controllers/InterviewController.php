@@ -31,10 +31,10 @@ class InterviewController extends Controller
                 $data['type'] = $whereValue;
                 unset($data['where']);
             } else {
-                return response()->json([0=>false,"message"=>"Format incorrecte pour le typ d'interview"]); 
+                return response()->json([0=>false,"message"=>__('general.format_incorrect')]); 
             }
         } else {
-            return response()->json([0=>false,"message"=>"Il manque le type d'interview dans la requête"]);       
+            return response()->json([0=>false,"message"=>__('general.miss_type_interview')]); 
         }
 
         $interview = Interview::where([
@@ -45,7 +45,7 @@ class InterviewController extends Controller
         if($interview->updateOrCreate($data)) {
             return response()->json(true);
         } else {
-            return response()->json([0=>false,"message"=>"Erreur Ajax"]);
+            return response()->json([0=>false,"message"=>"Error Ajax"]);
         }
         
     }

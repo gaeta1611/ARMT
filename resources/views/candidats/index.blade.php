@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Rechercher des candidats')
+@section('title',__('general.titles.search_candidate'))
 
 @section('css')
 <!-- DataTables CSS -->
@@ -69,6 +69,15 @@
                 location.href = redirectURL;
             }          
         });
+        $('#frmSearchCandidat').on('reset',function(event){
+            var indexURL = APP_URL+'/public/candidats';
+            if(location.href!= indexURL){
+                location.href = indexURL;
+
+                event.preventDefault();
+                return false;
+            }
+        });
     });
 </script>
 @endsection
@@ -78,7 +87,7 @@
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Rechercher des candidats</h1>
+                    <h1 class="page-header">{{ __('general.titles.search_candidate')}}</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -96,7 +105,7 @@
                         <div class="row">
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    {{ Form::label('age','Age :',[ 
+                                    {{ Form::label('age',__('general.age').' : ',[ 
                                         'class'=>'col-form-label',
                                     ]) }}
                                     <div class="input-group">
@@ -110,8 +119,9 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                {{ Form::label('langues','Langues:')}}
-                                <p>(0=>langue inconnue | 1=>connais quelques mot | 2=>Notion | 3=>se debrouille | 4=>bilingue | 5=>langue maternelle)<p>
+                                {{ Form::label('langues',ucfirst(__('validation.attributes.language')).' : ')}}
+                                <p>0=>{{ trans_choice('general.language_level',1) }} | 1=>{{ trans_choice('general.language_level',2) }} | 2=>{{ trans_choice('general.language_level',3) }} | 
+                                            3=>{{ trans_choice('general.language_level',4) }} | 4=>{{ trans_choice('general.language_level',5) }} | 5=>{{ trans_choice('general.language_level',6) }}<p>
                                 <table id="tbl-langues">
                                     <tfoot>
                                         <tr>
@@ -150,9 +160,9 @@
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    {{ Form::label('designation','Désignation :',[ 
+                                    {{ Form::label('designation',__('general.degree').' : ',[ 
                                         'class'=>'col-form-label',
-                                    ]) }}
+                                    ]) }} 
                                     {{ Form::text('designation',null,[ 
                                         'class'=>'form-control',
                                         'id'=>'designation',
@@ -165,7 +175,7 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('finalite','Finalité :',[ 
+                                    {{ Form::label('finalite',__('general.finality').' : ',[ 
                                         'class'=>'col-form-label',
                                     ]) }}
                                     {{ Form::text('finalite',null,[ 
@@ -180,7 +190,7 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('niveau','Niveau :',[ 
+                                    {{ Form::label('niveau',__('general.level').' : ',[ 
                                         'class'=>'col-form-label',
                                     ]) }}
                                     {{ Form::text('niveau',null,[ 
@@ -195,7 +205,7 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('code_ecole','Ecole :',[ 
+                                    {{ Form::label('code_ecole',__('general.school').' : ',[ 
                                         'class'=>'col-form-label',
                                     ]) }}
                                     {{ Form::text('code_ecole',null,[ 
@@ -212,7 +222,7 @@
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    {{ Form::label('societe','Employeur :',[ 
+                                    {{ Form::label('societe',__('general.employer').' : ',[ 
                                         'class'=>'col-form-label',
                                     ]) }}
                                     {{ Form::text('societe',null,[ 
@@ -227,7 +237,7 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('fonction','Fonction :',[ 
+                                    {{ Form::label('fonction',ucfirst(trans_choice('general.function',1)).' : ',[ 
                                         'class'=>'col-form-label',
                                     ]) }}
                                     {{ Form::text('fonction',null,[ 
@@ -242,7 +252,7 @@
                                     </datalist>
                                 </div>
                                 <div class="form-group">
-                                    {{ Form::label('in_cv','In CV :',[ 
+                                    {{ Form::label('in_cv',__('general.cv').' : ',[ 
                                         'class'=>'col-form-label',
                                     ]) }}
                                     {{ Form::text('in_cv',null,[ 
@@ -251,17 +261,18 @@
                                     ]) }}
                                 </div>
                                 <div class="text-right">
-                                    {{ Form::submit('Rechercher',['class'=>'btn btn-primary'])}}
+                                    {{ Form::reset(__('general.clear_all'),['class'=>'btn btn-secondary'])}}
+                                    {{ Form::submit(__('general.search'),['class'=>'btn btn-primary'])}}
                                 </div>
                             </div>
                         </div>
                         {{ Form::close() }}
 
                         <form>
-                            <fieldset><legend>Filtrer</legend>
+                            <fieldset><legend>{{__('general.filter')}}</legend>
                             <div class="row">
                                 <div style="width:150px; float: left;margin:0 15px">
-                                    <strong>État d'avancement: </strong>
+                                    <strong>{{__('general.advancement')}} :</strong>
                                 </div>
                                 <div style=" float: left">
                                     <ul style="display: inline; padding: 0">
@@ -280,7 +291,7 @@
                             </div>
                             <div class="row">
                                 <div style="width:150px; float: left;margin:0 15px">
-                                    <strong>Mode candidature: </strong>
+                                    <strong>{{__('general.candidacy_mode')}} : </strong>
                                 </div>
                                 <div style=" float: left">
                                     <ul style="display: inline; padding: 0">
@@ -309,12 +320,12 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-candidats">
                                 <thead>
                                     <tr>
-                                        <th>Nom</th>
-                                        <th>Prenom</th>
-                                        <th>Date de naissance</th>
-                                        <th>Date de création</th>
-                                        <th>Supprimer</th>
-                                        <th>Ajouter à une fiche</th>
+                                        <th>{{ ucfirst(__('validation.attributes.last_name')) }}</th>
+                                        <th>{{ ucfirst(__('validation.attributes.first_name')) }}</th>
+                                        <th>{{__('general.birth_date')}}</th>
+                                        <th>{{__('general.created_at')}}</th>
+                                        <th>{{__('general.delete')}}</th>
+                                        <th>{{__('general.titles.add_a_mission')}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -337,9 +348,12 @@
                                                 'route'=>['candidats.destroy',$candidat->id],
                                                 'method'=>'DELETE',
                                                 'role'=>'form',
-                                                'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce candidat")'
+                                                'onsubmit' => 'return confirm("'.__('general.delete_confirmation',[
+                                                    'pronoun'=>trans_choice('general.pronouns.this',1), 
+                                                    'record'=>__('general.candidate'),
+                                                ]).'")'
                                             ]) }}
-                                                <button class="fa fa-trash" aria-hidden="true" title="supprimer candidat"></button>                                        
+                                                <button class="fa fa-trash" aria-hidden="true" title="{{ __('general.delete_record',['record'=>__('general.candidate')]) }}"></button>                                        
                                             {{ Form::close() }}
                                         </td>
                                         

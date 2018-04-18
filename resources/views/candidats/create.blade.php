@@ -6,6 +6,22 @@
 @endsection
 
 @section('js')
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+  $( function() {
+    $( "#sortable-tbl" ).sortable({
+        placeholder:"ui-state-highlight",
+        update: function(event, ui) {
+            $trs = $(ui.item[0]).parent().find('tr');
+            $trs.each(function() {
+                $(this).removeClass('danger');
+            });
+            $($trs.eq(0)).addClass('danger');
+        }
+    });
+    $( "#sortable-tbl" ).disableSelection();
+  });
+</script>
 <script>
     const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
     var armtAPI = APP_URL + '/public/api/';
@@ -611,16 +627,16 @@
                                 /*'onsubmit' => 'return valider(this,[nom,prenom,sexe,email])'*/
                             ]) }}
                             <div class="top-bar">
-                            {{ Form::submit('Enregistrer',[
+                            {{ Form::submit(__('general.save'),[
                                 'class'=>'btn btn-primary pull-right',
                             ]) }}
-                                <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
+                                <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">{{__('general.cancel')}}</a></button>
                             </div>
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div style="display:none" id="candidat_id">{{isset($candidat) ? $candidat->id:''}}</div>
                                     <div class="form-group">
-                                        {{ Form::label('nom','Nom :')}}<span class="required">*</span>
+                                        {{ Form::label('nom',ucfirst(__('validation.attributes.last_name')).' : ') }} <span class="required">*</span>
                                         {{ Form::text('nom',
                                             old('nom')?? (isset($candidat) ? $candidat->nom:''),
                                             [
@@ -630,7 +646,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('prenom','Prénom:')}}<span class="required">*</span>
+                                        {{ Form::label('prenom',ucfirst(__('validation.attributes.first_name')).' : ') }}<span class="required">*</span>
                                         {{ Form::text('prenom',
                                             old('prenom')?? (isset($candidat) ? $candidat->prenom:''),
                                             [
@@ -640,7 +656,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('date_naissance','Date de naissance:')}}
+                                        {{ Form::label('date_naissance',__('general.birth_date').' : ')}} 
                                         {{ Form::date('date_naissance',
                                             old('date_naissance')?? (isset($candidat) ? $candidat->date_naissance:''),
                                             [
@@ -650,7 +666,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('sexe','Sexe:')}}<span class="required">*</span>
+                                        {{ Form::label('sexe',__('general.sex').' : ')}}<span class="required">*</span>
                                         {{ Form::radio('sexe','m',
                                             old('sexe')=='m'|| (isset($candidat) && $candidat->sexe=='m'),
                                             [
@@ -666,7 +682,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('telephone','Téléphone:')}}
+                                        {{ Form::label('telephone',__('general.phone').' : ')}} 
                                         {{ Form::text('telephone',
                                             old('telephone')?? (isset($candidat) ? $candidat->telephone:''),
                                             [
@@ -676,8 +692,9 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('langues','Langues:')}}
-                                        <p>(0=>langue inconnue | 1=>connais quelques mot | 2=>Notion | 3=>se debrouille | 4=>bilingue | 5=>langue maternelle)<p>
+                                        {{ Form::label('langues',ucfirst(__('validation.attributes.language')).' : ') }} 
+                                        <p>0=>{{ trans_choice('general.language_level',1) }} | 1=>{{ trans_choice('general.language_level',2) }} | 2=>{{ trans_choice('general.language_level',3) }} | 
+                                            3=>{{ trans_choice('general.language_level',4) }} | 4=>{{ trans_choice('general.language_level',5) }} | 5=>{{ trans_choice('general.language_level',6) }}<p>
                                         <table id="tbl-langues">
                                             <tfoot>
                                                 <tr>
@@ -715,10 +732,8 @@
                                             </tbody>
                                         </table>
                                     </div>           
-
-
                                     <div class="form-group">
-                                        {{ Form::label('diplomes','Diplôme:')}} <i class="fa fa-plus-square" data-toggle="modal" data-target="#addDiplomeModal"  style="color:blue; font-size:1.7em; cursor: pointer"></i>
+                                        {{ Form::label('diplomes',__('general.degree').' : ')}} <i class="fa fa-plus-square" data-toggle="modal" data-target="#addDiplomeModal"  style="color:blue; font-size:1.7em; cursor: pointer"></i>
                                         {{ Form::text('diplome',
                                             old('diplome')?? '',
                                             [
@@ -749,8 +764,8 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="addDiplomeModalLabel"><strong>Nouveau diplôme</strong></h5>
-                                                    <p><span class="required">*</span>Champs obligatoire<p>
+                                                    <h5 class="modal-title" id="addDiplomeModalLabel"><strong>{{__('general.new_degree')}}</strong></h5>
+                                                    <p><span class="required">*</span>{{__('general.required_fields')}}<p>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                     </button>
@@ -758,7 +773,7 @@
                                                 <div class="modal-body">
                                                     <form>
                                                         <div class="form-group">
-                                                            <label for="designation" class="col-form-label">Désignation:<span class="required">*</span></label>
+                                                            <label for="designation" class="col-form-label">{{__('general.degree')}} :<span class="required">*</span></label>
                                                             <input type="text" data-required="true" class="form-control" id="designation" list="list-designations">
                                                             <datalist id="list-designations">
                                                             @foreach($designations as $designation)
@@ -767,7 +782,7 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="finalite" class="col-form-label">Finalité:</label>
+                                                            <label for="finalite" class="col-form-label">{{__('general.finality')}} :</label>
                                                             <input type="text" class="form-control" id="finalite" list="list-finalites">
                                                             <datalist id="list-finalites">
                                                             @foreach($finalites as $finalite)
@@ -776,7 +791,7 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="niveau" class="col-form-label">Niveau:<span class="required">*</span></label>
+                                                            <label for="niveau" class="col-form-label">{{__('general.level')}} :<span class="required">*</span></label>
                                                             <input type="text" data-required="true" class="form-control" id="niveau" list="list-niveaux">
                                                             <datalist id="list-niveaux">
                                                             @foreach($niveaux as $niveau)
@@ -785,7 +800,7 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="code_ecole" class="col-form-label">Ecole:</label>
+                                                            <label for="code_ecole" class="col-form-label">{{__('general.school')}} :</label>
                                                             <input type="text" class="form-control" id="code_ecole" name="code_ecole" list="list-ecoles">
                                                             <datalist id="list-ecoles">
                                                             @foreach($ecoles as $ecole)
@@ -794,14 +809,14 @@
                                                             </datalist>
                                                         </div>
                                                         <div class="form-group">
-                                                            <label for="code_diplome" class="col-form-label">Code Diplôme:<span class="required">*</span></label>
+                                                            <label for="code_diplome" class="col-form-label">{{__('general.diploma_code').' : '}} <span class="required">*</span></label>
                                                             <input type="text" class="form-control" id="code_diplome">
                                                         </div>
                                                     </form>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" id="btnCloseDiplomeDialog" data-dismiss="modal">Fermer</button>
-                                                    <button type="button" class="btn btn-primary" id="btnAddDiplomeDialog">Ajouter</button>
+                                                    <button type="button" class="btn btn-secondary" id="btnCloseDiplomeDialog" data-dismiss="modal">{{__('general.close')}}</button>
+                                                    <button type="button" class="btn btn-primary" id="btnAddDiplomeDialog">{{__('general.add')}}</button>
                                                 </div>
                                                 </div>
                                             </div>
@@ -809,13 +824,13 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <fieldset><legend>Employeurs</legend>
+                                        <fieldset><legend>{{__('general.employer')}}</legend>
                                             <div class="form-group">
-                                                <p id="actualSociety"><strong>Dernier Employeur :</strong> <span>{{$actualSociety}}</span></p>
-                                                <p id="lastFunction"><strong>Dernière Fonction exercée:</strong> <span>{{$lastFunction}}</span></p>
+                                                <p id="actualSociety"><strong>{{__('general.last_employer')}} :</strong> <span>{{$actualSociety}}</span></p>
+                                                <p id="lastFunction"><strong>{{__('general.last_function')}} :</strong> <span>{{$lastFunction}}</span></p>
                                             </div>
 
-                                            <span class="btn btn-success" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">Gérer les employeurs</span>
+                                            <span class="btn btn-success" data-toggle="modal" data-target="#addSocieteModal"  style="color:white;">{{ __('general.employer_management') }}</span>
                                             <!-- Formulaire d'ajout d'un nouvelle societe -->
                                             <div class="modal fade" id="addSocieteModal" tabindex="-1" role="dialog" aria-labelledby="addSocieteModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog" role="document">
@@ -824,19 +839,19 @@
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
-                                                        <h5 class="modal-title" id="addSocieteModalLabel" style="font-size:1.5em" >Gestion des employeurs antérieurs & actuels</h5>
-                                                        <p>Veuillez ajouter chaque employeur en terminant par le dernier employeur et/ou fonction du candidat</p>
+                                                        <h5 class="modal-title" id="addSocieteModalLabel" style="font-size:1.5em" >{{__('general.employer_management_past')}}</h5>
+                                                        <p>{{__('general.list_employer_top')}}</p>
                                                     </div>
                                                     <div class="modal-body">
                                                         <table class="table table-striped" id="tbl-societes">
                                                             <thead>
                                                                 <tr>
-                                                                    <th>Id</th><th>Employeur</th><th>Fonction exercée</th><th>Date début</th><th>Date fin</th>
+                                                                    <th>Id</th><th>{{__('general.employer')}}</th><th>{{__('general.function_exercised')}}</th><th>{{__('general.start_date')}}</th><th>{{__('general.end_date')}}</th>
                                                                 </tr>
                                                             </thead>
-                                                            <tbody>
+                                                            <tbody id="sortable-tbl">
                                                             @if($societeCandidat = $societeCandidats->first())
-                                                                <tr scope="row" class="danger" data-id="{{$societeCandidat->id}}">
+                                                                <tr scope="row" class="danger ui-state-default" data-id="{{$societeCandidat->id}}">
                                                                     <td>{{$societeCandidat->id}}
                                                                         <input type="hidden" name="socCan[socCanIds][]" value="{{$societeCandidat->id}}">
                                                                     </td>
@@ -858,7 +873,7 @@
                                                                 </tr>
                                                             @endif
                                                             @foreach($societeCandidats->slice(1) as $societeCandidat)
-                                                                <tr scope="row" data-id="{{$societeCandidat->id}}">
+                                                                <tr scope="row" data-id="{{$societeCandidat->id}}" class="ui-state-default">
                                                                     <td>{{$societeCandidat->id}}
                                                                         <input type="hidden" name="socCan[socCanIds][]" value="{{$societeCandidat->id}}">
                                                                     </td>
@@ -883,7 +898,7 @@
                                                         </table>
                                                         <form>
                                                             <div class="form-group">
-                                                                <label for="recipient-name" class="col-form-label">Employeur:</label>
+                                                                <label for="recipient-name" class="col-form-label">{{__('general.employer')}} :</label>
                                                                 <input type="text" class="form-control" id="societe" list="list-societes">
                                                                 <datalist id="list-societes">
                                                                 @foreach($societes as $societe)
@@ -892,7 +907,7 @@
                                                                 </datalist>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label for="recipient-name" class="col-form-label">Fonction exercée:</label>
+                                                                <label for="recipient-name" class="col-form-label">{{__('general.function_exercised')}} :</label>
                                                                 <input type="text" class="form-control" id="fonction" list="list-fonctions">
                                                                 <datalist id="list-fonctions">
                                                                 @foreach($fonctions as $fonction)
@@ -901,11 +916,11 @@
                                                                 </datalist>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label for="recipient-name" class="col-form-label">Date début:</label>
+                                                                <label for="recipient-name" class="col-form-label">{{__('general.start_date')}} :</label>
                                                                 <input type="date" class="form-control" id="date_debut">
                                                             </div>
                                                             <div class="form-group">
-                                                                <label for="message-text" class="col-form-label">Date fin:</label>
+                                                                <label for="message-text" class="col-form-label">{{__('general.end_date')}} :</label>
                                                                 <input type="date" class="form-control" id="date_fin">
                                                             </div>
                                                         </form>
@@ -913,14 +928,14 @@
                                                     <div class="modal-footer">
                                                         <div class="row">
                                                             <div class="col-lg-8 col-sm-8">
-                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="if(!confirm('Etes vous sur de vouloir annuler ?')) { $(this).removeAttr('data-dismiss'); } else { $(this).attr('data-dismiss','modal'); }">Annuler les modifications</button>
-                                                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnSaveSocieteDialog">Sauvegarder & fermer</button>
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="if(!confirm('Etes vous sur de vouloir annuler ?')) { $(this).removeAttr('data-dismiss'); } else { $(this).attr('data-dismiss','modal'); }">{{__('general.cancel_change')}}</button>
+                                                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btnSaveSocieteDialog">{{__('general.save_and_close')}}</button>
                                                             </div> 
                                                             <div class="col-lg-4 col-sm-4">
                                                                 <!-- Ajax waiting animation -->                          
                                                                 <div class="waiting"></div>
 
-                                                                <button type="button" class="btn btn-success" id="btnAddSociete">Ajouter</button>   
+                                                                <button type="button" class="btn btn-success" id="btnAddSociete">{{__('general.add')}}</button>   
                                                             </div>
                                                         </div>
                                                     </div>
@@ -941,7 +956,7 @@
                                         ]) }}
                                         <div class="row">
                                             <div class="col-lg-4 col-xs-4">
-                                                {{ Form::label('code_postal','Code postal:') }}
+                                                {{ Form::label('code_postal',__('general.zip_code').' : ') }} 
                                                 {{ Form::text('code_postal',
                                                 old('code_postal')?? (isset($candidat) ? $candidat->localite->code_postal : ''),
                                                 [
@@ -950,7 +965,7 @@
                                                 ]) }}
                                             </div>
                                             <div class="col-lg-8 col-xs-8">
-                                                {{ Form::label('localite','Localité:') }}
+                                                {{ Form::label('localite',__('general.locality').' : ') }} 
                                                 {{ Form::text('localite',
                                                 old('localite')?? (isset($candidat) ? $candidat->localite->localite : ''),
                                                 [
@@ -968,7 +983,7 @@
                                 </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('Email','Email:')}}<span class="required">*</span>
+                                        {{ Form::label('Email',ucfirst(__('validation.attributes.email')).' : ')}}<span class="required">*</span>
                                         <div class="form-group input-group">
                                             <span class="input-group-addon">@</span>
                                             {{ Form::email('email',
@@ -981,7 +996,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('linkedin','LinkedIn:')}}
+                                        {{ Form::label('linkedin',__('general.linkedin').' : ')}}
                                         {{ Form::url('linkedin',
                                             old('linkedin')?? (isset($candidat) ? $candidat->linkedin:''),
                                             [
@@ -990,7 +1005,7 @@
                                         ]) }}
                                     </div>
                                     <div class="form-group">
-                                        {{ Form::label('site','Site internet:')}}
+                                        {{ Form::label('site',__('general.website').' : ')}}
                                         {{ Form::url('site',
                                             old('site')?? (isset($candidat) ? $candidat->site:''),
                                             [
@@ -1000,7 +1015,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('remarques','Remarques:')}}
+                                        {{ Form::label('remarques',__('general.notice').' : ')}} 
                                         {{ Form::textarea('remarques',
                                             old('remarques')?? (isset($candidat) ? $candidat->remarques:''),
                                             [
@@ -1010,7 +1025,7 @@
 
                                     <div class="form-group">
                                         <dl>
-                                            <dt>{{ Form::label('cvs','Charger le/les CV:') }}</dt>
+                                            <dt>{{ Form::label('cvs',__('general.load_cv').' : ') }}</dt>
                                         @if(isset($candidat) && $candidat->cvs)
                                             <dd style="margin-left:15px">
                                             @foreach($candidat->cvs as $cv)
@@ -1033,7 +1048,7 @@
                                         </dl>
                                         <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
                                             <div>
-                                                {{ Form::label('descriptionsForCV[]','Description:')}}
+                                                {{ Form::label('descriptionsForCV[]',__('general.description').' : ')}}
                                                 {{ Form::text('descriptionsForCV[]',
                                                     old('descriptionsForCV[]')?? '',
                                                     [
@@ -1084,10 +1099,10 @@
                                     </div>
                     
                                     <div class="bottom-bar">
-                                    {{ Form::submit('Enregistrer',[
+                                    {{ Form::submit(__('general.save'),[
                                         'class'=>'btn btn-primary pull-right',
                                     ]) }}
-                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
+                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">{{__('general.cancel')}}</a></button>
                                     </div>
                                 </div>
                             </div>

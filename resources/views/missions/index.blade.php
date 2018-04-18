@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Liste des Missions')
+@section('title',__('general.titles.list_mission'))
 
 @section('css')
 <!-- DataTables CSS -->
@@ -26,7 +26,7 @@
         var $panelHeading = $('.panel-heading');
         $panelHeading.append('<div class="row">');
 
-        var labels = ['Fonction','Contrat','Statut'];
+        var labels = [ '{{ucfirst(trans_choice('general.function',1))}}','{{ucfirst(trans_choice('general.contract',1))}}','{{__('general.status') }}'];
 
         table.columns([2,3,4]).flatten().each( function ( colIdx, index ) {
             $panelHeading.find('.row').append('<div class="col-lg-4"><label for="'+labels[index]+'">'+labels[index]+':<br> ');
@@ -71,7 +71,7 @@
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Liste des Missions</h1>
+                    <h1 class="page-header">{{ __('general.titles.list_mission') }}</h1>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
@@ -87,13 +87,13 @@
                             <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-missions">
                                 <thead>
                                     <tr>
-                                        <th>Fiche</th>
-                                        <th>Client</th>
-                                        <th>Fonction</th>
-                                        <th>Contrat</th>
-                                        <th>Statut</th>
-                                        <th>Date</th>
-                                        <th>Remarques</th>
+                                        <th>{{ucfirst(trans_choice('general.mission',1))}}</th>
+                                        <th>{{ucfirst(trans_choice('general.client',1))}}</th>
+                                        <th>{{ucfirst(trans_choice('general.function',1))}}</th>
+                                        <th>{{ucfirst(trans_choice('general.contract',1))}}</th>
+                                        <th>{{__('general.status') }}</th>
+                                        <th>{{ ucfirst(__('general.date')) }}</th>
+                                        <th>{{ __('general.notice') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>

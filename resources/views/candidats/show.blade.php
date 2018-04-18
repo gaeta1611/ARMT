@@ -43,25 +43,25 @@ $(document).ready(function() {
                             <div class="row">
                                 <div class="col-lg-5">
                                     <dl class="dl-horizontal">
-                                        <dt>Nom : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.last_name')) }} :</dt>
                                         <dd>{{ $candidat->nom }}</dd>
-                                        <dt>Prénom : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.first_name')) }} : </dt>
                                         <dd>{{ $candidat->prenom }}</dd>
-                                        <dt>Date de naissance : </dt>
+                                        <dt>{{ __('general.birth_date') }} :</dt>
                                         <dd>{{ isset($candidat->date_naissance) ? Carbon::parse($candidat->date_naissance)->format('d-m-Y'):'' }} </dd>
-                                        <dt>Sexe : </dt>
+                                        <dt>{{ __('general.sex') }} :</dt>
                                         <dd>{{ $candidat->sexe}}</dd>
-                                        <dt>Téléphone : </dt>
+                                        <dt>{{ __('general.phone') }} : </dt>
                                         <dd>{{ $candidat->telephone }}</dd>
-                                        <dt>Localité : </dt>
+                                        <dt>{{ __('general.locality') }} : </dt>
                                         <dd>{{ $candidat_localite->code_postal }} {{ $candidat_localite->localite }}</dd>
-                                        <dt>Email : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.email'))}} :</dt>
                                         <dd>{{ $candidat->email }}</dd>
-                                        <dt>Linkedin : </dt>
+                                        <dt>{{ __('general.linkedin') }} : </dt>
                                         <dd>{{ $candidat->linkedin }}</dd>
-                                        <dt>Site internet : </dt>
+                                        <dt>{{ __('general.website') }} : </dt>
                                         <dd>{{ $candidat->site }}</dd>
-                                        <dt>Remarques : </dt>
+                                        <dt>{{ __('general.notice') }} : </dt>
                                         <dd>{{ $candidat->remarques }}</dd>
                                         <dt>
                                             <a href="{{ $candidat->site }}" target="_blank" style="margin:10px" style="margin:100px"><i class="fa fa-internet-explorer fa-lg" style="margin-top:15px" ></i></a>
@@ -72,16 +72,16 @@ $(document).ready(function() {
                                 </div>
                                 <div class="col-lg-7">
                                     <dl class="dl-horizontal">                                     
-                                        <dt id="diplome">Diplômes : </dt>
+                                        <dt id="diplome">{{ __('general.degree') }} : </dt>
                                         @foreach($candidatDiplomeEcoles as $cde)
                                         <dd>
                                             {{ $cde->designation.' '.'('.$cde->niveau.' '.$cde->finalite.')'.' '.'-'.' '.($cde->code_ecole ?? '') }}
                                         </dd>
                                         @endforeach
                                         <br \>
-                                        <dt>Dernier Employeur : </dt>
+                                        <dt>{{ __('general.last_employer') }} : </dt>
                                         <dd><span class="societe">{{ isset($actualSociety) ? $actualSociety->nom_entreprise:'' }}</span></dd>
-                                        <dt>Dernière fonction : </dt>
+                                        <dt>{{ __('general.last_function') }} : </dt>
                                         <dd>{{  isset($lastFunction) ? $lastFunction->fonction:''}} 
                                         @if($lastFunction)
                                             @if($lastFunction->date_debut && $lastFunction->date_fin)
@@ -94,7 +94,7 @@ $(document).ready(function() {
                                         @endif
                                         </dd>
                                         <br \>
-                                        <dt>Employeurs/fonctions : </dt>
+                                        <dt>{{ __('general.employer_function') }} : </dt>
                                         @forelse($societeCandidats as $societeCandidat)
                                         <dd>
                                             <span class="societe">{{ $societeCandidat->societe->nom_entreprise }}</span> - {{$societeCandidat->fonction->fonction ?? 'Pas spécifiée'}}
@@ -110,9 +110,9 @@ $(document).ready(function() {
                                         <dd></dd>
                                         @endforelse
                                         <br \>
-                                        <dt>Langues : <dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.language')) }} : <dt>
                                         @forelse($candidat->langues as $langue)
-                                        <dd>{{$langue->designation}} (niveau : {{$langue->pivot->niveau}})</dd>
+                                        <dd>{{$langue->designation}} ({{__('general.level')}} : {{$langue->pivot->niveau}})</dd>
                                         @empty
                                         <dd></dd>
                                         @endforelse <br \>
@@ -125,7 +125,7 @@ $(document).ready(function() {
                                             </a>
                                         </dd> 
                                         @empty
-                                            <dd>Aucun CV</dd>
+                                            <dd>{{ __('general.no_record',['record'=>__('general.cv')]) }}</dd>
                                         @endforelse
                                     </dl>
                                 </div>
@@ -140,7 +140,7 @@ $(document).ready(function() {
                                         'style' => 'display:inline'
                                     ]) }}
 
-                                    {{ Form::submit('Ajouter une candidature',['class'=>'btn btn-primary'])}}
+                                    {{ Form::submit(__('general.titles.add_candidacy'),['class'=>'btn btn-primary'])}}
                                     {{ Form::close() }}
 
                                     {{Form::open([
@@ -150,7 +150,7 @@ $(document).ready(function() {
                                         'style' => 'display:inline'
                                     ]) }}
 
-                                    {{ Form::submit('Modifier',['class'=>'btn btn-warning'])}}
+                                    {{ Form::submit(__('general.edit'),['class'=>'btn btn-warning'])}}
                                     {{ Form::close() }}
                         
                                     {{Form::open([
@@ -161,7 +161,7 @@ $(document).ready(function() {
                                         'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce candidat")'
                                     ]) }}
                                     
-                                    {{ Form::submit('Supprimer',['class'=>'btn btn-danger'])}}
+                                    {{ Form::submit(__('general.delete'),['class'=>'btn btn-danger'])}}
                                     {{ Form::close() }}
                                 </div>
                             </div>
@@ -173,18 +173,18 @@ $(document).ready(function() {
                                             <thead>
                                                 <tr>
                                                     <th></th>
-                                                    <th>Modifier</th>
-                                                    <th>A postulé</th>
-                                                    <th title="Lettre de motivation">LM</th>
-                                                    <th>Date</th>
-                                                    <th>Média</th>
-                                                    <th>Correspond</th>
-                                                    <th>Status</th>
-                                                    <th title="Etat d'avancement">Avancement</th>
-                                                    <th>Mission</th>
-                                                    <th>Rapport interview</th>
-                                                    <th>Remarques</th>
-                                                    <th>Mail</th>
+                                                    <th>{{ __('general.edit') }}</th>
+                                                    <th>{{ __('general.postuled') }}</th>
+                                                    <th title="Lettre de motivation">{{ __('general.cl') }}</th>
+                                                    <th>{{ ucfirst(__('general.date')) }}</th>
+                                                    <th>{{ __('general.media') }}</th>
+                                                    <th>{{ __('general.match') }}</th>
+                                                    <th>{{ __('general.status') }}</th>
+                                                    <th title="Etat d'avancement">{{ __('general.advancement') }}</th>
+                                                    <th>{{ ucfirst(trans_choice('general.mission',1)) }}</th>
+                                                    <th>{{ __('general.interview_rapport') }}</th>
+                                                    <th>{{ __('general.notice') }}</th>
+                                                    <th>{{ __('general.mail') }}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

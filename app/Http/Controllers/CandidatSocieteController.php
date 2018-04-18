@@ -47,7 +47,7 @@ class CandidatSocieteController extends Controller
             }
         
         } else {
-            return response()->json([0=>false,"message"=>"Les donnees sont incomplete dans la requete"]);       
+            return response()->json([0=>false,"message"=>__('general.data_incomplete')]);       
         }       
         
     }
@@ -66,11 +66,11 @@ class CandidatSocieteController extends Controller
             if(isset($candidatSociete) && $candidatSociete->delete()){
                 return response()->json(true);
             }else {
-                return response()->json([0=>false,"message"=>'errors','Une erreur s\'est produite lors de l\'emploi!']);
+                return response()->json([0=>false,"message"=>'errors',__('general.error_emploi_delete')]);
             }
 
         } catch (\Exception $ex){
-            return response()->json([0=>false,"message"=>'Impossible de supprimer cet emploi']);
+            return response()->json([0=>false,"message"=>__('general.impossible_emploi_delete')]);
         }
 
         return redirect()->route('clients.index');

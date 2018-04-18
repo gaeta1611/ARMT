@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\QueryException;
 
 
 class CandidatureController extends Controller
@@ -42,13 +43,13 @@ class CandidatureController extends Controller
         //Récuperer la mission
         $missionId = Input::get('mission');
 
-        $title = 'Ajouter une candidature';
+        $title = __('general.titles.add_candidacy');
         if($id) {
             $candidat = Candidat::find($id);
-            $title .= " à {$candidat->nom} {$candidat->prenom}";
+            $title .= " : {$candidat->nom} {$candidat->prenom}";
         } elseif($missionId) {
             $prefix = Mission::find($missionId)->user->initials;
-            $title .= " à la mission $prefix$missionId";
+            $title .= " : $prefix$missionId";
         }
         $route = 'candidatures.store';
         $method = 'POST';
@@ -57,7 +58,7 @@ class CandidatureController extends Controller
         //Récuperer les missions en cours
         $ongoingMissions = Mission::ongoingMissions();
 
-        $liste=[null =>'Aucun'];
+        $liste=[null =>__('general.none')];
         foreach($ongoingMissions as $ongoingMission) {
             $prefix = Mission::find($ongoingMission->id)->user->initials;
             $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id} =>{$ongoingMission->client->nom_entreprise} - {$ongoingMission->fonction->fonction}";
@@ -68,7 +69,7 @@ class CandidatureController extends Controller
         //Récuperer les modes de candidatures (média)
         $listMedias = ModeCandidature::all();
 
-        $liste=[null =>'Aucun'];
+        $liste=[null =>__('general.none')];
         foreach($listMedias as $media) {
             $liste[$media->id] = "{$media->type} {$media->mode}";;
         }
@@ -86,7 +87,7 @@ class CandidatureController extends Controller
         //Récuperer les modes de candidatures (média)
         $candidats = Candidat::orderBy('nom')->get();
         
-        $liste=[null=>'Aucun'];
+        $liste=[null=>__('general.none')];
         foreach($candidats as $candidat) {
             $liste[$candidat->id] = "{$candidat->nom} {$candidat->prenom}";;
         }
@@ -128,14 +129,22 @@ class CandidatureController extends Controller
                 $candidature->status_id = 1;//1=>ouvert, à prevalider
                 $candidature->mode_candidature_id =  $modeCandidature->id;
 
-                if($candidature->save()){
-                    Session::put('success','La candidature a bien été enregistré');
-                }
-                else{
-                    Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+                try {  
+                    if($candidature->save()){
+                        Session::put('success',__('general.candidacy_save'));
+                    }
+                    else{
+                        Session::push('errors',__('general.error_general'));
+                    }
+                }catch (QueryException $ex) {
+                    if(preg_match("/candidate_already_assigned_to_mission/", $ex->getMessage())){
+                        Session::push('errors','Ce candidat est déjà présent dans cette mission');
+                    } else {
+                        Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
+                    }
                 }
             } else {
-                Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+                Session::push('errors',__('general.error_general'));
             }
 
             return redirect()->route('candidats.index');
@@ -156,24 +165,24 @@ class CandidatureController extends Controller
                 
     
             ],[
-                'mission_id.numeric'=>'Le type du champ mission_id est incorrect',
-                'candidat_id.required'=>'Veuillez spécifier le candidat',
-                'candidat_id.min'=>'Valeur incorrecte pour le candidat',
-                'created_at.required'=>'Veuillez spécifier la date de candidature',
-                'created_at.date'=>'Le type du champ created_at est incorrecte',
-                'postule_mission_id.numeric'=>'Le type du champ postule_mission_id est incorrect',
-                'mode_candidature_id.required'=>'Veuillez spécifier le mode de candidature',
-                'status_id.required'=>'Veuillez spécifier le status',
-                'mode_reponse_id.numeric'=>'Le type du champ mode_reponse_id est incorrecte',
-                'date_reponse.date'=>'Le type du champ date_reponse est incorrecte',
-                'date_F2F.date'=>'Le type du champ date_F2F est incorrecte',
-                'date_rencontre_client.date'=>'Le type du champ date_rencontre_client est incorrecte',
+                'mission_id.numeric'=>__('general.mission_type_incorrect'),
+                'candidat_id.required'=>__('general.done_candidate'),
+                'candidat_id.min'=>__('general.incorrect_valeur_candidate'),
+                'created_at.required'=>__('general.done_date_candidacy'),
+                'created_at.date'=>__('general.create_at_type_incorrect'),
+                'postule_mission_id.numeric'=>__('general.postule_mission_type_incorrect'),
+                'mode_candidature_id.required'=>__('general.done_candidacy_mode'),
+                'status_id.required'=>__('general.done_status'),
+                'mode_reponse_id.numeric'=>__('general.mode_reponse_type_incorrect'),
+                'date_reponse.date'=>__('general.date_reponse_type_incorrect'),
+                'date_F2F.date'=>__('general.f2f_type_incorrect'),
+                'date_rencontre_client.date'=>__('general.date_rencontre_client_type_incorrect'),
                 //'rapport_interview_id.numeric'=>'Le type du champ rapport_interview_id est incorrecte',
             ]);
 
             $candidature = new Candidature(Input::all());
             $missionId = Input::all('mission_id');
-
+                 
             //Récuperer le fichier chargé dans le formulaire
             $candidature->rapport_interview_id = null;
             $file = $request->file('rapport_interview_id');
@@ -197,7 +206,7 @@ class CandidatureController extends Controller
                 $doc->user_id = auth()->user()->id;
 
                 if(!$doc->save()){
-                    Session::push('errors','Erreur lors de l\'enregristrement du document (rapport interview)!');
+                    Session::push('errors',__('general.error_rapport_save'));
                 } else {
                     $candidature->rapport_interview_id = $doc->id;
                 }
@@ -226,31 +235,34 @@ class CandidatureController extends Controller
                 $doc->user_id = auth()->user()->id;
 
                 if(!$doc->save()){
-                    Session::push('errors','Erreur lors de l\'enregristrement du document (lettre de motivation)!');
+                    Session::push('errors',__('general.error_lettre_save'));
                 } else {
                     $candidature->lettre_motivation_id = $doc->id;
                 }
             }
 
-            if($candidature->save()){
-                Session::put('success','La candidature a bien été enregistré');
-
-                $candidatId = Input::get('candidat_id');
-
-                //L'ajout de la candidature a été initié a partir d'une missions
-                if(preg_match("/\?mission=\d$/",$request->headers->get('referer'))) {
-                    return redirect()->route('missions.show',$missionId);
+            try { 
+                if($candidature->save()){
+                    Session::put('success',__('general.candidacy_save'));
+                } else{
+                    Session::push('errors',__('general.error_general'));        
                 }
-                
-                //L'ajout de la candidature a été initié a partir d'un candidt
-                return redirect()->route('candidats.show',$candidatId);
+            } catch (QueryException $ex) {
+                if(preg_match("/candidate_already_assigned_to_mission/", $ex->getMessage())){
+                    Session::push('errors','Ce candidat est déjà présent dans cette mission');
+                } else {
+                    Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
+                }
+            } 
+            //Redirection
+            //L'ajout de la candidature a été initié a partir d'une missions
+            if(preg_match("/\?mission=\d$/",$request->headers->get('referer'))) {
+                return redirect()->route('missions.show',$missionId);
             }
-            else{
-                Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
-            }
-            
-        }
-              
+            //L'ajout de la candidature a été initié a partir d'un candidt
+            $candidatId = Input::get('candidat_id');
+            return redirect()->route('candidats.show',$candidatId);   
+        }          
     }
 
     /**
@@ -291,7 +303,7 @@ class CandidatureController extends Controller
         //Récuperer les missions en cours
         $ongoingMissions = Mission::ongoingMissions();
 
-        $liste=[null =>'Aucun'];
+        $liste=[null =>__('general.none')];
         foreach($ongoingMissions as $ongoingMission) {
             $prefix = Mission::find($ongoingMission->id)->user->initials;
             $liste[$ongoingMission->id] = " $prefix{$ongoingMission->id} =>{$ongoingMission->client->nom_entreprise} - {$ongoingMission->fonction->fonction}";
@@ -302,7 +314,7 @@ class CandidatureController extends Controller
         //Récuperer les modes de candidatures (média)
         $listMedias = ModeCandidature::all();
 
-        $liste=[null =>'Aucun'];
+        $liste=[null =>__('general.none')];
         foreach($listMedias as $media) {
             $liste[$media->id] = "{$media->type} {$media->mode}";;
         }
@@ -320,7 +332,7 @@ class CandidatureController extends Controller
         //Récuperer les modes de candidatures (média)
         $candidats = Candidat::orderBy('nom')->get();
         
-        $liste=[null=>'Aucun'];
+        $liste=[null=>__('general.none')];
         foreach($candidats as $candidat) {
             $liste[$candidat->id] = "{$candidat->nom} {$candidat->prenom}";;
         }
@@ -355,7 +367,7 @@ class CandidatureController extends Controller
         $data = Input::post();
 
         //Traitement des requetes client ajax(cf api)
-        if($request->ajax()) {
+        if($request->expectsJson()) {
             try {
                 if($candidature->update($data)) {
                     return response()->json(true);
@@ -363,14 +375,13 @@ class CandidatureController extends Controller
                     return response()->json([0=>false,"message"=>"Erreur ajax"]);
                 }
             } catch (\Illuminate\Database\QueryException $ex) {
-                if(preg_match("/candidat_already_assigned_to_mission/", $ex->getMessage())){
-                    Session::push('errors','Ce candidat a deja postulé pour cette mission');
-                } elseif(preg_match("/candidat_already_applied_to_mission/", $ex->getMessage())){
-                    Session::push('errors','Ce candidat correspond à cette mission');
+                if(preg_match("/candidate_already_assigned_to_mission/", $ex->getMessage())){
+                    Session::push('errors','Ce candidat est déja présent dans cette mission');
                 } else {
                     Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
                 }
-            }         
+            } 
+            return response()->json([0=>false,"message"=>"Erreur ajax"]);        
         }
 
         //Traitement du formulaire update
@@ -383,14 +394,14 @@ class CandidatureController extends Controller
             'status_id'=>'required|numeric',
             //'rapport_interview_id'=>'nullable|numeric',
         ],[
-            'mission_id.numeric'=>'Le type du champ mission_id est incorrect',
-            'candidat_id.required'=>'Veuillez spécifier le candidat',
-            'candidat_id.min'=>'Valeur incorrecte pour le candidat',
-            'created_at.required'=>'Veuillez spécifier la date de candidature',
-            'created_at.date'=>'Le type du champ created_at est incorrecte',
-            'postule_mission_id.numeric'=>'Le type du champ postule_mission_id est incorrect',
-            'mode_candidature_id.required'=>'Veuillez spécifier le mode de candidature',
-            'status_id.required'=>'Veuillez spécifier le status',
+            'mission_id.numeric'=>__('general.mission_type_incorrect'),
+            'candidat_id.required'=>__('general.done_candidate'),
+            'candidat_id.min'=>__('general.incorrect_valeur_candidate'),
+            'created_at.required'=>__('general.done_date_candidacy'),
+            'created_at.date'=>__('general.create_at_type_incorrect'),
+            'postule_mission_id.numeric'=>__('general.postule_mission_type_incorrect'),
+            'mode_candidature_id.required'=>__('general.done_candidacy_mode'),
+            'status_id.required'=>__('general.done_status'),
             //'rapport_interview_id.numeric'=>'Le type du champ rapport_interview_id est incorrecte',
         ]);
 
@@ -426,15 +437,15 @@ class CandidatureController extends Controller
                     $oldRapport = Document::find($oldRapportId);
                     
                     if(!Storage::disk('public')->delete($oldRapport->url_document)){
-                        Session::push('errors','L\ancien rapport d\'interview n\'a pas pu être supprimé du disque !');
+                        Session::push('errors',__('general.error_rapport_delete_disk'));
                     } else {
                         if($oldRapport->delete()) {
-                            Session::push('errors','L\ancien rapport d\'interview n\'a pas pu être supprimé de la DB !');
+                            Session::push('errors',__('general.error_rapport_delete'));
                         }
                     }
                 }
             } else{
-                Session::push('errors','Erreur lors de l\'enregristrement du document (rapport interview)!');
+                Session::push('errors',__('general.error_rapport_save'));
             }
         //Il n'y a pas de nouveau rapport d'interview => sauver OU supprimer ancien rapport interview
         } elseif(empty($file) && !empty($request->get('rapport_interview_id'))) {
@@ -443,10 +454,10 @@ class CandidatureController extends Controller
                 $oldRapport = Document::find($request->get('rapport_interview_id'));
 
                 if(!Storage::disk('public')->delete($oldRapport->url_document)){
-                    Session::push('errors','L\ancien rapport d\'interview n\'a pas pu être supprimé du disque !');
+                    Session::push('errors',__('general.error_rapport_delete_disk'));
                 } else {
                     if(!$oldRapport->delete()) {
-                        Session::push('errors','L\ancien rapport d\'interview n\'a pas pu être supprimé !');
+                        Session::push('errors',__('general.error_rapport_delete'));
                     }
                 }
 
@@ -493,10 +504,10 @@ class CandidatureController extends Controller
                     $oldMotivation = Document::find($oldMotivationId);
                     
                     if(!Storage::disk('public')->delete($oldMotivation->url_document)){
-                        Session::push('errors','L\ancienne lettre de motivation n\'a pas pu être supprimé du disque !');
+                        Session::push('errors',__('general.error_lettre_delete_disk'));
                     } else {
                         if($oldMotivation->delete()) {
-                            Session::push('errors','L\ancienne lettre de motivation n\'a pas pu être supprimé de la DB !');
+                            Session::push('errors',__('general.error_lettre_delete'));
                         }
                     }
                 }
@@ -510,10 +521,10 @@ class CandidatureController extends Controller
                 $oldMotivation = Document::find($request->get('lettre_motivation_id'));
 
                 if(!Storage::disk('public')->delete($oldMotivation->url_document)){
-                    Session::push('errors','L\ancienne lettre de motivation n\'a pas pu être supprimé du disque !');
+                    Session::push('errors',__('general.error_lettre_delete_disk'));
                 } else {
                     if(!$oldMotivation->delete()) {
-                        Session::push('errors','L\ancienne lettre de motivation  n\'a pas pu être supprimé !');
+                        Session::push('errors',__('general.error_lettre_delete'));
                     }
                 }
 
@@ -527,25 +538,21 @@ class CandidatureController extends Controller
         }
 
         $data['lettre_motivation_id'] = $candidature->lettre_motivation_id;
+
         try {
             if($candidature->update($data)){
                 Session::put('success','La candidature a bien été enregistré');
-    
-                return redirect()->route('candidats.show',[$candidature->candidat_id]);
             }
             else{
                 Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement de la candidature $candidature->id!");
             }
-        } catch (\Illuminate\Database\QueryException $ex) {
-            if(preg_match("/candidat_already_assigned_to_mission/", $ex->getMessage())){
-                Session::push('errors','Ce candidat a deja postulé pour cette mission');
-            } elseif(preg_match("/candidat_already_applied_to_mission/", $ex->getMessage())){
-                Session::push('errors','Ce candidat correspond à cette mission');
+        } catch (QueryException $ex) {
+            if(preg_match("/candidate_already_assigned_to_mission/", $ex->getMessage())){
+                Session::push('errors','Ce candidat est déja présent dans cette mission');
             } else {
                 Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
             }
         }
-
         return redirect()->route('candidats.show',$candidature->candidat_id);
         
     }

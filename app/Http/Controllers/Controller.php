@@ -14,10 +14,11 @@ class Controller extends BaseController
 
     public function __construct() {
         $this->middleware('auth');
+        //$this->middleware(['guest']);
 
         $this->middleware(function($request, $next) {
             if(!session()->has('lang')) {
-                session()->put('lang',auth()->user()->language);
+                session()->put('lang',auth()->user() ?auth()->user()->language:'en');
             }
 
             App::setLocale(session('lang','en'));

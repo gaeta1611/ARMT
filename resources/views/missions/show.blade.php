@@ -256,44 +256,44 @@ $(document).ready(function() {
                             <div class="row">
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
-                                        <dt>Nom du client : </dt>
+                                        <dt>{{ucfirst(trans_choice('general.client',1))}} :</dt>
                                         <dd>
                                             <a href="{{ route('clients.show',$mission->client_id) }}">
                                                 {{ $client->nom_entreprise }}
                                             </a>
                                         </dd>
-                                        <dt>Fonction : </dt>
+                                        <dt>{{ucfirst(trans_choice('general.function',1))}} :</dt>
                                         <dd>{{ $mission->fonction->fonction }}</dd>
-                                        <dt>Référence : </dt>
+                                        <dt>{{__('general.reference')}} :</dt>
                                         <dd>{{ $mission->user()->get()->first()->initials.$mission->id}}</dd>
-                                        <dt>Date : </dt>
+                                        <dt>{{ ucfirst(__('general.date')) }} : </dt>
                                         <dd>{{ Carbon::parse($mission->created_at)->format('d-m-Y') }}</dd>
-                                        <dt>Type de contrat : </dt>
+                                        <dt>{{__('general.contract_type')}} :</dt>
                                         <dd>{{ $mission->typeContrat->type }}</dd>
-                                        <dt>Status : </dt>
+                                        <dt>{{__('general.status')}} : </dt>
                                         <dd>{{ $mission->status }}</dd>
-                                        <dt>Remarques :</dt>
+                                        <dt>{{__('general.notice')}} :</dt>
                                         <dd>{{$mission->remarques}}</dd>
                                     </dl>
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
-                                        <dt>Contrat :</dt>
-                                    @if(auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
+                                        <dt>{{ucfirst(trans_choice('general.contract',1))}} :</dt>
+                                    @if(auth()->user() && (auth()->user()->is_admin || auth()->user()->id==$mission->user_id))
                                         <dd>
                                             @if($mission->contrat_id)
                                                <a href="{{ Storage::disk('public')->url($mission->contrat->url_document) }}" target="_blank"> 
                                                    <i class="fa fa-download" aria-hidden="true"></i>
                                                 </a>
                                             @else
-                                                Aucun contrat
+                                                {{ __('general.no_record',['record'=>trans_choice('general.contract',1)]) }}
                                             @endif
                                         </dd><br \>
                                     @else
                                     <dd style="color:red"><i class="fa fa-minus-circle"></i></dd>
                                     @endif
 
-                                        <dt>Job description : </dt>
+                                        <dt>{{ucfirst(__('general.job_description'))}} :</dt>
                                         @forelse($mission->job_descriptions as $job_description)
                                         <dd>
                                             <a href="{{ Storage::disk('public')->url($job_description->url_document) }}" target="_blank"> 
@@ -302,11 +302,11 @@ $(document).ready(function() {
                                             </a>
                                         </dd>
                                         @empty
-                                            <dd>Aucun job description</dd>
+                                            <dd>{{ __('general.no_record',['record'=>__('general.job_description')]) }}</dd>
                                         @endforelse <br \>
 
-                                        <dt>Offres : </dt>
-                                    @if(auth()->user()->is_admin || auth()->user()->id==$mission->user_id)
+                                        <dt>{{ucfirst(__('general.offer'))}} :</dt>
+                                    @if(auth()->user() && (auth()->user()->is_admin || auth()->user()->id==$mission->user_id))
                                         @forelse($mission->offres as $offre)
                                         <dd>
                                             <a href="{{ Storage::disk('public')->url($offre->url_document) }}" target="_blank"> 
@@ -315,7 +315,7 @@ $(document).ready(function() {
                                             </a>
                                         </dd>
                                         @empty
-                                            <dd>Aucune offre</dd>
+                                            <dd>{{ __('general.no_record',['record'=>__('general.offer')]) }}</dd>
                                         @endforelse
                                     @else
                                         <dd style="color:red"><i class="fa fa-minus-circle"></i></dd>
@@ -333,7 +333,7 @@ $(document).ready(function() {
                                     ]) }}
                                         {{ Form::hidden('mission',$mission->id) }}
 
-                                    {{ Form::submit('Ajouter un candidat',['class'=>'btn btn-primary'])}}
+                                    {{ Form::submit(__('general.titles.add_candidate'),['class'=>'btn btn-primary'])}}
                                     {{ Form::close() }}
 
                                     {{Form::open([
@@ -343,7 +343,7 @@ $(document).ready(function() {
                                         'style' => 'display:inline'
                                     ]) }}
 
-                                    {{ Form::submit('Modifier',['class'=>'btn btn-warning'])}}
+                                    {{ Form::submit(__('general.edit'),['class'=>'btn btn-warning'])}}
                                     {{ Form::close() }}
                         
                                     {{Form::open([
@@ -351,10 +351,13 @@ $(document).ready(function() {
                                         'method'=>'DELETE',
                                         'role'=>'form',
                                         'style' => 'display:inline',
-                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cette mission")'
+                                        'onsubmit' => 'return confirm("'.__('general.delete_confirmation',[
+                                            'pronoun'=>trans_choice('general.pronouns.this',3), 
+                                            'record'=>trans_choice('general.mission',1),
+                                        ]).'")'
                                     ]) }}
                                     
-                                    {{ Form::submit('Supprimer',['class'=>'btn btn-danger'])}}
+                                    {{ Form::submit(__('general.delete'),['class'=>'btn btn-danger'])}}
                                     {{ Form::close() }}
                                 </div>
                             </div>
@@ -365,22 +368,22 @@ $(document).ready(function() {
                                         <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-candidats">
                                             <thead>
                                                 <tr>
-                                                    <th>Candidats</th>
-                                                    <th>Diplômes</th>
-                                                    <th>Employeur</th>
-                                                    <th>Fonction</th>
-                                                    <th>Date</th>
-                                                    <th>Status</th>
-                                                    <th data-field="status_id" data-fetch-table="status.avancement">Avancement</th>
-                                                    <th data-field="information_candidature_id" data-fetch-table="information_candidature.information">Type</th>
-                                                    <th data-field="mode_reponse_id" data-fetch-table="mode_reponse.media">Mode réponse</th>
-                                                    <th data-field="date_reponse">Date réponse</th>
-                                                    <th data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=F2F'">Date 1er F2F</th>
-                                                    <th data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=rencontre client'">Date candidat vs client</th>
-                                                    <th data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=3e rencontre'">Date 3e interview</th>
-                                                    <th>Média</th>
-                                                    <th>Rapport interview</th>
-                                                    <th>Remarques</th>
+                                                    <th data-id="candidat">{{__('general.candidate')}}</th>
+                                                    <th data-id="diplome">{{__('general.degree')}}</th>
+                                                    <th data-id="employeur">{{__('general.employer')}}</th>
+                                                    <th data-id="fonction">{{ucfirst(trans_choice('general.function',1))}}</th>
+                                                    <th data-id="date">{{ ucfirst(__('general.date')) }}</th>
+                                                    <th data-id="statut">{{__('general.status') }}</th>
+                                                    <th data-id="avancement" data-field="status_id" data-fetch-table="status.avancement">{{__('general.advancement')}}</th>
+                                                    <th data-id="type" data-field="information_candidature_id" data-fetch-table="information_candidature.information">{{__('general.type')}}</th>
+                                                    <th data-id="mode_reponse" data-field="mode_reponse_id" data-fetch-table="mode_reponse.media">{{__('general.response_mode')}}</th>
+                                                    <th data-id="date_reponse" data-field="date_reponse">{{__('general.response_date')}}</th>
+                                                    <th data-id="date_F2F" data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=F2F'">{{__('general.date_f2f')}}</th>
+                                                    <th data-id="date_candidat_client" data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=rencontre client'">{{__('general.date_candidate_client')}}</th>
+                                                    <th data-id="date_interview3" data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=3e rencontre'">{{__('general.date_3_interview')}}</th>
+                                                    <th data-id="media">{{__('general.media')}}</th>
+                                                    <th data-id="rapport_interview">{{__('general.interview_rapport')}}</th>
+                                                    <th data-id="remarque">{{__('general.notice')}}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -446,7 +449,7 @@ $(document).ready(function() {
                                                                 <i class="fa fa-download" aria-hidden="true"></i>
                                                             </a>
                                                         @else
-                                                            Aucun
+                                                            <dd>{{ __('general.no_record',['record'=>__('general.interview_rapport')]) }}</dd>
                                                         @endif
                                                     </td>
                                                     <td>
@@ -457,7 +460,7 @@ $(document).ready(function() {
                                             </tbody>
                                         </table>
                                     @else   
-                                        <p><strong>Aucun candidat pour cette mission.</strong></p>
+                                        <p><strong>{{__('general.no_candidate_mission')}}</strong></p>
                                     @endif
                                     </div>
                                 </div>

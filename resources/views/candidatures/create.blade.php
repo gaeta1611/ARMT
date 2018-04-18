@@ -40,7 +40,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        {{ Form::label('candidat_id','Candidat :')}}
+                                        {{ Form::label('candidat_id',__('general.candidate').' : ')}}
                                     @if(empty($candidature) || empty($candidature->candidat_id))
                                         {{ Form::select('candidat_id',
                                             $candidats,
@@ -59,7 +59,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('postule_mission_id','A postulé :')}}
+                                        {{ Form::label('postule_mission_id',__('general.postuled').' : ')}}
                                         {{ Form::select('postule_mission_id',
                                             $ongoingMissions,
                                             old('postule_mission_id')?? (isset($candidature) ? $candidature->postule_mission_id: null),
@@ -68,7 +68,7 @@
                                         ]) }}
                                     </div>
                                     <div class="form-group">
-                                        {{ Form::label('created_at','Date :')}}
+                                        {{ Form::label('created_at',ucfirst(__('general.date')).' : ')}}
                                         {{ Form::date('created_at',
                                             old('created_at')?? (isset($candidature) ? $candidature->created_at: Carbon::now()),
                                             [
@@ -77,7 +77,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('mode_candidature_id','Média :')}}<span class="required">*</span>
+                                        {{ Form::label('mode_candidature_id',__('general.media').' : ')}}<span class="required">*</span>
                                         {{ Form::select('mode_candidature_id',
                                             $listMedias,
                                             old('mode_candidature_id')?? (isset($candidature) ? $candidature->mode_candidature_id: null),
@@ -87,7 +87,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('mission_id','Correspond :')}}
+                                        {{ Form::label('mission_id',__('general.match').' : ')}}
                                         {{ Form::select('mission_id',
                                             $ongoingMissions,
                                             (isset($missionId) ? $missionId : null),
@@ -96,7 +96,7 @@
                                         ]) }}
                                     </div>
                                     <div class="form-group">
-                                        {{ Form::label('lettre_motivation_id','Charger la lettre de motivation:') }}
+                                        {{ Form::label('lettre_motivation_id',__('general.load_cl').' : ')}}
                                         @if(isset($candidature) && ($lettre_motivation = $candidature->motivation()->first()))
                                             <a href="{{ Storage::disk('public')->url($lettre_motivation->url_document) }}" target="_blank"> 
                                                 <i class="fa fa-download" aria-hidden="true"></i>
@@ -126,7 +126,7 @@
 
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        {{ Form::label('status_id','Etat d\'avancement :') }}
+                                        {{ Form::label('status_id',__('general.advancement').' : ')}}
                                         {{ Form::select('status_id',
                                             $listStatus,
                                             old('status_id')?? (isset($candidature) ? $candidature->status_id: null),
@@ -136,7 +136,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('rapport_interview_id','Charger rapport interview:') }}
+                                        {{ Form::label('rapport_interview_id',__('general.load_interview_rapport').' : ')}}
                                         @if(isset($candidature) && ($rapport_interview = $candidature->rapport()->first()))
                                             <a href="{{ Storage::disk('public')->url($rapport_interview->url_document) }}" target="_blank"> 
                                                 <i class="fa fa-download" aria-hidden="true"></i>
@@ -164,7 +164,7 @@
                                     </div>
                             
                                     <div class="form-group">
-                                        {{ Form::label('remarques','Remarques:')}}
+                                        {{ Form::label('remarques',__('general.notice').' : ')}}
                                         {{ Form::textarea('remarques',
                                             old('remarques')?? (isset($candidature) ? $candidature->remarques:''),
                                             [
@@ -173,10 +173,10 @@
                                     </div>
 
                                     <div class="bottom-bar">
-                                    {{ Form::submit('Enregistrer',[
+                                    {{ Form::submit(__('general.save'),[
                                         'class'=>'btn btn-primary pull-right',
                                     ]) }}
-                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">Annuler</a></button>
+                                        <button class="btn btn-secondary pull-right" type="button"><a href="{{url()->previous()}}">{{__('general.cancel')}}</a></button>
                                     </div>
                                 </div>
                             </div>

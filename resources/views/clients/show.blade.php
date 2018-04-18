@@ -44,15 +44,15 @@ $(document).ready(function() {
                             <div class="row">
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
-                                        <dt>Nom entreprise : </dt>
+                                        <dt>{{__('general.company_name')}} : </dt>
                                         <dd>{{ $client->nom_entreprise }}</dd>
-                                        <dt>TVA : </dt>
+                                        <dt>{{__('general.vat')}} : </dt>
                                         <dd>{{ $client->tva }}</dd>
-                                        <dt>Personne de contact : </dt>
+                                        <dt>{{__('general.contact_person')}} :</dt>
                                         <dd>{{ $client->personne_contact }}</dd>
-                                        <dt>Téléphone : </dt>
+                                        <dt>{{__('general.phone')}} : </dt>
                                         <dd>{{ $client->telephone }}</dd>
-                                        <dt>Email : </dt>
+                                        <dt>{{ ucfirst(__('validation.attributes.email')) }} : </dt>
                                         <dd>{{ $client->email }}</dd>
                                         <dt>
                                         <a href="{{ $client->site }}" target="_blank" style="margin:10px"><i class="fa fa-internet-explorer fa-lg" style="margin-top:15px"></i></a>
@@ -63,17 +63,17 @@ $(document).ready(function() {
                                 </div>
                                 <div class="col-lg-6">
                                     <dl class="dl-horizontal">
-                                        <dt>Localité : </dt>
+                                        <dt>{{__('general.locality')}} :  </dt>
                                     @if(isset($client->localite))
                                         <dd> {{ $client->localite->code_postal }}, {{ $client->localite->localite }}</dd>
                                     @else
                                         <dd></dd>
                                     @endif
-                                        <dt>Adresse : </dt>
+                                        <dt>{{__('general.address')}} :  </dt>
                                         <dd>{{ $client->adresse }}</dd>
-                                        <dt>Site internet : </dt>
+                                        <dt>{{__('general.website')}} :  </dt>
                                         <dd>{{ $client->site }}</dd>
-                                        <dt>Linkedin : </dt>
+                                        <dt>{{__('general.linkedin')}} :  </dt>
                                         <dd>{{ $client->linkedin }}</dd>
                                     </dl>
                                 </div>
@@ -88,7 +88,7 @@ $(document).ready(function() {
                                         'style' => 'display:inline'
                                     ]) }}
 
-                                    {{ Form::submit('Ajouter une mission',['class'=>'btn btn-primary'])}}
+                                    {{ Form::submit(__('general.titles.add_mission'),['class'=>'btn btn-primary'])}}
                                     {{ Form::close() }}
 
                                     {{Form::open([
@@ -98,7 +98,7 @@ $(document).ready(function() {
                                         'style' => 'display:inline'
                                     ]) }}
 
-                                    {{ Form::submit('Modifier',['class'=>'btn btn-warning'])}}
+                                    {{ Form::submit(__('general.edit'),['class'=>'btn btn-warning'])}}
                                     {{ Form::close() }}
                         
                                     {{Form::open([
@@ -106,10 +106,13 @@ $(document).ready(function() {
                                         'method'=>'DELETE',
                                         'role'=>'form',
                                         'style' => 'display:inline',
-                                        'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer ce client")'
+                                        'onsubmit' => 'return confirm("'.__('general.delete_confirmation',[
+                                            'pronoun'=>trans_choice('general.pronouns.this',1), 
+                                            'record'=>trans_choice('general.client',1),
+                                        ]).'")'
                                     ]) }}
                                     
-                                    {{ Form::submit('Supprimer',['class'=>'btn btn-danger'])}}
+                                    {{ Form::submit(__('general.delete'),['class'=>'btn btn-danger'])}}
                                     {{ Form::close() }}
                                 </div>
                             </div>
@@ -119,12 +122,12 @@ $(document).ready(function() {
                                         <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-missions">
                                             <thead>
                                                 <tr>
-                                                    <th>Fiches</th>
-                                                    <th>Fonction</th>
-                                                    <th>Date</th>
-                                                    <th>Remarques</th>
-                                                    <th>Status</th>
-                                                    <th>Supprimer</th>
+                                                    <th>{{ucfirst(trans_choice('general.mission',1))}}</th>
+                                                    <th>{{ucfirst(trans_choice('general.function',1))}}</th>
+                                                    <th>{{ ucfirst(__('general.date')) }}</th>
+                                                    <th>{{ __('general.notice') }}</th>
+                                                    <th>{{__('general.status') }}</th>
+                                                    <th>{{ ucfirst(__('general.delete')) }}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -152,7 +155,10 @@ $(document).ready(function() {
                                                             'route'=>['missions.destroy',$mission->id],
                                                             'method'=>'DELETE',
                                                             'role'=>'form',
-                                                            'onsubmit' => 'return confirm("Etes vous sur de vouloir supprimer cette mission")'
+                                                            'onsubmit' => 'return confirm("'.__('general.delete_confirmation',[
+                                                                'pronoun'=>trans_choice('general.pronouns.this',3), 
+                                                                'record'=>trans_choice('general.mission',1),
+                                                            ]).'")'
                                                         ]) }}
                                                             <button class="fa fa-trash" aria-hidden="true" title="supprimer mission"></button>                                        
                                                         {{ Form::close() }}

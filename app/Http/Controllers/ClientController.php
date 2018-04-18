@@ -35,7 +35,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        $title = 'Ajouter client ou prospect';
+        $title = __('general.titles.add_client_prospect');
         $route = 'clients.store';
         $method = 'POST';
 
@@ -73,39 +73,39 @@ class ClientController extends Controller
             'prospect'=>'required|boolean',
 
         ],[
-            'nom_entreprise.required'=>'Veuillez entrer le nom d\'une entreprise',
-            'nom_entreprise.unique'=>'Ce nom d\'une entreprise existe déjà',
-            'nom_entreprise.max'=>'Le nom de l\'entreprise ne peut pas dépasser 60 caractères',
+            'nom_entreprise.required'=>__('general.error_company_name'),
+            'nom_entreprise.unique'=>__('general.error_exist_company'),
+            'nom_entreprise.max'=>__('general.error_company_caractere'),
 
-            'personne_contact.max'=>'La personne de contact ne peut pas dépasser 100 caractères',
-            'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 chiffres',
+            'personne_contact.max'=>__('general.error_person_contact_caractere'),
+            'telephone.max'=>__('general.error_phone_caractere'),
 
-            'email.email'=>'Veuillez entrer un email valide',
-            'email.unique'=>'Cet email existe déjà',
-            'email.max'=>'L\email ne peut pas dépasser 100 caractères',
+            'email.email'=>__('general.error_type_email'),
+            'email.unique'=>__('general.error_exist_email'),
+            'email.max'=>__('general.error_email_caractere'),
 
             //'adresse.required'=>'Veuillez entrer une adresse',
-            'adresse.max'=>'L\'adresse ne peut pas dépasser 255 caractères',
+            'adresse.max'=>__('general.error_address_caractere'),
 
-            'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
+            'localite_id.numeric' =>__('general.error_type_localite'),
             //'code_postal.required' => 'Veuillez entrer un code postal.',
-            'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
+            'code_postal.max' =>__('general.error_zip_caractere'),
             //'localite.required' => 'Veuillez entrer une localité.',
-            'localite.max' => 'La localité ne peut dépasser 120 caractères.',
+            'localite.max' =>__('general.error_localite_caractere'),
 
             //'tva.required'=>'Veuillez entrer un numéro de TVA',
-            'tva.max'=>'Le numéro de TVA ne peut pas dépasser 15 caractères',
+            'tva.max'=>__('general.error_tva_caractere'),
 
-            'site.url'=>'Veuillez entrer une URL valide pour le site en ajoutant (http://)',
-            'site.unique'=>'Ce site existe déjà',
-            'site.max'=>'L\' URL du site ne peut pas dépasser 255 caractères',
+            'site.url'=>__('general.error_valide_website'),
+            'site.unique'=>__('general.error_db_website'),
+            'site.max'=>__('general.error_website_caractere'),
 
-            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin en ajoutant (http://)',
-            'linkedin.unique'=>'Ce Linkedin existe déjà',
-            'linkedin;max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères',
+            'linkedin.url'=>__('general.error_valide_linkedin'),
+            'linkedin.unique'=>__('general.error_db_linkedin'),
+            'linkedin.max'=>__('general.error_linkedin_caractere'),
 
-            'prospect.required'=>'Veuillez choisir la nature de l\'entreprise',
-            'prospect.boolean'=>'Type de valeur incorrecte pour le type',
+            'prospect.required'=>__('general.error_nature_company'),
+            'prospect.boolean'=>__('general.error_type_type'),
         ]);
 
         $client = new Client(Input::all());
@@ -127,9 +127,9 @@ class ClientController extends Controller
                     if($localite->save()) {
                         $client->localite_id = $localite->id;
                         
-                        Session::put('success','Une nouvelle localité a été enregistrée.');
+                        Session::put('success',__('general.succes_locality'));
                     } else {
-                        Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                        Session::push('errors',__('general.error_locality'));
                         
                         return redirect()->route('clients.create');
                     }
@@ -138,10 +138,10 @@ class ClientController extends Controller
         }
 
         if($client->save()){
-            Session::put('success','Le client a bien été enregistré');
+            Session::put('success',__('general.success_client_save'));
         }
         else{
-            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+            Session::push('errors',__('general.error_general'));
         }
 
         return redirect()->route('clients.index');
@@ -157,7 +157,7 @@ class ClientController extends Controller
     public function show($id)
     {
         $client = Client::find($id);
-        $title = ($client->prospect ? 'Prospect':'Client').' : '.$client->nom_entreprise;
+        $title = ($client->prospect ? ucfirst(trans_choice('general.prospect',1)) : ucfirst(trans_choice('general.client',1))).' : '.$client->nom_entreprise;
         
 
         //$missions = $client->missions;
@@ -181,7 +181,7 @@ class ClientController extends Controller
     public function edit($id)
     {
         $client = Client::find($id);
-        $title = 'Modifier : '.$client->nom_entreprise;
+        $title = __('general.edit').' : '.$client->nom_entreprise;
         $route = ['clients.update',$id];
         $method = 'PUT';
 
@@ -238,36 +238,36 @@ class ClientController extends Controller
             ]
 
         ],[
-            'nom_entreprise.required'=>'Veuillez entrer le nom d\'une entreprise',
-            'nom_entreprise.unique'=>'Ce nom d\'entreprise existe déjà',
-            'nom_entreprise.max'=>'Le nom de l\'entreprise ne peut pas dépasser 60 caractères',
+            'nom_entreprise.required'=>__('general.error_company_name'),
+            'nom_entreprise.unique'=>__('general.error_exist_company'),
+            'nom_entreprise.max'=>__('general.error_company_caractere'),
 
-            'personne_contact.max'=>'La personne de contact ne peut pas dépasser 100 caractères',
-            'telephone.max'=>'Le numéro de téléphone ne peut pas dépasser 20 chiffres',
+            'personne_contact.max'=>__('general.error_person_contact_caractere'),
+            'telephone.max'=>__('general.error_phone_caractere'),
 
-            'email.email'=>'Veuillez entrer un email valide',
-            'email.unique'=>'Cet email existe déjà',
-            'email.max'=>'L\email ne peut pas dépasser 100 caractères',
+            'email.email'=>__('general.error_type_email'),
+            'email.unique'=>__('general.error_exist_email'),
+            'email.max'=>__('general.error_email_caractere'),
 
             //'adresse.required'=>'Veuillez entrer une adresse',
-            'adresse.max'=>'L\'adresse ne peut pas dépasser 255 caractères',
+            'adresse.max'=>__('general.error_address_caractere'),
 
-            'localite_id.numeric' => 'Type de valeur incorrecte pour la localité!',
+            'localite_id.numeric' =>__('general.error_type_localite'),
             //'code_postal.required' => 'Veuillez entrer un code postal.',
-            'code_postal.max' => 'Le code postal ne peut dépasser 10 caractères.',
+            'code_postal.max' =>__('general.error_zip_caractere'),
             //'localite.required' => 'Veuillez entrer une localité.',
-            'localite.max' => 'La localité ne peut dépasser 120 caractères.',
+            'localite.max' =>__('general.error_localite_caractere'),
 
             //'tva.required'=>'Veuillez entrer un numéro de TVA',
-            'tva.max'=>'Le numéro de TVA ne peut pas dépasser 15 caractères',
+            'tva.max'=>__('general.error_tva_caractere'),
 
-            'site.url'=>'Veuillez entrer une URL valide pour le site en ajoutant (http://)',
-            'site.unique'=>'Ce site existe déjà',
-            'site.max'=>'L\' URL du site ne peut pas dépasser 255 caractères',
+            'site.url'=>__('general.error_valide_website'),
+            'site.unique'=>__('general.error_db_website'),
+            'site.max'=>__('general.error_website_caractere'),
 
-            'linkedin.url'=>'Veuillez entrer une URL valide pour Linkedin en ajoutant (http://)',
-            'linkedin.unique'=>'Ce Linkedin existe déjà',
-            'linkedin.max'=>'L\' URL de Linkedin ne peut pas dépasser 255 caractères'
+            'linkedin.url'=>__('general.error_valide_linkedin'),
+            'linkedin.unique'=>__('general.error_db_linkedin'),
+            'linkedin.max'=>__('general.error_linkedin_caractere'),
         ]);
 
         $client = Client::find($id);
@@ -289,9 +289,9 @@ class ClientController extends Controller
                 if($localite->save()) {
                     $data['localite_id'] = $localite->id;
                     
-                    Session::put('success','Une nouvelle localité a été enregistrée.');
+                    Session::put('success',__('general.succes_locality'));
                 } else {
-                    Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement de la localité!');
+                    Session::push('errors',__('general.error_locality'));
                     
                     return redirect()->route('clients.update');
                 }
@@ -300,10 +300,10 @@ class ClientController extends Controller
         
        
         if($client->update($data)){
-            Session::put('success','Le client a bien été enregistré');
+            Session::put('success',__('general.success_client_save'));
         }
         else{
-            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+            Session::push('errors',__('general.error_general'));
         }
 
         return redirect()->route('clients.show',$id);
@@ -322,13 +322,13 @@ class ClientController extends Controller
 
         try {
             if(isset($client) && $client->delete()){
-                Session::put('success','Le client a bien été supprimé');
+                Session::put('success',__('general.success_client_delete'));
             }else {
-                Session::push('errors','Une erreur s\'est produite lors de la suppression du client!');
+                Session::push('errors',__('general.error_client_delete'));
             }
 
         } catch (\Exception $ex){
-                Session::push('errors','Impossible de supprimer ce client (supprimer les missions avant)!');
+                Session::push('errors',__('general.impossible_client_delete'));
         }
 
         return redirect()->route('clients.index');

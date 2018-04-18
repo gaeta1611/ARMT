@@ -43,7 +43,7 @@
                         <li>
                             <a href="{{ route('missions.index',['filter'=>'Statut=En cours']) }}"><i class="fa fa-code-fork fa-fw"></i> {{ucfirst(trans_choice('general.mission',2))}}</a>
                         </li>
-                    @if(in_array('admin',auth()->user()->roles()->select('name')->get()->toArray()[0]))
+                    @if(in_array('admin',auth()->user() ? auth()->user()->roles()->select('name')->get()->toArray()[0]:[]))
                         <li>
                             <a href="#"><i class="fa fa-users"></i> {{ucfirst(trans_choice('general.user',2))}}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
