@@ -2,7 +2,6 @@
 
 @section('title',__('general.add_record',['record'=>trans_choice('general.user',1)]))
 
-@include('includes.sidebar')
 
 @section('content')
 <div class="container">
@@ -144,6 +143,20 @@
                                 @endif
                             </div>
                         </div>
+                    @if(isset($user))
+                        <div class="form-group{{ $errors->has('old_password') ? ' has-error' : '' }}">
+                            <label for="old_password" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.old_password')) }} :</label>
+
+                            <div class="col-md-6">
+                                <input id="old_password" type="password" class="form-control" name="old_password" {{ empty($user) ? 'required':''}}>
+                                @if($errors->has('old_password'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('old_password') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                                   
                         <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
                             <label for="password" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.password')) }} :</label>

@@ -118,6 +118,7 @@ return [
         'language' => "taal",
         'last_name' => 'achternaam',
         'login' => "login",
+        'old_password' => "oude wachtwoord",
         'password' => 'wachtwoord',
         'password_confirmation' => 'wachtwoordbevestiging',
         'role' => "rol",

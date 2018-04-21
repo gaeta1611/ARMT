@@ -897,7 +897,6 @@ class CandidatController extends Controller
     public function search(Request $request)
     {
         $inputs = Input::all();
-        $ageMin = $inputs['age'];
 
         $candidats = Candidat::distinct()
             ->leftJoin('candidat_langues','candidat.id','candidat_langues.candidat_id')
@@ -910,13 +909,35 @@ class CandidatController extends Controller
             ->leftJoin('societes','societe_candidat.societe_id','societes.id')
             ->leftJoin('fonctions','societe_candidat.fonction_id','fonctions.id');
 
-        if(!empty($inputs['age'])) {
-            $dt = Carbon::now();
-            $dt->year -= (int) $inputs['age'];
+        $dtMin = Carbon::now();
+        $dtMax = Carbon::now();
+        if(!empty($inputs['age-min'])) {
+            $dtMin->year -= (int) $inputs['age-min'];
 
-            $candidats->where('candidat.date_naissance','<=',$dt->toDateString());
+            if(!empty($inputs['age-max'])) {
+                $dtMax->year -= (int) $inputs['age-max'];
+                $candidats->where(function($query) use($dtMax, $dtMin) {
+                    $query->whereBetween('candidat.date_naissance',[ 
+                        $dtMax->toDateString(),
+                        $dtMin->toDateString(),
+                    ])->orWhereNull('candidat.date_naissance');
+                });
+            } else {
+                //Ajouter les candidats qui n'ont pas de date de naissance
+                $candidats->where(function($query) use($dtMax, $dtMin) {
+                    $query->where('candidat.date_naissance','<=',$dtMin->toDateString())
+                          ->orWhereNull('candidat.date_naissance');
+                });
+            }
+        } elseif(!empty($inputs['age-max'])) {
+            $dtMax->year -= (int) $inputs['age-max'];
+            //Ajouter les candidats qui n'ont pas de date de naissance
+            $candidats->where(function($query) use($dtMax, $dtMin) {
+                $query->where('candidat.date_naissance','>=',$dtMax->toDateString())
+                      ->orWhereNull('candidat.date_naissance');
+            });
         }
-
+        
         if(!empty($inputs['langue'])) {
             $candidats->whereIn('candidat.id', function($query) use ($inputs) {
                 $langueNiveau = current($inputs['langue']);

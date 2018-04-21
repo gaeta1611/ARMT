@@ -2,7 +2,6 @@
 
 @section('title','Administration')
 
-@include('includes.sidebar')
 
 @section('content')
             <div class="row">

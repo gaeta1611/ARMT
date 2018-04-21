@@ -138,9 +138,9 @@ class CandidatureController extends Controller
                     }
                 }catch (QueryException $ex) {
                     if(preg_match("/candidate_already_assigned_to_mission/", $ex->getMessage())){
-                        Session::push('errors','Ce candidat est déjà présent dans cette mission');
+                        Session::push('errors',__('general.candidate_already_present'));
                     } else {
-                        Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
+                        Session::push('errors',__('general.error_general'));
                     }
                 }
             } else {
@@ -249,9 +249,9 @@ class CandidatureController extends Controller
                 }
             } catch (QueryException $ex) {
                 if(preg_match("/candidate_already_assigned_to_mission/", $ex->getMessage())){
-                    Session::push('errors','Ce candidat est déjà présent dans cette mission');
+                    Session::push('errors',__('general.candidate_already_present'));
                 } else {
-                    Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
+                    Session::push('errors',__('general.error_general'));
                 }
             } 
             //Redirection
@@ -376,9 +376,9 @@ class CandidatureController extends Controller
                 }
             } catch (\Illuminate\Database\QueryException $ex) {
                 if(preg_match("/candidate_already_assigned_to_mission/", $ex->getMessage())){
-                    Session::push('errors','Ce candidat est déja présent dans cette mission');
+                    Session::push('errors',__('general.candidate_already_present'));
                 } else {
-                    Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
+                    Session::push('errors',__('general.error_general'));
                 }
             } 
             return response()->json([0=>false,"message"=>"Erreur ajax"]);        
@@ -512,7 +512,7 @@ class CandidatureController extends Controller
                     }
                 }
             } else{
-                Session::push('errors','Erreur lors de l\'enregristrement du document (lettre de motivation)!');
+                Session::push('errors',__('general.error_lettre_save'));
             }
         //Il n'y a pas de nouvelle lettre de motivation => sauver OU supprimer ancienne lettre de motivation
         } elseif(empty($file) && !empty($request->get('lettre_motivation_id'))) {
@@ -541,7 +541,7 @@ class CandidatureController extends Controller
 
         try {
             if($candidature->update($data)){
-                Session::put('success','La candidature a bien été enregistré');
+                Session::put('success',__('general.succes_save_candidacy'));
             }
             else{
                 Session::push('errors',"Une erreur s\'est produite lors de l\'enregristrement de la candidature $candidature->id!");
@@ -550,7 +550,7 @@ class CandidatureController extends Controller
             if(preg_match("/candidate_already_assigned_to_mission/", $ex->getMessage())){
                 Session::push('errors','Ce candidat est déja présent dans cette mission');
             } else {
-                Session::push('errors','Une erreur s\'est produite lors de l\'enregistrement');
+                Session::push('errors',__('general.error_general'));
             }
         }
         return redirect()->route('candidats.show',$candidature->candidat_id);

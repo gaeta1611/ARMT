@@ -18,14 +18,26 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        //$prospect = $request->query('prospect');
+        
+        if($request->query('status')=='client'){
+            $clients = Client::whereProspect('0')->get();
+        } elseif($request->query('status')=='prospect') {
+            $clients = Client::whereProspect('1')->get();
+        } else {
+            $clients = Client::all();
+        }
 
-        //Récuperer les données
-        $clients = Client::all();//->where('prospect',$prospect);
+        $counters = [
+            'all'=> Client::all()->count(),
+            'client'=>Client::whereProspect('0')->count(),
+            'prospect'=>Client::whereProspect('1')->count()
+        ];
 
         //Envoyer les données à la vue ou rediriger
-        return view ('clients.index')->with('clients',$clients);
-        
+        return view ('clients.index')->with([
+            'clients'=>$clients,
+            'counters'=>$counters,
+        ]);
     }
 
     /**

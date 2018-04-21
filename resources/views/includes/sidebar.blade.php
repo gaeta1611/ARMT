@@ -19,7 +19,7 @@
                             <a href="#"><i class="fa fa-briefcase fa-fw"></i> {{ucfirst(trans_choice('general.client',2))}} &amp; {{ucfirst(trans_choice('general.prospect',2))}}<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="{{ route('clients.index',['prospect'=>false]) }}">{{__('general.search')}} <i class="fa fa-search"></i></a>
+                                    <a href="{{ route('clients.index') }}">{{__('general.search')}} <i class="fa fa-search"></i></a>
                                 </li>
                                 <li>
                                     <a href="{{ route('clients.create')}}">{{__('general.add')}} <i class="fa fa-plus-circle"></i></a>
@@ -57,11 +57,6 @@
                             <!-- /.nav-second-level -->
                         </li>
                     @endif
-                        <li class="nav-item">
-                            <a class="nav-link text-center" id="sidenavToggler" color="dark">
-                                <i class="fa fa-fw fa-angle-left"></i>
-                            </a>
-                        </li>
 
                     </ul>
                 </div>

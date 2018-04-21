@@ -123,6 +123,7 @@ return [
         'language' => "language",
         'last_name' => 'lastname',
         'login' => "login",
+        'old_password' => "old password",
         'password' => 'password',
         'password_confirmation' => 'confirm password',
         'role' => "role",

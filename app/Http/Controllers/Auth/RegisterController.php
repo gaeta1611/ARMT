@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use App\Role;
+use Illuminate\Support\Facades\Hash;
 
 
 
@@ -117,6 +118,7 @@ class RegisterController extends Controller
                 'max:250',
                 Rule::unique('users')->ignore($id),
             ],
+            'old_password' => 'nullable|string|min:6',
             'password' => 'nullable|string|min:6|confirmed',
         ]);
 
@@ -128,7 +130,13 @@ class RegisterController extends Controller
             unset($data['password']);
             unset($data['password_confirmation']);
         } elseif(!empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
+            $oldPassword = isset($data['old_password']) ?  $data['old_password']:'';
+            if(Hash::check($oldPassword,$user->password)) {
+                $data['password'] = bcrypt($data['password']);                
+            } else {
+                unset($data['password']); //Retirer le nouveau mot de passe avant sauvegarde                
+                Session::push('errors',__('passwords.error_old_password'));                
+            }
         }
        
         //Modificaton éventuelle du rôle(action réservé aux admin)

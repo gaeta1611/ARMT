@@ -23,7 +23,7 @@ class UserController extends Controller
     {
 
         //Récuperer les données
-        $users = User::all();
+        $users = User::whereRaw('login !=""')->get();
 
         //Envoyer les données à la vue ou rediriger
         return view ('users.index',[
@@ -50,40 +50,40 @@ class UserController extends Controller
             'email' => 'required|string|email|max:250|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ],[
-            'lastname.required'=>'Veuillez entrer le nom',
-            'lastname.max'=>'Le nom  ne peut pas dépasser 60 caractères',
+            'lastname.required'=>__('general.error_user_lastname'),
+            'lastname.max'=>__('general.error_user_lastname_caractere'),
 
-            'firstname.required'=>'Veuillez entrer le prénom',
-            'firstname.max'=>'Le prénomne peut pas dépasser 60 caractères',
+            'firstname.required'=>__('general.error_user_firsname'),
+            'firstname.max'=>__('general.error_user_firstname_caractere'),
 
-            'initials.required'=>'Veuillez entrer les initiales du candidat',
-            'initials.max'=>'Veuillez entrer 2 caractères pour les initiales',
-            'initials.unique'=>'Ces initiales existent déjà',
+            'initials.required'=>__('general.error_initials'),
+            'initials.max'=>__('general.error_two_caractere_initials'),
+            'initials.unique'=>__('general.error_initials_already_exist'),
 
-            'language.required'=>'Veuillez une langue préférée',
-            'language.max'=>'Le choix de la langue ne peut pas dépasser 2 caractères',
+            'language.required'=>__('general.error_choice_language'),
+            'language.max'=>__('general.error_language_caractere'),
 
-            'login.required'=>'Veuillez entrer le login',
-            'login.max'=>'Le login ne peut pas dépasser 20 caractères',
-            'login.unique'=>'Ce login existent déjà',
+            'login.required'=>__('general.error_login'),
+            'login.max'=>__('general.error_login_caractere'),
+            'login.unique'=>__('general.error_login_already_exist'),
+            
+            'email.required'=>__('general.error_email'),
+            'email.email'=>__('general.error_type_email'),
+            'email.unique'=>__('general.error_exist_email'),
+            'email.max'=>__('general.error_email_caractere'),
 
-            'email.required'=>'Veuillez entrer un email',
-            'email.email'=>'Veuillez entrer un email valide',
-            'email.unique'=>'Cet email existe déjà',
-            'email.max'=>'L\email ne peut pas dépasser 250 caractères',
-
-            'password.required'=>'Veuillez entrer un mot de passe',
-            'password.min'=>'Le mot de passe doit comporter au moins 6 caractères',
-            'password.confirmed'=>'Veuillez confirmer le mot de passe doit',
+            'password.required'=>__('general.error_password'),
+            'password.min'=>__('general.error_password_caractere'),
+            'password.confirmed'=>__('general.error_password_confirmed'),
         ]);
 
 
         $user = new User(Input::all());
 
         if($user->save()){
-            Session::put('success',"L\'utilisateur a bien été enregistré");
+            Session::put('success',__('general.succes_save_user'));
         } else{
-            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+            Session::push('errors',__('general.error_general'));
 
             return redirect()->route('users.create');
         }
@@ -149,17 +149,34 @@ class UserController extends Controller
         $user = User::find($id);
         if($user->id != Auth::id()) {
             try {
+                //Un utilisateur qui n'a pas crée de mission peut etre supprimé
                 if(isset($user) && $user->delete()){
-                    Session::put('success',"L'utilisateur a bien été supprimé");
+                    Session::put('success',__('general.succes_delete_user'));
                 }else {
-                    Session::push('errors','Une erreur s\'est produite lors de la suppression!');
+                    Session::push('errors',__('general.error_general_delete'));
                 }
 
             } catch (\Exception $ex){
-                    Session::push('errors','Impossible de supprimer cet utilisateur');
+                if(preg_match("/mission_created_by_user/", $ex->getMessage())){
+                    $user->firstname = '';
+                    $user->lastname = '';
+                    $user->login = '';
+                    $user->email = '';
+                    $user->language = '';
+                    $user->password = '';
+                    $user->remember_token = null;
+                
+                    if($user->save()) {
+                        Session::put('success',__('general.succes_delete_user'));
+                    } else {
+                        Session::push('errors',__('general.impossible_user_delete'));
+                    }
+                } else {
+                    Session::push('errors',__('general.impossible_user_delete'));
+                }           
             }
         } else {
-            Session::push('errors',"Impossible de supprimer l'utilisateur connecté");
+            Session::push('errors',__('general.impossible_user_connected_delete'));
         }
 
         return redirect()->route('users.index');

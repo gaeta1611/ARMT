@@ -23,6 +23,18 @@
             responsive: true
         });
 
+        //Ajoutdu du bouton de reset des datalists
+        $('input[list]').after('<span class="reset-datalist"><i class="fa fa-times"></i></span>');
+        $('div.form-group').on('mouseover',function(){
+            $(this).find('span.reset-datalist').css('display','inline');
+        }).on('mouseout',function(){
+            $(this).find('span.reset-datalist').css('display','none');
+        });
+        $('span.reset-datalist').on('click',function() {
+            $input = $(this).parent().find('input[list]').val('');
+            $input.val('');
+        });
+
         $('select[name="autres"]').on('change',function(){
             $selected = $(this).find('option:selected')
 
@@ -82,8 +94,6 @@
 </script>
 @endsection
 
-@include('includes.sidebar')
-
 @section('content')
             <div class="row">
                 <div class="col-lg-12">
@@ -109,11 +119,17 @@
                                         'class'=>'col-form-label',
                                     ]) }}
                                     <div class="input-group">
-                                        <span class="input-group-addon" id="age-addon">+ de</span>
-                                        {{ Form::number('age',null,[ 
+                                    <span class="input-group-addon" id="age-addon-min">Entre</span>
+                                        {{ Form::number('age-min',null,[ 
                                             'class'=>'form-control',
-                                            'id'=>'age',
-                                            'aria-describedby'=>'age-addon'
+                                            'id'=>'age-min',
+                                            'aria-describedby'=>'age-addon-min'
+                                        ]) }}
+                                        <span class="input-group-addon" id="age-addon-max">Et</span>
+                                        {{ Form::number('age-max',null,[ 
+                                            'class'=>'form-control',
+                                            'id'=>'age-max',
+                                            'aria-describedby'=>'age-addon-max'
                                         ]) }}
 
                                     </div>
@@ -340,7 +356,7 @@
                                             {{ $candidat->prenom}}
                                         </td>
                                         <td>
-                                            {{ Carbon::parse($candidat->date_naissance)->format('d-m-Y') }}
+                                            {{ isset($candidat->date_naissance) ? Carbon::parse($candidat->date_naissance)->format('d-m-Y'):'' }}
                                         </td>
                                         <td>{{ Carbon::parse($candidat->created_at)->format('d-m-Y') }}</td>
                                         <td style="text-align: center">

@@ -23,7 +23,7 @@ return [
     'between' => [
         'numeric' => 'La valeur de :attribute doit être comprise entre :min et :max.',
         'file' => 'La taille du fichier de :attribute doit être comprise entre :min et :max kilo-octets.',
-        'string' => 'Le texte :attribute doit contenir entre :min et :max caractères.',
+        'string' => 'Le champ :attribute doit contenir entre :min et :max caractères.',
         'array' => 'Le tableau :attribute doit contenir entre :min et :max éléments.',
     ],
     'boolean' => 'Le champ :attribute doit être vrai ou faux.',
@@ -117,6 +117,7 @@ return [
         'language' => "langue",
         'last_name' => 'nom',
         'login' => "login",
+        'old_password' => "ancien mot de passe",
         'password' => 'mot de passe',
         'password_confirmation' => 'confirmation du mot de passe',
         'role' => "rôle",

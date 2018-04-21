@@ -239,7 +239,6 @@ $(document).ready(function() {
 </script>
 @endsection
 
-@include('includes.sidebar')
 
 @section('content')
             <div class="row">

@@ -28,13 +28,13 @@ class UserTableSeeder extends Seeder
         $admin->roles()->attach($role_admin);
 
         $employee = new User();
-        $employee->lastname = 'Ruth';
-        $employee->firstname = 'Cédryc';
-        $employee->initials = 'CR';
-        $employee->email = 'cedrycsys@hotmail.com';
-        $employee->language = 'en';
-        $employee->login = 'cedryc';
-        $employee->password = bcrypt('cedryc');
+        $employee->lastname = 'Croisy';
+        $employee->firstname = 'Eric';
+        $employee->initials = 'EC';
+        $employee->email = 'eric.croisy@hotmail.com';
+        $employee->language = 'fr';
+        $employee->login = 'eric';
+        $employee->password = bcrypt('eric');
         $employee->save();
         $employee->roles()->attach($role_employee);
 

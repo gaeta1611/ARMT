@@ -19,6 +19,7 @@
    
     <!-- SB Admin CSS -->
     <link href="{{ asset('css/sb-admin-2.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/sbadmin2-sidebar-toggle.css') }}" rel="stylesheet" type="text/css">
 
     <!-- Bootstrap Language selector CSS -->
     <link href="{{ asset('../vendor/bootstrap-select/bootstrap-select/dist/css/bootstrap-select.min.css')}}" rel="stylesheet">
@@ -103,9 +104,9 @@
             @endif
             </ul>
             <!-- /.navbar-top-links -->
-
-            @section('sidebar')
-            @show
+            <div id="sidebar-wrapper">
+                @include('includes.sidebar')
+            </div>
         </nav>
 
         <div id="page-wrapper">
@@ -150,6 +151,16 @@
             $('.selectpicker').on('change',function() {
                 var langue = $(this).find('option:selected').attr('lang');
                 location.href = APP_URL+'/public/language/'+langue;
+            });
+
+            //Sidebard toggler
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                
+                $("#wrapper").toggleClass("toggled");
+
+                $('#wrapper.toggled').find("#sidebar-wrapper").find(".collapse").collapse('hide');
+                
             });
         });
     </script>

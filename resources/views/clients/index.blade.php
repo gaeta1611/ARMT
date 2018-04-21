@@ -26,7 +26,6 @@
 </script>
 @endsection
 
-@include('includes.sidebar')
 
 @section('content')
             <div class="row">
@@ -40,7 +39,18 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                           
+                            <div class="row">
+                                <div style="width:50px; float: left;margin:0 15px">
+                                    <strong>{{__('general.type')}} :</strong>
+                                </div>
+                                <div style=" float: left">
+                                    <ul style="display: inline; padding: 0">
+                                        <li style="display: inline">{{ HTML::linkRoute('clients.index','Tous') }} <span>({{ $counters['all'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('clients.index','Clients',['status'=>'client']) }} <span>({{ $counters['client'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('clients.index','Prospects',['status'=>'prospect']) }} <span>({{ $counters['prospect'] }})</span></li>                                        
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">

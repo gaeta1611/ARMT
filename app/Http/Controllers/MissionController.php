@@ -108,15 +108,15 @@ class MissionController extends Controller
             
             //__('general.'),
         ],[
-            'client_id.required'=>'Veuillez entrer le nom du client',
+            'client_id.required'=>__('general.error_client_name'),
             
-            'fonction.required'=>'Veuillez entrer la fonction recherchée',
-            'fonction.numeric'=>'La fonction ne peut dépasser 80 caractères',
+            'fonction.required'=>__('general.error_function_name'),
+            'fonction.max'=>__('general.error_function_caractere'),
 
-            'type_contrat_id.required'=>'Veuillez entrer le type de contrat',
-            'type_contrat_id.numeric'=>'Le type du contrat est incorrecte',
+            'type_contrat_id.required'=>__('general.error_type_contract'),
+            'type_contrat_id.numeric'=>__('general.error_type_incorrect'),
 
-            'status.required'=>'Veuillez entrer le type de status'
+            'status.required'=>__('general.error_type_status'),
         ]);
 
         $extraSuccessMsg = '';
@@ -129,7 +129,7 @@ class MissionController extends Controller
         $fonction = Fonction::where(['fonction'=>$data['fonction']])
                                 ->firstOrCreate(['fonction'=>$data['fonction']]);
         if($fonction->wasRecentlyCreated) {
-            $extraSuccessMsg = 'Une nouvelle fonction a bien été ajoutée.';
+            $extraSuccessMsg =__('general.succes_add_function');
         }
 
         $mission->fonction_id = $fonction->id;
@@ -158,14 +158,14 @@ class MissionController extends Controller
             $contrat->user_id = auth()->user()->id;
 
             if(!$contrat->save()){
-                Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
+                Session::push('errors',__('general.error_contract_save'));
             } else {
                 $mission->contrat_id = $contrat->id;
             }
         }
         
         if($mission->save()){
-            Session::put('success','La mission a bien été enregistrée'.'<br \>'.$extraSuccessMsg);
+            Session::put('success',__('general.success_mission_save').'<br \>'.$extraSuccessMsg);
             
         //Déplacer le job description dans le dossier uploads
         $jobFiles = $request->file('job_description_ids');
@@ -193,7 +193,7 @@ class MissionController extends Controller
                     $job_desc->user_id = auth()->user()->id;
         
                     if(!$job_desc->save()){
-                        Session::push('errors','Erreur lors de l\'enregristrement du document (job description)!');
+                        Session::push('errors',__('general.error_job_save'));
                     }
                 }
             }
@@ -226,12 +226,12 @@ class MissionController extends Controller
                         
             
                         if(!$offre->save()){
-                            Session::push('errors','Erreur lors de l\'enregristrement du document (offre)!');
+                            Session::push('errors',__('general.error_offre_save'));
                         }
                     }
                 }
         } else {
-            Session::push('errors','Une erreur s\'est produite lors de l\'enregristrement!');
+            Session::push('errors',__('general.error_general'));
         }
 
         return redirect()->route('clients.show',$mission->client_id);
@@ -362,15 +362,15 @@ class MissionController extends Controller
             //'job_description_id'=>'nullable',  
             
         ],[
-            'client_id.required'=>'Veuillez entrer le nom du client',
+            'client_id.required'=>__('general.error_client_name'),
             
-            'fonction.required'=>'Veuillez entrer la fonction recherchée',
-            'fonction.max'=>'La fonction ne peut pas dépasser 80 caractères',
+            'fonction.required'=>__('general.error_function_name'),
+            'fonction.max'=>__('general.error_function_caractere'),
 
-            'type_contrat_id.required'=>'Veuillez entrer le type de contrat',
-            'type_contrat_id.numeric'=>'Le type du contrat est incorrecte',
+            'type_contrat_id.required'=>__('general.error_type_contract'),
+            'type_contrat_id.numeric'=>__('general.error_type_incorrect'),
 
-            'status.required'=>'Veuillez entrer le type de status'
+            'status.required'=>__('general.error_type_status'),
         ]);
 
         $extraSuccessMsg = '';
@@ -381,7 +381,7 @@ class MissionController extends Controller
         $fonction = Fonction::where(['fonction'=>$data['fonction']])
                                 ->firstOrCreate(['fonction'=>$data['fonction']]);
         if($fonction->wasRecentlyCreated) {
-            $extraSuccessMsg = 'Une nouvelle fonction a bien été ajoutée.';
+            $extraSuccessMsg = __('general.succes_add_function');
         }
 
         $mission->fonction_id = $fonction->id;
@@ -420,15 +420,15 @@ class MissionController extends Controller
                         $oldContrat = Document::find($oldContratId);
                         
                         if(!Storage::disk('public')->delete($oldContrat->url_document)){
-                            Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                            Session::push('errors',__('general.error_contract_delete_disk'));
                         } else {
                             if($oldContrat->delete()) {
-                                Session::push('errors','L\ancien contrat n\'a pas pu être supprimé de la DB !');
+                                Session::push('errors',__('general.error_rapport_delete'));
                             }
                         }
                     }
                 } else{
-                    Session::push('errors','Erreur lors de l\'enregristrement du document (contrat)!');
+                    Session::push('errors',__('general.error_contract_save'));
                 }
             //Il n'y a pas de nouveau contrat => sauver OU supprimer ancien contrat
             } elseif(empty($file) && !empty($request->get('contrat_id'))) {
@@ -437,10 +437,10 @@ class MissionController extends Controller
                     $oldContrat = Document::find($request->get('contrat_id'));
 
                     if(!Storage::disk('public')->delete($oldContrat->url_document)){
-                        Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                        Session::push('errors',__('general.error_contract_delete_disk'));
                     } else {
                         if(!$oldContrat->delete()) {
-                            Session::push('errors','L\ancien contrat n\'a pas pu être supprimé !');
+                            Session::push('errors',__('general.error_rapport_delete'));
                         }
                     }
 
@@ -458,7 +458,7 @@ class MissionController extends Controller
     
         
         if($mission->update($data)) {
-            Session::put('success','La mission a bien été modifiée'.'<br \>'.$extraSuccessMsg);
+            Session::put('success',__('general.success_mission_edit').'<br \>'.$extraSuccessMsg);
 
         //Mise a jour des documents(job description)
         //Ajout des nouveaux documents
@@ -489,7 +489,7 @@ class MissionController extends Controller
                     
         
                     if(!$job_desc->save()){
-                        Session::push('errors','Erreur lors de l\'enregristrement du document (job description)!');
+                        Session::push('errors',__('general.error_job_save'));
                     }
                 }
             }
@@ -501,10 +501,10 @@ class MissionController extends Controller
                 foreach($deleteJobFileIds as $deleteFileId){
                     $oldJobDesc = Document::find($deleteFileId);
                     if(!Storage::disk('public')->delete($oldJobDesc->url_document)){
-                        Session::push('errors','L\ancien job description n\'a pas pu être supprimé du disque !');
+                        Session::push('errors',__('general.error_job_delete_disk'));
                     } else {
                         if(!$oldJobDesc->delete()) {
-                            Session::push('errors','L\ancien job description n\'a pas pu être supprimé !');
+                            Session::push('errors',__('general.error_job_delete'));
                         }
                     }
                 }
@@ -539,7 +539,7 @@ class MissionController extends Controller
                         
             
                         if(!$offre->save()){
-                            Session::push('errors','Erreur lors de l\'enregristrement du document (offre)!');
+                            Session::push('errors',__('general.error_offre_save'));
                         }
                     }
                 }
@@ -551,16 +551,16 @@ class MissionController extends Controller
                     foreach($deleteOffreFileIds as $deleteFileId){
                         $oldOffre = Document::find($deleteFileId);
                         if(!Storage::disk('public')->delete($oldOffre->url_document)){
-                            Session::push('errors','L\ancien contrat n\'a pas pu être supprimé du disque !');
+                            Session::push('errors',__('general.error_offre_delete_disk'));
                         } else {
                             if(!$oldOffre->delete()) {
-                                Session::push('errors','L\ancienne offre n\'a pas pu être supprimée !');
+                                Session::push('errors',__('general.error_offre_delete'));
                             }
                         }
                     }
                 }
         } else {
-            Session::push('errors','Une erreur s\'est produite lors de la modification!');
+            Session::push('errors',__('general.error_edit'));
         }
 
         return redirect()->route('missions.show',$id);
@@ -580,13 +580,13 @@ class MissionController extends Controller
         
                 try {
                     if(isset($mission) && $mission->delete()){
-                        Session::put('success','La mission a bien été supprimé');
+                        Session::put('success',__('general.success_mission_delete'));
                     }else {
-                        Session::push('errors','Une erreur s\'est produite lors de la suppression de la mission!');
+                        Session::push('errors',__('general.error_mission_delete'));
                     }
         
                 } catch (\Exception $ex){
-                        Session::push('errors','Impossible de supprimer cette mission (supprimer les candidats avant)!');
+                        Session::push('errors',__('general.impossible_mission_delete'));
                 }
         
                 return redirect()->route('clients.show', $clientId);
