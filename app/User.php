@@ -23,6 +23,7 @@ class User extends Authenticatable
         'language',
         'login', 
         'email', 
+        'api_token', 
         'password',
     ];
 
