@@ -292,10 +292,10 @@
                                 </div>
                                 <div style=" float: left">
                                     <ul style="display: inline; padding: 0">
-                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','Tous') }} <span>({{ $counters['all'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','A traiter',['status'=>'à traiter']) }} <span>({{ $counters['à traiter'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','A contacter',['status'=>'à contacter']) }} <span>({{ $counters['à contacter'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index','A valider',['status'=>'à valider']) }} <span>({{ $counters['à valider'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index',__('general.all')) }} <span>({{ $counters['all'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index',__('general.treat'),['status'=>'à traiter']) }} <span>({{ $counters['à traiter'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index',__('general.to_contact'),['status'=>'à contacter']) }} <span>({{ $counters['à contacter'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('candidats.index',__('general.to_validate'),['status'=>'à valider']) }} <span>({{ $counters['à valider'] }})</span></li>
                                         
                                     </ul>
                                     <select name="status" id="status">

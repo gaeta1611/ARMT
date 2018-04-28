@@ -42,6 +42,10 @@ return [
     'mission' => 'missie|missies',
     'list' => 'Lijst',
     'date' => 'Datum',
+    'all' => 'Alle',
+    'treat' => 'Om behandeld te worden',
+    'to_contact' => 'Contact opnemen',
+    'to_validate' => 'Valideren',
     'titles' => [
         'list_client_prospect'=> "Lijst met klanten en prospecten",
         'list_mission'=> "Lijst met missies ",

@@ -19,13 +19,16 @@ use App\DiplomeEcole;
 use App\ModeCandidature;
 use App\Candidature;
 use App\Document;
+use Carbon;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Rule;
-use Carbon;
 use Illuminate\Support\Facades\Storage;
-
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory as WordIOFactory;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Smalot\PdfParser\Parser;
 
 class CandidatController extends Controller
 {
@@ -214,7 +217,7 @@ class CandidatController extends Controller
         $validatorData = $request->validate([
             'nom'=> 'required|max:60',
             'prenom'=> 'required|max:60',
-            'sexe'=>'required|max:1|in:m,f',
+            'sexe'=>'max:1|in:m,f',
             'email'=>'email|required|unique:candidat|max:120',
             'localite_id' => 'nullable|numeric',
             'code_postal' => 'max:10',
@@ -230,7 +233,6 @@ class CandidatController extends Controller
             'prenom.required'=>__('general.error_firstname'),
             'prenom.max'=>__('general.error_firsname_caractere'),
 
-            'sexe.required'=>__('general.error_sex'),
             'sexe.max'=>__('general.error_sex_m_f'),
             'sexe.in'=>__('general.error_sex_m_f'),
 
@@ -375,6 +377,9 @@ class CandidatController extends Controller
                     //Récuperer l'url du dossier de téléchargement
                     //à partir du fichier de config config/filesystems.php
                     $url = '/uploads/cvs'.$filename;
+
+                    //Lire le contenu du CV 
+                    $cvContent = $this->readDocument(getcwd().'/storage/uploads/cvs'.$filename,$cvFiles[$i]->getClientOriginalName());
         
                     //Enregistrer le document dans la base de donnée
                     $cv = new Document ();
@@ -385,6 +390,7 @@ class CandidatController extends Controller
                     $cv->mission_id = null;
                     $cv->candidat_id = $candidat->id;
                     $cv->user_id = auth()->user()->id;
+                    $cv->content = $cvContent;
         
                     if(!$cv->save()){
                         Session::push('errors',__('general.error_cv_save'));
@@ -590,7 +596,7 @@ class CandidatController extends Controller
         $validatorData = $request->validate([
             'nom'=> 'required|max:60',
             'prenom'=> 'required|max:60',
-            'sexe'=>'required|max:1|in:m,f',
+            'sexe'=>'max:1|in:m,f',
             'email'=>[
                 'email',
                 Rule::unique('candidat')->ignore($id),
@@ -620,7 +626,6 @@ class CandidatController extends Controller
             'prenom.required'=>__('general.error_firstname'),
             'prenom.max'=>__('general.error_firsname_caractere'),
 
-            'sexe.required'=>__('general.error_sex'),
             'sexe.max'=>__('general.error_sex_m_f'),
             'sexe.in'=>__('general.error_sex_m_f'),
 
@@ -821,7 +826,10 @@ class CandidatController extends Controller
                     //Récuperer l'url du dossier de téléchargement
                     //à partir du fichier de config config/filesystems.php
                     $url = '/uploads/cvs'.$filename;
-        
+                    
+                    //Lire le contenu du CV 
+                    $cvContent = $this->readDocument(getcwd().'/storage/uploads/cvs'.$filename,$cvFiles[$i]->getClientOriginalName());
+
                     //Enregistrer le document dans la base de donnée
                     $cv = new Document ();
                     $cv-> type ='CV';
@@ -831,8 +839,8 @@ class CandidatController extends Controller
                     $cv->mission_id = null;
                     $cv->candidat_id = $id;
                     $cv->user_id = auth()->user()->id;
+                    $cv->content = $cvContent;
                     
-        
                     if(!$cv->save()){
                         Session::push('errors',__('general.error_cv_save'));
                     }
@@ -908,7 +916,7 @@ class CandidatController extends Controller
             ->leftJoin('societe_candidat','candidat.id','societe_candidat.candidat_id')
             ->leftJoin('societes','societe_candidat.societe_id','societes.id')
             ->leftJoin('fonctions','societe_candidat.fonction_id','fonctions.id');
-
+        
         $dtMin = Carbon::now();
         $dtMax = Carbon::now();
         if(!empty($inputs['age-min'])) {
@@ -990,6 +998,20 @@ class CandidatController extends Controller
 
         if(!empty($inputs['fonction'])) {
             $candidats->where('fonctions.fonction','=',$inputs['fonction']);
+        }
+
+        //Recherche FULL text dans les CVs
+        if(!empty($inputs['in_cv'])) {
+            $docIds = Document::distinct()->select('candidat_id')
+                    ->whereRaw("match(content) against (? in boolean mode)",[$inputs["in_cv"]])
+                    ->get()->toArray();
+
+            //Conversion du résultat en tableau simple
+            if(!empty($docIds)) {
+                array_walk($docIds, function(&$t) { $t = $t['candidat_id']; });
+            }
+            
+            $candidats->whereIn('candidat.id',$docIds);
         }
 
         $candidats = $candidats->get(['candidat.id','candidat.nom','candidat.prenom','candidat.date_naissance','candidat.created_at']);
@@ -1083,4 +1105,166 @@ class CandidatController extends Controller
         ]);
     }
 
+    /**
+     * Read un PDF, Excel or Word document
+     * Suppports xls, xlsx, doc, docx, rtf, pdf
+     *
+     * @return string Contenu du document
+     */
+    public function readDocument($filename,$originalClientName) {
+        $content = '';
+        
+        $fileType = strrchr($filename,'.');  //TODO: retrieve filetype
+                
+        switch($fileType) {
+            case '.xls':
+            case '.xlsx':
+                $inputFileType = IOFactory::identify($filename);
+                $reader = IOFactory::createReader($inputFileType);
+                $reader->setReadDataOnly(true);
+                try {
+                    $content = $reader->load($filename);
+                } catch (Exception $e) {
+                    dd("erreur". $e);
+                }
+
+                $content = $content->getActiveSheet()->toArray(null, true, true, true);
+
+                array_walk($content, function(&$row) {
+                    $ligne = '';
+                    foreach($row as $cell) {
+                        if($cell) {
+                            $ligne .= $cell."\t";
+                        }
+                    }
+                    $row = $ligne.PHP_EOL;
+                });
+
+                $content = array_filter($content, function($row) { return $row!=PHP_EOL; });
+                $content = implode('',$content);
+                break;
+            case '.pdf':
+                // Parse pdf file and build necessary objects.
+                $parser = new Parser();
+                $pdf    = $parser->parseFile($filename);
+
+                $content = $pdf->getText();
+                break;
+            case '.doc':
+            case '.docx':
+            case '.odt':
+            case '.rtf':
+                if($fileType=='.doc') {                      //Format Word97
+                    $phpWord = WordIOFactory::load($filename, 'MsDoc');
+                } elseif($fileType=='.docx') {                //Format Word2007
+                    $phpWord = WordIOFactory::load($filename);
+                } elseif($fileType=='.odt') {                //Format ODT
+                    $phpWord = WordIOFactory::load($filename, 'ODText');
+                } elseif($fileType=='.rtf') {                //Format RTF
+                    $phpWord = WordIOFactory::load($filename, 'RTF');//
+                }
+                $content = '';
+                foreach ($phpWord->getSections()[0]->getElements() as $element) {              
+                    switch(get_class($element)) {
+                        case 'PhpOffice\PhpWord\Element\PageBreak':
+                            break;
+                        case 'PhpOffice\PhpWord\Element\Text':
+                            $content .= $element->getText()."\r\n";
+                            break;
+                        case 'PhpOffice\PhpWord\Element\Link':
+                            $content .= $element->getText();
+                            break;
+                        case 'PhpOffice\PhpWord\Element\TextRun':
+                            $cpt = 0;
+                            foreach ($element->getElements() as $runElement) {
+                                if($runElement->getText()==null) { $cpt++; }
+                                if($cpt==2) {
+                                    $content .= $runElement->getText()."\t";
+                                    $cpt = 0;
+                                } else {
+                                    $content .= $runElement->getText()."";
+                                }
+                            }
+                            $content .= "\r\n";
+                            break;
+                        case 'PhpOffice\PhpWord\Element\TextBreak':
+                            $content .= "\r\n";
+                            break;
+                        case 'PhpOffice\PhpWord\Element\ListItem':
+                            $content .= "- ".$element->getTextObject()->getText()."\r\n";
+                            break;
+                        case 'PhpOffice\PhpWord\Element\Table':
+                            foreach ($element->getRows() as $row) {
+                                foreach ($row->getCells() as $cell) {
+                                    foreach ($cell->getElements() as $element) {
+                                        switch(get_class($element)) {
+                                            case 'PhpOffice\PhpWord\Element\Text':
+                                                $content .= $element->getText()."\t";
+                                                break;
+                                            case 'PhpOffice\PhpWord\Element\Link':
+                                                $content .= $element->getText()."\t";
+                                                break;
+                                            case 'PhpOffice\PhpWord\Element\TextRun':
+                                                $cpt = 0;
+                                                foreach ($element->getElements() as $runElement) {
+                                                    if($runElement->getText()==null) { $cpt++; }
+                                                    if($cpt==2) {
+                                                        $content .= $runElement->getText()."\t";
+                                                        $cpt = 0;
+                                                    } else {
+                                                        $content .= $runElement->getText()."";
+                                                    }
+                                                }
+                                                $content .= "\r\n";
+                                                break;
+                                            case 'PhpOffice\PhpWord\Element\TextBreak':
+                                                $content .= "\r\n";
+                                                break;
+                                            case 'PhpOffice\PhpWord\Element\ListItem':
+                                                $content .= "- ".$element->getTextObject()->getText()."\r\n";
+                                                break;
+                                            default :
+                                                dd($element);
+                                        }
+                                    }
+                                    
+                                }
+                                $content .= "\r\n";
+                            }
+                            break;
+                        default:
+                            $class = get_class($element);
+                    }
+                }
+                break;
+            case '.html':
+            case '.htm':
+            case '.xml':
+                $content = strip_tags(file_get_contents($filename));
+
+                $encodingList = ['UTF-8', 'UTF-7', 'ASCII', 'EUC-JP','SJIS', 'eucJP-win', 'SJIS-win', 'JIS', 'ISO-2022-JP', 'ISO-8859-1'];
+                $encoding = mb_detect_encoding($content,$encodingList);
+                if($encoding!='UTF-8'){
+                    $content = mb_convert_encoding($content,'UTF-8',$encodingList);
+                    $encoding = 'UTF-8';
+                }
+                $content = html_entity_decode($content,ENT_COMPAT | ENT_HTML5, $encoding);
+                //Suppresion des espaces et retour superflus
+                $content = preg_replace('/ {2,}/'," ",$content);
+                $content = preg_replace('/( )*(\r( )*){2,}/',"\r",$content);
+                $content = preg_replace('/( )*(\n( )*){2,}/',"\n",$content);
+                $content = preg_replace('/( )*((\r\n)( )*){2,}/',"\r\n",$content);
+                $content = preg_replace('/( )*(\t( )*){2,}/',"\t",$content);
+                break;
+            case '.png':
+            case '.jpeg':
+            case '.jpg':
+            case '.bmp':
+            case '.gif':
+            default: 
+                $content .= substr($originalClientName,0,strrpos($originalClientName,"."));                         
+        }
+        
+        return $content;
+    }
 }

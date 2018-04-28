@@ -42,6 +42,10 @@ return [
     'mission' => 'mission|missions',
     'list' => 'Liste',
     'date' => 'date',
+    'all' => 'Tous',
+    'treat' => 'A traiter',
+    'to_contact' => 'A contacter',
+    'to_validate' => 'A valider',
     'titles' => [
         'list_client_prospect'=> "Liste des Clients & Prospects ",
         'list_mission'=> "Liste des Missions ",

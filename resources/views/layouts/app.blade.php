@@ -59,25 +59,36 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">{{ Html::image('img/logo_adva.jpg','ARMT',[
-                    'width'=>'150',
-                    'heigth'=>'30'
-                     ]) }}</a>
+                <a class="navbar-brand" href="index">{{ Html::image('img/logo_adva.jpg','ARMT',[
+                    'width'=>'130',
+                    'heigth'=>'30',
+                     ]) }}
+                </a>
+                
             </div>
             <!-- /.navbar-header -->
 
-            
-            
             <ul class="nav navbar-top-links navbar-right"> 
+                <form class="form-inline" id="frmSearchAll">
+                    <div class="input-group">
+                        <input type="text" id="search" class="form-control" placeholder="Search...">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                        <!-- /input-group -->
+                </form>
                 <li class="dropdown">
-                   <select class="selectpicker" data-width="fit">
-                   <option lang="en" {{ (session()->has('lang') && session('lang')=='en') ? 'selected' : ''}} 
+                <select class="selectpicker" data-width="fit">
+                <option lang="en" {{ (session()->has('lang') && session('lang')=='en') ? 'selected' : ''}} 
                         data-content='<span class="flag-icon flag-icon-us"></span> English'>English</option>
-                   <option  lang="nl" {{ (session()->has('lang') && session('lang')=='nl') ? 'selected' : ''}}
+                <option  lang="nl" {{ (session()->has('lang') && session('lang')=='nl') ? 'selected' : ''}}
                         data-content='<span class="flag-icon flag-icon-nl"></span> Nederlands'>Nederlands</option>
-                   <option  lang="fr" {{ (session()->has('lang') && session('lang')=='fr') ? 'selected' : ''}}
+                <option  lang="fr" {{ (session()->has('lang') && session('lang')=='fr') ? 'selected' : ''}}
                         data-content='<span class="flag-icon flag-icon-fr"></span> Français'>Français</option>
-                   </select> 
+                </select> 
                 </li>
             @if(auth()->user())
                 <!-- /.dropdown -->
@@ -103,10 +114,12 @@
                 <!-- /.dropdown -->
             @endif
             </ul>
+        @if(\Route::current()->getName() != 'login')
             <!-- /.navbar-top-links -->
             <div id="sidebar-wrapper">
                 @include('includes.sidebar')
             </div>
+        @endif
         </nav>
 
         <div id="page-wrapper">

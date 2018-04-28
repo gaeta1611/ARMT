@@ -1,6 +1,8 @@
 /*
     Custom CSS
 */
+
+
 datalist {
     overflow:scroll;
 }
@@ -118,4 +120,13 @@ span.reset-datalist i {
 
 span.reset-datalist i:hover {
     background-color:lightgrey;
+}
+
+nav form#frmSearchAll {
+    float: left;
+    margin: 9px 10px 0 0;
+}
+
+dl dt#diplome  {
+    list-style-type: circle;
 }

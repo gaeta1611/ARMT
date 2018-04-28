@@ -45,9 +45,9 @@
                                 </div>
                                 <div style=" float: left">
                                     <ul style="display: inline; padding: 0">
-                                        <li style="display: inline">{{ HTML::linkRoute('clients.index','Tous') }} <span>({{ $counters['all'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::linkRoute('clients.index','Clients',['status'=>'client']) }} <span>({{ $counters['client'] }})</span></li>
-                                        <li style="display: inline">{{ HTML::linkRoute('clients.index','Prospects',['status'=>'prospect']) }} <span>({{ $counters['prospect'] }})</span></li>                                        
+                                        <li style="display: inline">{{ HTML::linkRoute('clients.index',__('general.all')) }} <span>({{ $counters['all'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('clients.index',ucfirst(trans_choice('general.client',2)),['status'=>'client']) }} <span>({{ $counters['client'] }})</span></li>
+                                        <li style="display: inline">{{ HTML::linkRoute('clients.index',ucfirst(trans_choice('general.prospect',2)),['status'=>'prospect']) }} <span>({{ $counters['prospect'] }})</span></li>                                        
                                     </ul>
                                 </div>
                             </div>

@@ -18,6 +18,7 @@ class Document extends Model
         'filename',
         'candidat_id',
         'mission_id',
+        'content',
     ];
 
     /**

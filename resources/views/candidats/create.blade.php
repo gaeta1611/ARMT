@@ -665,7 +665,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        {{ Form::label('sexe',__('general.sex').' : ')}}<span class="required">*</span>
+                                        {{ Form::label('sexe',__('general.sex').' : ')}}
                                         {{ Form::radio('sexe','m',
                                             old('sexe')=='m'|| (isset($candidat) && $candidat->sexe=='m'),
                                             [
