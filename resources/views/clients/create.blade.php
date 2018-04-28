@@ -14,11 +14,15 @@
     
     const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
     var armtAPI = APP_URL + '/public/api/';
+    const API_TOKEN = '{{ Auth::user() ? Auth::user()->api_token:'' }}';
 
     function getCPFromLocalite(localiteInput) {
         var apiURL = armtAPI+'localite/ville/'+localiteInput.value;
 
-        $.get(apiURL, function(data) {
+        $.ajax ({
+            url : apiURL, 
+            headers : {'Authorization': 'Bearer '+API_TOKEN}
+        }).done(function(data) {
            if(data.length>0) {
                $('#code_postal').css('border-color','#ccc').val(data[0].code_postal);
                $('#localite').css('border-color','#ccc');
@@ -30,7 +34,10 @@
                var code_postal = $('#code_postal').val();
                apiURL = armtAPI+'localite/cp/'+code_postal;
                
-               $.get(apiURL, function(data) {
+               $.ajax ({
+                url : apiURL, 
+                headers : {'Authorization': 'Bearer '+API_TOKEN}
+                }).done(function(data) {
                    if(data.length>0) {
                         if($('#localite').val()!=data[0].localite) {
                             $('#code_postal').val('');
@@ -51,7 +58,10 @@
         
         var apiURL = armtAPI+'localite/cp/'+cpInput.value;
 
-        $.get(apiURL, function(data) {
+        $.ajax ({
+            url : apiURL, 
+            headers : {'Authorization': 'Bearer '+API_TOKEN}
+        }).done(function(data) {
            if(data.length>0) {
                $('#localite').css('border-color','#ccc').val(data[0].localite);
                $('#code_postal').css('border-color','#ccc');
@@ -63,7 +73,10 @@
                var localite = $('#localite').val();
                apiURL = armtAPI+'localite/ville/'+localite;
                
-               $.get(apiURL, function(data) {
+            $.ajax ({
+                url : apiURL, 
+                headers : {'Authorization': 'Bearer '+API_TOKEN}
+            }).done(function(data) {
                    if(data.length>0) {
                         if($('#code_postal').val()!=data[0].code_postal) {
                             $('#localite').val('');

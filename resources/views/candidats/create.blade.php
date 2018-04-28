@@ -25,11 +25,15 @@
 <script>
     const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
     var armtAPI = APP_URL + '/public/api/';
+    const API_TOKEN = '{{ Auth::user() ? Auth::user()->api_token:'' }}';
 
     function getCPFromLocalite(localiteInput) {
         var apiURL = armtAPI+'localite/ville/'+localiteInput.value;
 
-        $.get(apiURL, function(data) {
+        $.ajax ({
+            url : apiURL, 
+            headers : {'Authorization': 'Bearer '+API_TOKEN}
+        }).done(function(data) {
            if(data.length>0) {
                $('#code_postal').css('border-color','#ccc').val(data[0].code_postal);
                $('#localite').css('border-color','#ccc');
@@ -41,7 +45,10 @@
                var code_postal = $('#code_postal').val();
                apiURL = armtAPI+'localite/cp/'+code_postal;
                
-               $.get(apiURL, function(data) {
+               $.ajax ({
+                        url : apiURL, 
+                        headers : {'Authorization': 'Bearer '+API_TOKEN}
+                }).done(function(data) {
                    if(data.length>0) {
                         if($('#localite').val()!=data[0].localite) {
                             $('#code_postal').val('');
@@ -62,7 +69,10 @@
         
         var apiURL = armtAPI+'localite/cp/'+cpInput.value;
 
-        $.get(apiURL, function(data) {
+        $.ajax ({
+            url : apiURL, 
+            headers : {'Authorization': 'Bearer '+API_TOKEN}
+        }).done(function(data) {
            if(data.length>0) {
                $('#localite').css('border-color','#ccc').val(data[0].localite);
                $('#code_postal').css('border-color','#ccc');
@@ -74,7 +84,10 @@
                var localite = $('#localite').val();
                apiURL = armtAPI+'localite/ville/'+localite;
                
-               $.get(apiURL, function(data) {
+            $.ajax ({
+                url : apiURL, 
+                headers : {'Authorization': 'Bearer '+API_TOKEN}
+            }).done(function(data) {
                    if(data.length>0) {
                         if($('#code_postal').val()!=data[0].code_postal) {
                             $('#localite').val('');
@@ -109,7 +122,10 @@
                     var apiURL = armtAPI+'candidat/'+nom+'/'+prenom;
             
                     //Recherche du candidat et renvoi de son id si trouvé
-                    $.get(apiURL, function(response) {
+                    $.ajax ({
+                        url : apiURL, 
+                        headers : {'Authorization': 'Bearer '+API_TOKEN}
+                    }).done(function(response) {
                         if(response[0]) {
                             if(confirm('Ce candidat existe déjà! \nVoulez vous l\'afficher?')) {
                             location.href = APP_URL+'/public/candidats/'+response[0].id;
@@ -190,7 +206,10 @@
                         data['designation']+'&finalite='+
                         data['finalite']+'&niveau='+data['niveau'];
 
-                    $.get(apiURL, function(response) {
+                    $.ajax ({
+                        url : apiURL, 
+                        headers : {'Authorization': 'Bearer '+API_TOKEN}
+                    }).done(function(response) {
                         if(response!==false) {
                             $('#code_diplome').val(response.code_diplome);
                             $('#code_diplome').attr('readonly',true);
@@ -218,7 +237,12 @@
                 //Ajout du diplome
                 apiURL = armtAPI+'diplome';
 
-                $.post(apiURL, data, function(response){
+                $.ajax ({
+                        method: 'POST',
+                        data: data,
+                        url : apiURL, 
+                        headers : {'Authorization': 'Bearer '+API_TOKEN}
+                }).done(function(response) {
                     if(response) {
                         var diplomeId = response.id;
                         data['diplome_id'] = diplomeId;
@@ -229,7 +253,12 @@
                             //Ajout de l'ecole
                             apiURL = armtAPI+'ecole';
 
-                            $.post(apiURL, data, function(response) {
+                            $.ajax ({
+                                method: 'POST',
+                                data: data,
+                                url : apiURL, 
+                                headers : {'Authorization': 'Bearer '+API_TOKEN}
+                            }).done(function(response) {
                                 if(response) {
                                     var ecoleId = response.id;
                                     data['ecole_id'] = ecoleId;
@@ -373,7 +402,12 @@
                 //Ajout de la société
                 apiURL = armtAPI+'societe';
 
-                $.post(apiURL, {nom_entreprise:societe}, function(response){
+                $.ajax ({
+                    method: 'POST',
+                    data:{nom_entreprise:societe},
+                    url : apiURL, 
+                    headers : {'Authorization': 'Bearer '+API_TOKEN}
+                }).done(function(response) {
                     societeId = response.id;
                     var inputValue = response.id+' | '+response.nom_entreprise;
                     var inputText = response.id+' | '+response.nom_entreprise;
@@ -414,7 +448,12 @@
                     //Ajout de la fonction
                     apiURL = armtAPI+'fonction';
 
-                    $.post(apiURL, {fonction:fonction}, function(response){
+                    $.ajax ({
+                        method: 'POST',
+                        data:{fonction:fonction},
+                        url : apiURL, 
+                        headers : {'Authorization': 'Bearer '+API_TOKEN}
+                    }).done(function(response) {
                         fonctionId = response.id;
                         var inputValue = response.id+' | '+response.fonction;
                         var inputText = response.id+' | '+response.fonction;
@@ -534,7 +573,12 @@
     }
 
     function postDataForDiplomesEcoles(apiURL, data) {
-        $.post(apiURL, data, function(response) {
+        $.ajax ({
+            method: 'POST',
+            data: data,
+            url : apiURL, 
+            headers : {'Authorization': 'Bearer '+API_TOKEN}
+        }).done(function(response) {
             if(response) {
                 var diplomeEcoleId = response.id;
                 data['diplomeEcole_id'] = diplomeEcoleId;

@@ -38,6 +38,7 @@ $(document).ready(function() {
     
     const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
     var armtAPI = APP_URL + '/public/api/';
+    const API_TOKEN = '{{ Auth::user() ? Auth::user()->api_token:'' }}';
         
     function fetchDataFrom(table, liste, apiURL) {       
         apiURL += table;
