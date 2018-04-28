@@ -3,24 +3,455 @@
 @section('title',$title)
 
 @section('css')
-<!-- DataTables CSS -->
-<link href="{{ asset ('../vendor/datatables-plugins/dataTables.bootstrap.css') }}" rel="stylesheet">
-
-<!-- DataTables Responsive CSS -->
+<!-- DataTables CSS 
+<link href="{{ asset('../vendor/datatables-plugins/dataTables.bootstrap.css') }}" rel="stylesheet">
+-->
+<!-- DataTables Responsive CSS 
 <link href="{{ asset('../vendor/datatables-responsive/dataTables.responsive.css') }}" rel="stylesheet">
+-->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.16/r-2.2.1/datatables.min.css"/>
 @endsection
 
 @section('js')
-<!-- DataTables JavaScript -->
+<!-- DataTables JavaScript 
 <script src="{{ asset('../vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('../vendor/datatables-plugins/dataTables.bootstrap.min.js') }}"></script>
 <script src="{{ asset('../vendor/datatables-responsive/dataTables.responsive.js') }}"></script>
-
+-->
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.16/r-2.2.1/datatables.min.js"></script>
 <script>
+function fetchDataFrom(table, liste, apiURL) {       
+    apiURL += table;
+
+    return $.ajax({
+        url:apiURL,
+        method: 'GET',
+        crossDomain: true,
+        dataType: 'json',
+        headers: {'Authorization':'Bearer '+API_TOKEN},
+        success: function(data){
+            $.each(data, function(key, value) {
+                liste[key] = value;
+            });
+        },
+    });
+}
+
+function postDataInto(table, data, apiURL, jqSelect) {
+    console.log(data);
+    $.ajax({
+        url:apiURL,
+        method: 'POST',
+        crossDomain: true,
+        dataType: 'json',
+        data: data,
+        headers: {'Authorization':'Bearer '+API_TOKEN},
+        success: function(data){
+            alert('Candidature modifiée');
+        },
+        error: function(error){
+            alert('Erreur lors de la modification ');
+            console.log(error);
+        },
+    });
+
+//        $.post(apiURL,data,function(data) {
+//            //Flash message
+//            alert('Candidature modifiée');
+//        }).fail(function(error) {
+//            //Flash message
+//            alert('Erreur lors de la modification');
+//        });
+}
+
+function fillSelectWith(liste, jqSelect, optionFieldValue, optionFieldText, selectedValue) {
+    var strOptions = '';
+    
+    for(key in liste) {
+        if(liste[key][optionFieldText]==selectedValue) {  //Préselectionner l'ancienne 
+            strOptions += '<option value="' + liste[key][optionFieldValue] + '" selected>' + liste[key][optionFieldText];
+        } else {
+            strOptions += '<option value="' + liste[key][optionFieldValue] + '">' + liste[key][optionFieldText];
+        }
+    }
+    jqSelect.append(strOptions);
+}
+
+function replaceFormFieldWithValue(jqFormField, $activeRow, dataId) {
+    var value = '';
+
+    //Récupérer la valeur sélectionnée
+    if(jqFormField.is('select')) {
+        value = jqFormField.find('option:selected').text();
+    } else if(jqFormField.attr('type')=='date') {
+        //Formater la date
+        value = reverseDateFormat(jqFormField.val());  //15-04-2018
+    } else if(jqFormField.is('textarea')) {
+        value = jqFormField.val();
+
+        var breakTag = '<br>';
+        value = value.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
+    }
+
+    //Ajouter le texte dans la cellule du tableau (td)
+    jqFormField.parent().append(value);
+
+    //Supprimer le champ (liste déroulante (select) ou calendrier (input[date])
+    jqFormField.remove();
+    
+    console.log(dataId);
+    //Mise à jour des span, th:visible et th:hidden
+    $('#dataTables-candidats th[data-id='+dataId+'],span[data-id='+dataId+']').each(function() {
+        var statusCel = $(this);
+        
+        if(statusCel[0].tagName=='TH') {
+            var index = statusCel.index('#dataTables-candidats th');console.log(index);
+            statusCel = $activeRow.find('td:eq('+index+')');
+        } else {
+            statusCel = statusCel.next();
+        }
+
+        //Mise à jour du statut
+        statusCel.html(value);
+        
+        $('#dataTables-candidats').DataTable().cell(statusCel[0]).invalidate().draw();
+    });
+}
+
+function replaceTextWithSelect(jqParent) {
+    //Mémoriser l'ancienne valeur en cas d'annulation
+    var oldValue = jqParent.text().trim();
+
+    //Vider la cellule (td) et y mettre une liste déroulante (select)
+    jqParent.empty().append('<select>');
+
+    return oldValue;
+}
+
+function replaceTextWithCalendar(jqParent) {
+    //Mémoriser l'ancienne valeur en cas d'annulation
+    var oldValue = jqParent.text().trim();  //15-04-2018
+
+    //Formater la date
+    oldValue = reverseDateFormat(oldValue);  //2018-04-15
+
+    //Vider la cellule (td) et y mettre une liste déroulante (select)
+    jqParent.empty().append('<input type="date" value="'+oldValue+'">');
+
+    return oldValue;
+}
+
+function replaceTextWithTextarea(jqParent) {
+    //Mémoriser l'ancienne valeur en cas d'annulation
+    var oldValue = jqParent.text().trim();
+
+    if(oldValue=='Double-cliquer pour modifier') {
+        oldValue ='';
+    }
+        
+    //Vider la cellule (td) et y mettre une liste déroulante (select)
+    jqParent.empty().append('<textarea>'+oldValue);
+
+    return oldValue;
+}
+
+function reverseDateFormat(date) {
+    //Découpage en fonction du séparateur
+    if(date.indexOf('-')!=-1) {
+        date = date.split('-');
+    } else if(date.indexOf('/')!=-1) {
+        date = date.split('/');
+    }
+
+    if(date.length==3) {
+        date = date[2]+'-'+date[1]+'-'+date[0];
+    }
+
+    //En cas d'erreur, la date non modifiée sera renvoyée
+    return date;
+}
+
+/* Formatting function for row details - modify as you need */
+function format ( d ) {
+    // `d` is the original data object for the row
+    var str = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">';
+
+    for(key in d) {
+        str += '<tr class="child">'+
+            '<td>'+key+'</td>'+
+            '<td>'+d[key]+'</td>'+
+        '</tr>';
+    }
+
+    str += '</table>';
+
+    return str;
+}
+
+function updateStatus(datatable, status, $activeRow) {
+    //Mise à jour des span, th:visible et th:hidden
+    $(datatable.find('th[data-id=statut],span[data-id=statut]')).each(function() {
+        var statusCel = $(this);
+        
+        if(statusCel[0].tagName=='TH') {
+            var index = statusCel.index('#dataTables-candidats th');console.log(index);
+            statusCel = $activeRow.find('td:eq('+index+')');
+        } else {
+            statusCel = statusCel.next();
+        }
+
+        //Mise à jour du statut
+        statusCel.html(status);
+    });
+}
+
+var attach = function(element) {
+    var $activeTD = $(element);
+
+    if($activeTD[0].tagName=='TD') {    //console.log('TD');
+        var $currentTH = $('thead th:eq('+$activeTD.siblings()
+                .add(element).index($activeTD)+')');
+    } else {    //console.log('SPAN');
+        var $currentTH = $($activeTD.parent().find('span.dtr-title')[0]);
+
+    }
+
+    var updateTable = 'candidatures';   //Default table to update
+    var updateField = $currentTH.data('field');
+    var dataId = $currentTH.data('id');
+
+    //In case table.field syntax is used
+    var parts = updateField.split('.');
+    if(parts.length==2) {
+        updateTable = parts[0];
+        updateField = parts[1];
+    }
+
+    var fetchTableField = $currentTH.data('fetch-table');
+
+    //Récupérer les valeurs de la table source de données
+    if(fetchTableField) {
+        fetchTableField = fetchTableField.split('.');   //TODO: valider
+        var fetchTable = fetchTableField[0];
+        var fetchField = fetchTableField[1]; 
+
+        var liste = [];
+
+        fetchDataFrom(fetchTable, liste, armtAPI).then(function(data) {
+            //Insérer la liste déroulante à la place du texte
+            var oldValue = replaceTextWithSelect($activeTD);
+            var $select = $activeTD.find('select');
+
+            //Ajouter dans la liste déroulante (select) les valeurs issues de la DB (liste)
+            fillSelectWith(liste, $select, 'id', fetchField, oldValue); 
+            var updateData = { updateField:updateField, dataId:dataId };
+
+            $select.on('change', null, updateData, function(event) {
+                var formattedData = {};
+                formattedData[event.data.updateField] = $(this).val();
+
+                //Sélectionner la ligne en cours de modification
+                var $activeRow = $($(this).closest('tr'));
+
+                //Corriger la sélection dans le cas d'une ligne enfant (expand/collapse)
+                if($activeRow.hasClass('child')) {
+                    $activeRow = $activeRow.prev();
+                }
+
+                //Sauver dans la base de données                        
+                var idCandidature = $activeRow.attr('data-id');
+                console.log('Saving candidature n° '+idCandidature);
+
+                var apiURL = armtAPI + updateTable + '/' + idCandidature;
+                postDataInto(updateTable, formattedData, apiURL,$(this));
+
+                //Remplacer la liste déroulante par la valeur sélectionnée
+                replaceFormFieldWithValue($(this), $activeRow, updateData.dataId);
+                
+                //Cas particulier de 'statut et avancement'
+                if(event.data.updateField=='status_id') {
+                    //Rechercher le statut correspondant à l'avancement sélectionné
+                    var $selectedText = $(this).find('option:selected').text();
+
+                    for(key in liste) {
+                        if(liste[key].avancement==$selectedText) {
+                            status = liste[key].status;
+                        } 
+                    }
+
+                    //Afficher le statut correspondant
+                    updateStatus($('#dataTables-candidats'),status, $activeRow);
+                }
+            });
+
+            //Empêcher le déclenchemt de l'event click sur le body (propagation aux parents)
+            $select.on('click', function() { event.stopPropagation(); });
+        }).fail(function() { console.log('Erreur d\'accès à l\'API!'); });
+    } else {
+        var oldValue, $inputDate;
+        
+        if($activeTD[0].tagName=='TD') {
+            var index = $activeTD.index();
+            $titleCel = $('#dataTables-candidats th').eq(index);
+        } else {    //SPAN
+            $titleCel = $activeTD.prev();
+        }
+        
+        if($titleCel.text().indexOf('{{__('general.notice')}}')!=0){
+            //Insérer le calendrier à la place du texte
+            oldValue = replaceTextWithCalendar($activeTD);
+            $inputDate = $activeTD.find('input[type=date]');
+            
+            $inputDate.on('keypress', null, updateData, function(event) {
+                if(event.keyCode==13) {
+                    $(this).blur();
+                }
+            });
+        } else {
+            //Insérer le textarea à la place du texte
+            oldValue = replaceTextWithTextarea($activeTD);
+            $inputDate = $activeTD.find('textarea');
+        }
+        var updateData = { updateField:updateField, dataId:dataId };
+
+        //Si la donnée à modifier est dans une autre table (ex.: interviews)
+        if($currentTH.data('bind')) {
+            //Récupérer la condition pour retrouver l'enregistrement correspondant
+            var updateBind = JSON.parse('{'+$currentTH.data('bind').replace(/'/g,'"')+'}');
+
+            //Ajouter la condition
+            updateData.where = updateBind.where;
+        }
+        
+        $inputDate.on('blur', null, updateData, function(event) {   //TODO: add keypress 13
+            var formattedData = {};
+            formattedData[event.data.updateField] = $(this).val();
+            formattedData['where'] = event.data.where;
+
+            //Sélectionner la ligne en cours de modification
+            var $activeRow = $($(this).closest('tr'));
+
+            //Corriger la sélection dans le cas d'une ligne enfant (expand/collapse)
+            if($activeRow.hasClass('child')) {
+                $activeRow = $activeRow.prev();
+            }
+
+            //Sauver dans la base de données                        
+            var idCandidature = $activeRow.attr('data-id');
+            console.log('Saving candidature n° '+idCandidature);
+
+            var apiURL = armtAPI + updateTable + '/' + idCandidature;
+            postDataInto(updateTable, formattedData, apiURL,$(this));
+
+            var $td = $(this).parent();
+
+            //Remplacer la liste déroulante par la valeur sélectionnée
+            replaceFormFieldWithValue($(this), $activeRow, updateData.dataId);
+        });
+
+        //Empêcher le déclenchemt de l'event click sur le body (propagation aux parents)
+        $inputDate.on('click', function() { 
+            event.stopPropagation(); 
+        });
+    }
+}   
+
+//Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
+function attachReplaceWithSelectEventHandler() {
+    $('#dataTables-candidats > tbody > tr > td:not(.child), #dataTables-candidats span.dtr-data').each(function(index) {
+        $(this).on('dblclick',function() { attach(this); });
+    });
+}
+
+const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
+var armtAPI = APP_URL + '/public/api/';
+const API_TOKEN = '{{ Auth::user() ? Auth::user()->api_token : "" }}';
+
 $(document).ready(function() {
-    $('#dataTables-candidats').DataTable({
-        responsive: true,
-        order: [[0,'Candidats']]
+    //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
+    attachReplaceWithSelectEventHandler();
+    
+    var datatable = $('#dataTables-candidats')
+        .on('responsive-resize.dt', function(e, datatable, columns){    //console.log('draw');
+            //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
+            //attachReplaceWithSelectEventHandler();
+            console.log('responsive-resize.dt');
+        })
+        .on('responsive-display.dt', function(e, datatable, columns){   //console.log('display');
+            //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
+            //attachReplaceWithSelectEventHandler();
+            console.log('responsive-display.dt');
+        })
+        .DataTable({
+            responsive: {
+                details: {
+                    renderer: function ( api, rowIdx, columns ) {
+                        var data = $.map( columns, function ( col, i ) {
+                            switch(col.title) {
+                                case '{{__('general.status') }}':
+                                    col.data_id = "statut";
+                                    break;
+                                case '{{__('general.advancement')}}':
+                                    col.data_id = "avancement";
+                                    col.data_field = "status_id";
+                                    col.data_fetch_table = "status.avancement";
+                                    break;
+                                case '{{__('general.type')}}':
+                                    col.data_id = "type";
+                                    col.data_field = "information_candidature_id";
+                                    col.data_fetch_table = "information_candidature.information";
+                                    break;
+                                case '{{__('general.response_mode')}}':
+                                    col.data_id = "mode_reponse";
+                                    col.data_field = "mode_reponse_id";
+                                    col.data_fetch_table = "mode_reponse.media";
+                                    break;
+                                case '{{__('general.response_date')}}':
+                                    col.data_id = "date_reponse";
+                                    col.data_field = "date_reponse";
+                                    break;
+                                case '{{__('general.date_f2f')}}':
+                                    col.data_id = "date_F2F";
+                                    col.data_field = "interviews.date_interview";
+                                    col.data_bind = "'foreignKey':'candidature_id','where' : 'type=F2F'";
+                                    break;
+                                case '{{__('general.date_candidate_client')}}':
+                                    col.data_id = "date_candidat_client";
+                                    col.data_field = "interviews.date_interview";
+                                    col.data_bind = "'foreignKey':'candidature_id','where' : 'type=rencontre client'";
+                                    break;
+                                case '{{__('general.date_3_interview')}}':
+                                    col.data_id = "date_interview3";
+                                    col.data_field = "interviews.date_interview";
+                                    col.data_bind = "'foreignKey':'candidature_id','where' : 'type=3e rencontre'";
+                                    break;
+                                case '{{__('general.notice')}}':
+                                    col.data_id = "remarques";
+                                    col.data_field = "candidatures.remarques";
+                                    break;
+                            }
+                            
+                            //console.log(col);
+                            var data_id = col.data_id ? 'data-id="'+col.data_id+'"' : '';
+                            var data_field = col.data_field ? 'data-field="'+col.data_field+'"' : '';
+                            var data_fetch_table = col.data_fetch_table ? 'data-fetch-table="'+col.data_fetch_table+'"' : '';
+                            var data_bind = col.data_bind ? 'data-bind="'+col.data_bind+'"' : '';
+                            
+                            var li = '<li data-dtr-index="'+col.columnIndex+'" data-dt-row="'+col.rowIndex+'" data-dt-column="'+col.columnIndex+'">'+
+                                    '<span class="dtr-title" '+data_id+' '+data_field+' '+data_fetch_table+' '+data_bind+'>'+col.title+':</span>'+
+                                    '<span class="dtr-data" ondblclick="attach(this)">'+(col.data ? col.data : '<button>Double-cliquer pour modifier</button>')+'</span>'+
+                                '</li>';
+                            
+                            return col.hidden ? li : '';
+                        } ).join('');
+
+                        return data ?
+                            $('<ul data-dtr-index='+rowIdx+' class=dtr-details />').append( data ) :
+                            false;
+                    }
+                }
+            },
+            order: [[0,'Candidats']]
     });
     
     //Remplacement des listes déroulantes par leur valeur
@@ -35,107 +466,34 @@ $(document).ready(function() {
             replaceFormFieldWithValue($(this));
         });
     });
-    
-    const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
-    var armtAPI = APP_URL + '/public/api/';
-    const API_TOKEN = '{{ Auth::user() ? Auth::user()->api_token:'' }}';
+/*            
+    $('#dataTables-candidats td.sorting_1').on('click', 'td.details-control', function(event) {
         
-    function fetchDataFrom(table, liste, apiURL) {       
-        apiURL += table;
-        
-        return $.getJSON(apiURL,function(data) {
-            $.each(data, function(key, value) {
-                liste[key] = value;
-            });
-        });
-    }
-    
-    function postDataInto(table, data, apiURL, jqSelect) {
-        $.post(apiURL,data,function(data) {
-            //Flash message
-            alert('Candidature modifiée');
-        }).fail(function(error) {
-            //Flash message
-            alert('Erreur lors de la modification');
-        });
-    }
-    
-    function fillSelectWith(liste, jqSelect, optionFieldValue, optionFieldText, selectedValue) {
-        for(key in liste) {
-            if(liste[key][optionFieldText]==selectedValue) {  //Préselectionner l'ancienne 
-                jqSelect.append('<option value="' + liste[key][optionFieldValue] + '" selected>' + liste[key][optionFieldText]);
-            } else {
-                jqSelect.append('<option value="' + liste[key][optionFieldValue] + '">' + liste[key][optionFieldText]);
-            }
+        var tr = $(this).closest('tr');
+        var row = datatable.row( tr );
+ 
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
         }
-    }
-    
-    function replaceFormFieldWithValue(jqFormField) {
-        var value = '';
-        
-        //Récupérer la valeur sélectionnée
-        if(jqFormField.is('select')) {
-            value = jqFormField.find('option:selected').text();
-        } else if(jqFormField.attr('type')=='date') {
-            //Formater la date
-            value = reverseDateFormat(jqFormField.val());  //15-04-2018
+        else {
+            // Open this row
+            row.child( format(row.data()) ).show();
+            tr.addClass('shown');
         }
-
-        //Ajouter le texte dans la cellule du tableau (td)
-        jqFormField.parent().append(value);
-        
-        //Supprimer le champ (liste déroulante (select) ou calendrier (input[date])
-        jqFormField.remove();
-    }
-    
-    function replaceTextWithSelect(jqParent) {
-        //Mémoriser l'ancienne valeur en cas d'annulation
-        var oldValue = jqParent.text().trim();
-
-        //Vider la cellule (td) et y mettre une liste déroulante (select)
-        jqParent.empty().append('<select>');
-        
-        return oldValue;
-    }
-    
-    function replaceTextWithCalendar(jqParent) {
-        //Mémoriser l'ancienne valeur en cas d'annulation
-        var oldValue = jqParent.text().trim();  //15-04-2018
-        
-        //Formater la date
-        oldValue = reverseDateFormat(oldValue);  //2018-04-15
-
-        //Vider la cellule (td) et y mettre une liste déroulante (select)
-        jqParent.empty().append('<input type="date" value="'+oldValue+'">');
-        
-        return oldValue;
-    }
-    
-    function reverseDateFormat(date) {
-        //Découpage en fonction du séparateur
-        if(date.indexOf('-')!=-1) {
-            date = date.split('-');
-        } else if(date.indexOf('/')!=-1) {
-            date = date.split('/');
-        }
-        
-        if(date.length==3) {
-            date = date[2]+'-'+date[1]+'-'+date[0];
-        }
-        
-        //En cas d'erreur, la date non modifiée sera renvoyée
-        return date;
-    }
-                    
-    //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
-    $('#dataTables-candidats > tbody > tr > td').each(function(index) {
-        $(this).on('dblclick',function() {
+        return;
+        console.log(this);
+        console.log($('tr.child span.dtr-data').queue());
+        //DEB
+        setTimeout(function() {
+        $('tr.child span.dtr-data').on('dblclick',function() {
+            console.log(this);
             var $activeTD = $(this);
-            var $currentTH = $('thead th:eq('+$activeTD.siblings()
-                    .add(this).index($activeTD)+')');
+            var $currentTH = $(this).prev('span.dtr-title').text();
             
             var updateTable = 'candidatures';   //Default table to update
-            var updateField = $currentTH.data('field');
+            var updateField = $currentTH.data('field');     //TODO: no field here!
             
             //In case table.field syntax is used
             var parts = updateField.split('.');
@@ -202,16 +560,16 @@ $(document).ready(function() {
                 var oldValue = replaceTextWithCalendar($activeTD);
                 var $inputDate = $activeTD.find('input[type=date]');
                 var updateData = { updateField:updateField };
-
-                //Si la données à modifier est dans une autre table (ex:interrviews)
+                
+                //Si la donnée à modifier est dans une autre table (ex.: interviews)
                 if($currentTH.data('bind')) {
-                    //Récuperer la condidition pour retrouver l'enregistrement correspondant
-                     var updateBind = JSON.parse('{'+$currentTH.data('bind').replace(/'/g,'"')+'}');
-
-                     //Ajouter la condidition pour retrouver l'enregistrement correspondant
-                     updateData.where = updateBind.where;
+                    //Récupérer la condition pour retrouver l'enregistrement correspondant
+                    var updateBind = JSON.parse('{'+$currentTH.data('bind').replace(/'/g,'"')+'}');
+                    
+                    //Ajouter la condition
+                    updateData.where = updateBind.where;
                 }
-
+                
                 $inputDate.on('change', null, updateData, function(event) {
                     var formattedData = {};
                     formattedData[event.data.updateField] = $(this).val();
@@ -231,11 +589,16 @@ $(document).ready(function() {
                 });
 
                 //Empêcher le déclenchemt de l'event click sur le body (propagation aux parents)
-                $inputDate.on('click', function() { event.stopPropagation(); });
+                $inputDate.on('click', function() { 
+                    event.stopPropagation(); 
+                });
             }
         });
+        },1000);
+        //FIN
+        
     });
-
+*/
 });
 </script>
 @endsection
@@ -383,7 +746,7 @@ $(document).ready(function() {
                                                     <th data-id="date_interview3" data-field="interviews.date_interview" data-bind="'foreignKey':'candidature_id','where' : 'type=3e rencontre'">{{__('general.date_3_interview')}}</th>
                                                     <th data-id="media">{{__('general.media')}}</th>
                                                     <th data-id="rapport_interview">{{__('general.interview_rapport')}}</th>
-                                                    <th data-id="remarque">{{__('general.notice')}}</th>
+                                                    <th data-id="remarques"  data-field="candidatures.remarques" >{{__('general.notice')}}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

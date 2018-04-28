@@ -127,6 +127,24 @@ nav form#frmSearchAll {
     margin: 9px 10px 0 0;
 }
 
+tr.child span.dtr-title {
+    display: table-cell !important;
+    min-width: 0 !important;
+    padding: 0 10px 0 0;
+    vertical-align: top;
+    
+}
+
+tr.child span.dtr-data {
+    display: table-cell !important;
+    min-width: 0 !important;
+}
+
+tr.child span.dtr-data button{
+    height: 20px;
+    font-size: 0.8em;
+}
+
 dl dt#diplome  {
     list-style-type: circle;
 }
