@@ -18,10 +18,31 @@
 
 <script>
 
+function unprefix(missionId) {
+    return parseInt($(missionId).text().trim().replace(/^.{2}/i, ""));
+}
+
+jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+    "anti-prefix-asc": function ( a, b ) {
+        a = unprefix(a);
+        b = unprefix(b);
+        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+    },
+ 
+    "anti-prefix-desc": function ( a, b ) {
+        a = unprefix(a);
+        b = unprefix(b);
+        return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+    }
+});
+
 $(document).ready(function() {
     $('#dataTables-missions').DataTable({
         responsive: true,
-        order: [[4,'desc'],[0,'desc']]
+        columnDefs: [
+            {type:'anti-prefix', targets: 0}
+        ],
+        order: [[0,'desc']]
     });
 });
 </script>

@@ -1236,7 +1236,7 @@ class CandidatController extends Controller
                             $class = get_class($element);
                     }
                 }
-                break;
+                break;dd($content);
             case '.html':
             case '.htm':
             case '.xml':

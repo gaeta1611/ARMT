@@ -3,21 +3,12 @@
 @section('title',$title)
 
 @section('css')
-<!-- DataTables CSS 
-<link href="{{ asset('../vendor/datatables-plugins/dataTables.bootstrap.css') }}" rel="stylesheet">
--->
-<!-- DataTables Responsive CSS 
-<link href="{{ asset('../vendor/datatables-responsive/dataTables.responsive.css') }}" rel="stylesheet">
--->
+
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.16/r-2.2.1/datatables.min.css"/>
 @endsection
 
 @section('js')
-<!-- DataTables JavaScript 
-<script src="{{ asset('../vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('../vendor/datatables-plugins/dataTables.bootstrap.min.js') }}"></script>
-<script src="{{ asset('../vendor/datatables-responsive/dataTables.responsive.js') }}"></script>
--->
+
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.16/r-2.2.1/datatables.min.js"></script>
 <script>
 function fetchDataFrom(table, liste, apiURL) {       
@@ -54,14 +45,6 @@ function postDataInto(table, data, apiURL, jqSelect) {
             console.log(error);
         },
     });
-
-//        $.post(apiURL,data,function(data) {
-//            //Flash message
-//            alert('Candidature modifiée');
-//        }).fail(function(error) {
-//            //Flash message
-//            alert('Erreur lors de la modification');
-//        });
 }
 
 function fillSelectWith(liste, jqSelect, optionFieldValue, optionFieldText, selectedValue) {
@@ -363,26 +346,30 @@ function attachReplaceWithSelectEventHandler() {
     });
 }
 
-const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
-var armtAPI = APP_URL + '/public/api/';
-const API_TOKEN = '{{ Auth::user() ? Auth::user()->api_token : "" }}';
+function dateUS(dateEuro) {
+    tDate = dateEuro.split('-');
+    return tDate[2]+'-'+tDate[1]+'-'+tDate[0];
+}
+
+jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+    "date-euro-asc": function ( a, b ) {
+        var x = dateUS(a);
+        var y = dateUS(b);
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    },
+ 
+    "date-euro-desc": function ( a, b ) {
+        var x = dateUS(a);
+        var y = dateUS(b);
+        return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+    }
+});
 
 $(document).ready(function() {
     //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
     attachReplaceWithSelectEventHandler();
     
-    var datatable = $('#dataTables-candidats')
-        .on('responsive-resize.dt', function(e, datatable, columns){    //console.log('draw');
-            //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
-            //attachReplaceWithSelectEventHandler();
-            console.log('responsive-resize.dt');
-        })
-        .on('responsive-display.dt', function(e, datatable, columns){   //console.log('display');
-            //Remplacer le contenu de la case td par une liste déroulante contenant les valeurs
-            //attachReplaceWithSelectEventHandler();
-            console.log('responsive-display.dt');
-        })
-        .DataTable({
+    var datatable = $('#dataTables-candidats').DataTable({
             responsive: {
                 details: {
                     renderer: function ( api, rowIdx, columns ) {
@@ -451,7 +438,10 @@ $(document).ready(function() {
                     }
                 }
             },
-            order: [[0,'Candidats']]
+            columnDefs: [
+                {type:'date-euro', targets: 4}
+            ],
+            order: [[4,'desc'],[0,'asc']]
     });
     
     //Remplacement des listes déroulantes par leur valeur
@@ -466,139 +456,6 @@ $(document).ready(function() {
             replaceFormFieldWithValue($(this));
         });
     });
-/*            
-    $('#dataTables-candidats td.sorting_1').on('click', 'td.details-control', function(event) {
-        
-        var tr = $(this).closest('tr');
-        var row = datatable.row( tr );
- 
-        if ( row.child.isShown() ) {
-            // This row is already open - close it
-            row.child.hide();
-            tr.removeClass('shown');
-        }
-        else {
-            // Open this row
-            row.child( format(row.data()) ).show();
-            tr.addClass('shown');
-        }
-        return;
-        console.log(this);
-        console.log($('tr.child span.dtr-data').queue());
-        //DEB
-        setTimeout(function() {
-        $('tr.child span.dtr-data').on('dblclick',function() {
-            console.log(this);
-            var $activeTD = $(this);
-            var $currentTH = $(this).prev('span.dtr-title').text();
-            
-            var updateTable = 'candidatures';   //Default table to update
-            var updateField = $currentTH.data('field');     //TODO: no field here!
-            
-            //In case table.field syntax is used
-            var parts = updateField.split('.');
-            if(parts.length==2) {
-                updateTable = parts[0];
-                updateField = parts[1];
-            }
-            
-            var fetchTableField = $currentTH.data('fetch-table');
-            
-            //Récupérer les valeurs de la table source de données
-            if(fetchTableField) {
-                fetchTableField = fetchTableField.split('.');   //TODO: valider
-                var fetchTable = fetchTableField[0];
-                var fetchField = fetchTableField[1]; 
-            
-                var liste = [];
-
-                fetchDataFrom(fetchTable, liste, armtAPI).then(function(data) {
-                    //Insérer la liste déroulante à la place du texte
-                    var oldValue = replaceTextWithSelect($activeTD);
-                    var $select = $activeTD.find('select');
-
-                    //Ajouter dans la liste déroulante (select) les valeurs issues de la DB (liste)
-                    fillSelectWith(liste, $select, 'id', fetchField, oldValue); 
-                    var updateData = { updateField:updateField };
-
-                    $select.on('change', null, updateData, function(event) {
-                        var formattedData = {};
-                        formattedData[event.data.updateField] = $(this).val();
-                        
-                        //Sauver dans la base de données
-                        var idCandidature = $(this).parentsUntil('tr').parent().attr('data-id');
-                        console.log('Saving candidature n° '+idCandidature);
-                        
-                        var apiURL = armtAPI + updateTable + '/' + idCandidature;
-                        postDataInto(updateTable, formattedData, apiURL,$(this));
-
-                        var $td = $(this).parent();
-
-                        //Remplacer la liste déroulante par la valeur sélectionnée
-                        replaceFormFieldWithValue($(this));
-
-                        if(event.data.updateField=='status_id') {
-                            //Rechercher le statut correspondant à l'avancement sélectionné
-                            var $selectedText = $(this).find('option:selected').text();
-
-                            for(key in liste) {
-                                if(liste[key].avancement==$selectedText) {
-                                    status = liste[key].status;
-                                } 
-                            }
-
-                            //Afficher le statut correspondant
-                            $td.prev().html(status);
-                        }
-                    });
-
-                    //Empêcher le déclenchemt de l'event click sur le body (propagation aux parents)
-                    $select.on('click', function() { event.stopPropagation(); });
-                }).fail(function() { console.log('Erreur d\'accès à l\'API!'); });
-            } else {
-                //Insérer le calendrier à la place du texte
-                var oldValue = replaceTextWithCalendar($activeTD);
-                var $inputDate = $activeTD.find('input[type=date]');
-                var updateData = { updateField:updateField };
-                
-                //Si la donnée à modifier est dans une autre table (ex.: interviews)
-                if($currentTH.data('bind')) {
-                    //Récupérer la condition pour retrouver l'enregistrement correspondant
-                    var updateBind = JSON.parse('{'+$currentTH.data('bind').replace(/'/g,'"')+'}');
-                    
-                    //Ajouter la condition
-                    updateData.where = updateBind.where;
-                }
-                
-                $inputDate.on('change', null, updateData, function(event) {
-                    var formattedData = {};
-                    formattedData[event.data.updateField] = $(this).val();
-                    formattedData['where'] = event.data.where;
-                    
-                    //Sauver dans la base de données
-                    var idCandidature = $(this).parentsUntil('tr').parent().attr('data-id');
-                    console.log('Saving candidature n° '+idCandidature);
-                        
-                    var apiURL = armtAPI + updateTable + '/' + idCandidature;
-                    postDataInto(updateTable, formattedData, apiURL,$(this));
-
-                    var $td = $(this).parent();
-
-                    //Remplacer la liste déroulante par la valeur sélectionnée
-                    replaceFormFieldWithValue($(this));
-                });
-
-                //Empêcher le déclenchemt de l'event click sur le body (propagation aux parents)
-                $inputDate.on('click', function() { 
-                    event.stopPropagation(); 
-                });
-            }
-        });
-        },1000);
-        //FIN
-        
-    });
-*/
 });
 </script>
 @endsection

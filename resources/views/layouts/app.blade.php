@@ -59,7 +59,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index">{{ Html::image('img/logo_adva.jpg','ARMT',[
+                <a class="navbar-brand">{{ Html::image('img/logo_adva.jpg','ARMT',[
                     'width'=>'130',
                     'heigth'=>'30',
                      ]) }}
@@ -68,17 +68,28 @@
             </div>
             <!-- /.navbar-header -->
 
-            <ul class="nav navbar-top-links navbar-right"> 
-                <form class="form-inline" id="frmSearchAll">
-                    <div class="input-group">
-                        <input type="text" id="search" class="form-control" placeholder="Search...">
-                        <div class="input-group-btn">
-                            <button class="btn btn-default" type="submit">
-                                <i class="fa fa-search"></i>
+            <ul class="nav navbar-top-links navbar-right">
+                <form class="form-inline" id="frmSearchAll" autocomplete="off">
+                    <div id="search-group">
+                        <div class="input-group">
+                            <input type="text" id="search" class="form-control" placeholder="Search...">
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /input-group -->
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Liste
+                            <span class="caret"></span>
                             </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            </ul>
                         </div>
                     </div>
-                        <!-- /input-group -->
+                    <!-- /search-group -->
                 </form>
                 <li class="dropdown">
                 <select class="selectpicker" data-width="fit">
@@ -141,13 +152,6 @@
     <!-- Metis Menu Plugin JavaScript -->
     <script src="{{ asset('../vendor/metisMenu/metisMenu.min.js') }}"></script>
 
-    <!-- Morris Charts JavaScript -->
-    <!-- 
-    <script src="{{ asset('../vendor/raphael/raphael.min.js') }}"></script>
-    <script src="{{ asset('../vendor/morrisjs/morris.min.js') }}"></script>
-    <script src="{{ asset('js/data/morris-data.js') }}"></script>
-    -->
-
     <!-- SB Theme JavaScript -->
     <script src="{{ asset('js/sb-admin-2.js') }}"></script>
 
@@ -156,9 +160,29 @@
 
     <!-- Activate language selector-->
     <script>
-        $(function(){
-            const APP_URL = '{{ Config::get('app.url') }}';
+        function fetchDataFromSearch(data, liste, apiURL) {       
+            apiURL += 'search';
 
+            return $.ajax({
+                url:apiURL,
+                method: 'GET',
+                crossDomain: true,
+                data: { keyword: data },
+                dataType: 'json',
+                headers: {'Authorization':'Bearer '+API_TOKEN},
+                success: function(data){
+                    $.each(data, function(key, value) {
+                        liste[key] = value;
+                    });
+                },
+            });
+        }
+
+        const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
+        var armtAPI = APP_URL + '/public/api/';
+        const API_TOKEN = '{{ Auth::user() ? Auth::user()->api_token : "" }}';
+
+        $(function(){
             $('.selectpicker').selectpicker();
 
             $('.selectpicker').on('change',function() {
@@ -166,14 +190,131 @@
                 location.href = APP_URL+'/public/language/'+langue;
             });
 
-            //Sidebard toggler
+            //Sidebar toggler
             $("#menu-toggle").click(function(e) {
                 e.preventDefault();
                 
                 $("#wrapper").toggleClass("toggled");
+                    
+                if($("#wrapper").hasClass("toggled")) {
+                    $('#wrapper').find("#sidebar-wrapper").find(".collapse").css('height','0px');
+                    $('#wrapper').find("#sidebar-wrapper").find(".collapse").collapse('hide');
+                    
+                    setTimeout(function() { 
+                        $('#menu-toggle').removeClass('active'); 
+                        $('#menu-toggle').removeClass('focus'); 
+                        $('#menu-toggle').blur(); 
+                    },100);
+                } else {
+                    $('#wrapper').find("#sidebar-wrapper").find("a.active").parent().parent().collapse('show');
+                    $('#wrapper').find("#sidebar-wrapper").find("a.active").parent().parent().show('fast', function() {
+                        $(this).slideDown('slow');
+                    });
+                    
+                    setTimeout(function() { 
+                        $('#menu-toggle').removeClass('active'); 
+                        $('#menu-toggle').removeClass('focus'); 
+                        $('#menu-toggle').blur(); 
+                    },100);
 
-                $('#wrapper.toggled').find("#sidebar-wrapper").find(".collapse").collapse('hide');
+                }
                 
+            });
+            
+            //Ouvrir le menu fermé (toggled) pour afficher le sous-menu 
+            $('.nav li').on('click', function() {
+                if($("#wrapper").hasClass("toggled")) {
+                    $("#menu-toggle").click();
+                }
+            });
+        
+            //Moteur de recherche général
+            $("#frmSearchAll").submit(function(e) {
+                e.preventDefault();
+                
+                return false;
+            });
+            
+            //$('#search-group .dropdown button').hide();
+            var $dropdownList = $('#search-group .dropdown ul.dropdown-menu');
+            var $dropdownButton = $('#search-group .dropdown button');
+            
+            $('input#search').on('keyup', function(e) {
+                if(e.keyCode!=13) {         console.log(e.keyCode);
+                    if(e.keyCode==40) {
+                        //Quitter la zone de texte et descendre dans la liste
+                        $(this).blur();
+                        $dropdownButton.click();
+                        $dropdownList.focus();
+                        
+                        return false;
+                    }
+                    
+                    //Actualiser la datalist
+                    var search = this.value;// + (e.keyCode!=8 ? e.key : '');
+
+                    if(search=='') {
+                        $dropdownList.hide();
+                    } else {
+                        $dropdownList.show();
+                    
+                        var liste = [];
+
+                        fetchDataFromSearch(search, liste, armtAPI).then(function(data) {
+                            console.log(data.result);
+                            var nbResults = data.result.candidats.length
+                                + data.result.clients.length
+                                + data.result.missions.length;
+                            var height = '150px';
+                            
+                            $dropdownList.empty().css('height',height);
+
+
+
+                            if(data.result.candidats.length) {
+                                $dropdownList.append('<li role="separator"><strong>Candidats</strong></li>');
+                                for(var i in data.result.candidats) {
+                                    $dropdownList
+                                        .append('<li><a href="'+APP_URL+'/public/candidats/'+data.result.candidats[i].id+'">'+data.result.candidats[i].prenom+' '+data.result.candidats[i].nom+'</a></li>');
+                                }
+                            }
+
+                            if(data.result.clients.length) {
+                                $dropdownList.append('<li role="separator"><strong>Clients</strong></li>');
+                                for(var i in data.result.clients) {
+                                    $dropdownList
+                                        .append('<li><a href="'+APP_URL+'/public/clients/'+data.result.clients[i].id+'">'+data.result.clients[i].nom_entreprise
+                                        +(data.result.clients[i].personne_contact ? ' ('+data.result.clients[i].personne_contact+')' : '')
+                                        +'</a></li>');
+                                }
+                            }
+
+                            if(data.result.missions.length) {
+                                $dropdownList.append('<li role="separator"><strong>Missions</strong></li>');
+                                for(var i in data.result.missions) {
+                                    $dropdownList
+                                        .append('<li><a href="'+APP_URL+'/public/missions/'+data.result.missions[i].id+'">'+data.result.missions[i].prefixed+'</a></li>');
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    var search = this.value;
+
+                    $link = $dropdownList.find('a').filter(function(i, link) {
+                        return $(this).text().toLowerCase() == search.toLowerCase();
+                    }).first();
+
+                    //Afficher la fiche sélectionnée
+                    if($link.length) {
+                        location.href = $link.attr('href');
+                    } else {
+                        alert('Veuillez cliquer sur un élément de la liste ou taper le nom complet.');
+                    }
+                }
+                
+                e.preventDefault();
+                return false;
             });
         });
     </script>

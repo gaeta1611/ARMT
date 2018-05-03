@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 
 Route::middleware('auth:api')->group(function () {
     
+    Route::get('/search', 'HomeController@search');
     Route::get('/status', 'StatusController@getAll');
     Route::get('/information_candidature', 'InformationCandidatureController@getAll');
     Route::get('/mode_reponse', 'ModeReponseController@getAll');

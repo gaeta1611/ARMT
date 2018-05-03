@@ -23,10 +23,6 @@
   });
 </script>
 <script>
-    const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
-    var armtAPI = APP_URL + '/public/api/';
-    const API_TOKEN = '{{ Auth::user() ? Auth::user()->api_token:'' }}';
-
     function getCPFromLocalite(localiteInput) {
         var apiURL = armtAPI+'localite/ville/'+localiteInput.value;
 

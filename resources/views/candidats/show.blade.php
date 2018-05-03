@@ -18,9 +18,32 @@
 
 <script>
 
+function dateUS(dateEuro) {
+    tDate = dateEuro.split('-');
+    return tDate[2]+'-'+tDate[1]+'-'+tDate[0];
+}
+
+jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+    "date-euro-asc": function ( a, b ) {
+        var x = dateUS(a);
+        var y = dateUS(b);
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    },
+ 
+    "date-euro-desc": function ( a, b ) {
+        var x = dateUS(a);
+        var y = dateUS(b);
+        return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+    }
+});
+
 $(document).ready(function() {
     $('#dataTables-candidats').DataTable({
         responsive: true,
+        columnDefs: [
+            {type:'date-euro', targets: 4}
+        ],
+        order: [[4,'desc']]
     });
 });
 </script>

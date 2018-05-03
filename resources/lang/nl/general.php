@@ -257,8 +257,7 @@ return [
     'impossible_user_delete' => "Kan deze gebruiker niet verwijderen",
     'impossible_user_connected_delete' => "Kan de ingelogde gebruiker niet verwijderen",
 
-
-
+    'double_click_modify' => "Dubbelklik om te bewerken",
 
 
 

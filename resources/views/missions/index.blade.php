@@ -18,10 +18,50 @@
 
 <script>
 
-    $(document).ready(function() {
-        var table = $('#dataTables-missions').DataTable({
-            responsive: true
-        });
+function unprefix(missionId) {
+    return parseInt($(missionId).text().trim().replace(/^.{2}/i, ""));
+}
+
+function dateUS(dateEuro) {
+    tDate = dateEuro.split('-');
+    return tDate[2]+'-'+tDate[1]+'-'+tDate[0];
+}
+
+jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+    "date-euro-asc": function ( a, b ) {
+        var x = dateUS(a);
+        var y = dateUS(b);
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    },
+
+    "date-euro-desc": function ( a, b ) {
+        var x = dateUS(a);
+        var y = dateUS(b);
+        return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+    },
+
+    "anti-prefix-asc": function ( a, b ) {
+        a = unprefix(a);
+        b = unprefix(b);
+        return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+    },
+ 
+    "anti-prefix-desc": function ( a, b ) {
+        a = unprefix(a);
+        b = unprefix(b);
+        return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+    }
+});
+
+$(document).ready(function() {
+    var table = $('#dataTables-missions').DataTable({
+        responsive: true,
+        columnDefs: [
+            {type:'date-euro', targets: 5},
+            {type:'anti-prefix', targets: 0}
+        ],
+        order: [[5,'desc'],[0,'desc']]
+    });
 
         var $panelHeading = $('.panel-heading');
         $panelHeading.append('<div class="row">');

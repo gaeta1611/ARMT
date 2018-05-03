@@ -59,8 +59,6 @@
             }
         });
         
-        const APP_URL = '{{ Config::get('app.url') }}'; //console.log(APP_URL+ '/public/api/' + table);
-
         $('#status').on('change',function() {
             var status = $(this).val();
 

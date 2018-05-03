@@ -50,6 +50,20 @@ dl dd span.societe {
     }
 }
 
+@media screen and (max-width:500px) {
+    .nav.navbar-top-links li.dropdown:nth-child(2) {
+        position: absolute;
+        left: 200px;
+        right: 10px;
+    }
+
+    .nav.navbar-top-links li.dropdown:nth-child(3) {
+        position: absolute;
+        left:350px;
+        right: 0;
+    }
+}
+
 .top-bar {
     position:absolute;
     top:-100px;
@@ -147,4 +161,34 @@ tr.child span.dtr-data button{
 
 dl dt#diplome  {
     list-style-type: circle;
+}
+
+div#search-group {
+    position:relative;
+}
+
+select#list-keywords {
+    position : absolute;
+    left: 0;
+    top: 34px;
+    border: 1px solid silver;
+    border-radius: 2px;
+    width: 100%;
+    outline:none;
+}
+
+div.dropdown ul.dropdown-menu {
+    left: 0;
+    overflow-y: scroll;
+
+}
+
+div.dropdown button#dropdown-btn {
+    position: absolute;
+    top: -30px;
+    height: 0;
+}
+
+div.dropdown ul.dropdown-menu li[role=separator] {
+    padding-left: 5px;              
 }

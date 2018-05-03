@@ -256,8 +256,10 @@ return [
     'error_general_delete' => "Une erreur s'est produite lors de la suppression!",
     'impossible_user_delete' => "Impossible de supprimer cet utilisateur",
     'impossible_user_connected_delete' => "Impossible de supprimer l'utilisateur connecté",
+
+    'double_click_modify' => "Double-cliquer pour modifier",
     
-  
+    
     
     
     

@@ -259,7 +259,7 @@ return [
     'impossible_user_delete' => "Can not delete this user",
     'impossible_user_connected_delete' => "Unable to delete the logged in user",
     
-    
+    'double_click_modify' => "Double-click to edit",
     
     
     
