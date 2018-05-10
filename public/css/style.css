@@ -1,8 +1,15 @@
 /*
     Custom CSS
 */
+body {
+    font-size: 1.5em;
+}
 
-
+@media(min-width: 768px) {
+    .sidebar {
+        margin-top: 52px !important;
+    }
+}
 datalist {
     overflow:scroll;
 }
@@ -91,7 +98,7 @@ dl dd span.societe {
     font-size:1.5em;
 } 
 
-#frmLogin, #frmRegister {
+#frmLogin, #frmResetPassword, #frmEmailPassword, #frmRegister {
     margin-top:30px;
 }
 
@@ -137,7 +144,7 @@ span.reset-datalist i:hover {
 }
 
 nav form#frmSearchAll {
-    float: left;
+    float: right;
     margin: 9px 10px 0 0;
 }
 
@@ -157,10 +164,6 @@ tr.child span.dtr-data {
 tr.child span.dtr-data button{
     height: 20px;
     font-size: 0.8em;
-}
-
-dl dt#diplome  {
-    list-style-type: circle;
 }
 
 div#search-group {
@@ -191,4 +194,14 @@ div.dropdown button#dropdown-btn {
 
 div.dropdown ul.dropdown-menu li[role=separator] {
     padding-left: 5px;              
+}
+
+dd.dashed:before {
+    content: '\25e2' !important;
+    display: inline;
+    color: silver;
+}
+
+.panel-body dd {
+    overflow-wrap: break-word;
 }

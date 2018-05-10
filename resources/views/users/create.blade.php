@@ -2,6 +2,24 @@
 
 @section('title',__('general.add_record',['record'=>trans_choice('general.user',1)]))
 
+@section('js')
+<script>
+$(function() {
+    $('#password,#password-confirm').on('change', function() {
+        var password = $('#password').val();
+        var passwordConfirm = $('#password-confirm').val();
+        var $oldPassword = $('#old_password');
+        
+        if(password!='' || passwordConfirm!='') {
+            $oldPassword.attr('required','required');
+        } else if(password=='' && passwordConfirm=='') {
+            $oldPassword.removeAttr('required');
+        }
+    });
+    
+});
+</script>
+@endsection
 
 @section('content')
 <div class="container">
@@ -19,12 +37,12 @@
                     ]) }}
                 @if(auth()->user()->is_admin)          
                     <div class="form-group{{ $errors->has('role') ? ' has-error' : '' }}">
-                        <label for="role" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.role')) }} :</label>
+                        <label for="role" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.role')) }}&nbsp;:</label>
 
                         <div class="col-md-6">
                         {{ Form::select('role', 
                             $roles,
-                            old('role') ? old('role') : (isset($user) ? $user->roles()->get()->first()->id: null),
+                            old('role') ? old('role') : (isset($user) ? $user->roles()->get()->first()->id: $roleEmployeeId),
                         [
                             'class'=>'form-control',
                             'id'=>'role',
@@ -39,7 +57,7 @@
                     </div>
                 @endif            
                     <div class="form-group{{ $errors->has('lastname') ? ' has-error' : '' }}">
-                        <label for="lastname" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.last_name')) }} :</label>
+                        <label for="lastname" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.last_name')) }}&nbsp;:</label>
 
                             <div class="col-md-6">
                             @if(isset($user))
@@ -57,7 +75,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('firstname') ? ' has-error' : '' }}">
-                            <label for="firstname" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.first_name')) }} :</label>
+                            <label for="firstname" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.first_name')) }}&nbsp;:</label>
 
                             <div class="col-md-6">
                             @if(isset($user))
@@ -75,7 +93,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('initials') ? ' has-error' : '' }}">
-                            <label for="initials" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.initials')) }} :</label>
+                            <label for="initials" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.initials')) }}&nbsp;:</label>
 
                             <div class="col-md-6">
                             @if(isset($user))
@@ -93,7 +111,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('language') ? ' has-error' : '' }}">
-                            <label for="language" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.language')) }} :</label>
+                            <label for="language" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.language')) }}&nbsp;:</label>
 
                             <div class="col-md-6">
                             {{ Form::select('language', 
@@ -113,7 +131,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('login') ? ' has-error' : '' }}">
-                            <label for="login" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.login')) }} :</label>
+                            <label for="login" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.login')) }}&nbsp;:</label>
 
                             <div class="col-md-6">
                             @if(isset($user))
@@ -131,7 +149,7 @@
                         </div>
 
                         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                            <label for="email" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.email')) }} :</label>
+                            <label for="email" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.email')) }}&nbsp;:</label>
 
                             <div class="col-md-6">
                                 <input id="email" type="email" class="form-control" name="email" value="{{ old('email') ?? (isset($user) ? $user->email : '') }}" required>
@@ -172,7 +190,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="password-confirm" class="col-md-4 control-label">{{ ucfirst(__('validation.attributes.password_confirmation')) }} :</label>
+                            <label for="password-confirm" class="col-md-4 control-label">{{ ucfirst(str_replace(' ',"&nbsp;",__('validation.attributes.password_confirmation'))) }}&nbsp;:</label>
 
                             <div class="col-md-6">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" {{ empty($user) ? 'required':''}}>

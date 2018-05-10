@@ -77,7 +77,12 @@ function replaceFormFieldWithValue(jqFormField, $activeRow, dataId) {
     }
 
     //Ajouter le texte dans la cellule du tableau (td)
-    jqFormField.parent().append(value);
+    if(value!='') {
+        jqFormField.parent().append(value);
+    }else {
+        jqFormField.parent().append('<button>');
+        jqFormField.parent().find('button').html('Double-cliquer pour modifier');
+    }
 
     //Supprimer le champ (liste déroulante (select) ou calendrier (input[date])
     jqFormField.remove();
@@ -101,12 +106,16 @@ function replaceFormFieldWithValue(jqFormField, $activeRow, dataId) {
     });
 }
 
-function replaceTextWithSelect(jqParent) {
+function replaceTextWithSelect(jqParent, jqCurrentTH) {
     //Mémoriser l'ancienne valeur en cas d'annulation
     var oldValue = jqParent.text().trim();
 
     //Vider la cellule (td) et y mettre une liste déroulante (select)
     jqParent.empty().append('<select>');
+
+    if(jqCurrentTH.data('id')=='mode_reponse') {
+        jqParent.find('select').prepend('<option>');
+    }
 
     return oldValue;
 }
@@ -119,8 +128,14 @@ function replaceTextWithCalendar(jqParent) {
     oldValue = reverseDateFormat(oldValue);  //2018-04-15
 
     //Vider la cellule (td) et y mettre une liste déroulante (select)
-    jqParent.empty().append('<input type="date" value="'+oldValue+'">');
+    if(isNaN(Date.parse(oldValue))) {
+        jqParent.empty().append('<input type="date" value="">');
+    } else {
+        jqParent.empty().append('<input type="date" value="'+oldValue+'">');
+    }
 
+    jqParent.find('input').focus();
+    
     return oldValue;
 }
 
@@ -134,6 +149,8 @@ function replaceTextWithTextarea(jqParent) {
         
     //Vider la cellule (td) et y mettre une liste déroulante (select)
     jqParent.empty().append('<textarea>'+oldValue);
+
+    jqParent.find('textarea').focus();
 
     return oldValue;
 }
@@ -222,7 +239,7 @@ var attach = function(element) {
 
         fetchDataFrom(fetchTable, liste, armtAPI).then(function(data) {
             //Insérer la liste déroulante à la place du texte
-            var oldValue = replaceTextWithSelect($activeTD);
+            var oldValue = replaceTextWithSelect($activeTD, $currentTH);
             var $select = $activeTD.find('select');
 
             //Ajouter dans la liste déroulante (select) les valeurs issues de la DB (liste)

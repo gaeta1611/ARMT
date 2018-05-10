@@ -50,13 +50,12 @@ class HomeController extends Controller
                 ->orWhere('personne_contact','LIKE',"%$keyword%")
                 ->get();
         
-        $missions = Mission::select(['Mission.id',DB::Raw("concat(users.initials,mission.id) as prefixed")])
+        $missions = DB::table('mission')->select('mission.id',DB::Raw("concat(users.initials,`mission`.id) as prefixed"))
                 ->join('users','user_id','users.id')
                 ->where('mission.id','LIKE',"%$keyword%")
-                ->orWhereRaw("concat(users.initials,mission.id) LIKE '%$keyword%'")
+                ->orWhereRaw("concat(users.initials,`mission`.id) LIKE '%$keyword%'")
                 ->get();
 
-        //dd($candidats->toArray(),$clients->toArray(), $missions->toArray());
         $results = [
             'candidats' => $candidats->toArray(),
             'clients' => $clients->toArray(),

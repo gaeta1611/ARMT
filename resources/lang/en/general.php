@@ -70,6 +70,7 @@ return [
     'vat' => 'VAT',
     'contact_person' => 'Contact person',
     'phone' => 'Phone',
+    'mobile' => 'Mobile phone',
     'zip_code' => 'Zip code',
     'locality' => 'Locality',
     'address' => 'Address',
@@ -95,7 +96,7 @@ return [
     'sex' => 'Gender',
     'last_employer' => 'Last Employer',
     'last_function' => 'Last Function',
-    'employer_function' => 'Employers/Functions',    
+    'employer_function' => 'Employer/Function',    
     'function_exercised' => 'Function exercised',
     'employer_management' => 'Employer Management',
     'load_cv' => 'Load the CV',
@@ -147,7 +148,7 @@ return [
     'error_zip_caractere' => "The postal code can not exceed 10 characters.",
     'error_localite_caractere' => "The locality can not exceed 120 characters.",
     'error_type_birth_date' => "Incorrect value type for date of birth",
-    'error_phone_caractere' => "The phone number can not exceed 20 characters",
+    'error_phone_caractere' => "The phone number or mobile number can not exceed 20 characters",
     'error_valide_linkedin' => "Please enter a valid URL for LinkedIn by adding http://",
     'error_db_linkedin' => "This Linkedin already exists in your DB",
     'error_linkedin_caractere' => "Linkedin URL can not exceed 255 characters",
@@ -260,6 +261,7 @@ return [
     'impossible_user_connected_delete' => "Unable to delete the logged in user",
     
     'double_click_modify' => "Double-click to edit",
+    'doc_document' => "Attention, please convert .doc to .docx or .pdf ",
     
     
     

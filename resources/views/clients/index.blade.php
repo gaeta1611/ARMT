@@ -54,6 +54,7 @@
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
+                        @if($clients->count())
                             <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-clients">
                                 <thead>
                                     <tr>
@@ -64,7 +65,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @forelse($clients as $client)
+                                @foreach($clients as $client)
                                     <tr class="odd">
                                         <td>
                                             <a href="{{ route('clients.show',$client->id)}}">
@@ -96,12 +97,13 @@
                                             {{ Form::close() }}
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr><td colspan="5">Aucun client.</td></tr>
-                                @endforelse
+                                @endforeach
                                 </tbody>
                             </table>
                             <!-- /.table-responsive -->
+                        @else
+                            <p><strong>Aucun Client.</strong></p>
+                        @endif                    
                         </div>
                         <!-- /.panel-body -->
                     </div>

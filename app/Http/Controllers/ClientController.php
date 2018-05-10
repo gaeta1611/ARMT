@@ -74,7 +74,7 @@ class ClientController extends Controller
             'nom_entreprise'=> 'required|unique:client|max:60',
             'personne_contact'=> 'max:100',
             'telephone'=>'max:20',
-            'email'=>'email|unique:client|max:100',
+            'email'=>'required|email|unique:client|max:100',
             'adresse'=>'max:255',
             'localite_id' => 'nullable|numeric',
             'code_postal' => 'max:10',
@@ -95,6 +95,7 @@ class ClientController extends Controller
             'email.email'=>__('general.error_type_email'),
             'email.unique'=>__('general.error_exist_email'),
             'email.max'=>__('general.error_email_caractere'),
+            'email.required'=>__('general.error_email'),
 
             //'adresse.required'=>'Veuillez entrer une adresse',
             'adresse.max'=>__('general.error_address_caractere'),
@@ -172,15 +173,12 @@ class ClientController extends Controller
         $title = ($client->prospect ? ucfirst(trans_choice('general.prospect',1)) : ucfirst(trans_choice('general.client',1))).' : '.$client->nom_entreprise;
         
 
-        //$missions = $client->missions;
-
         //TODO réglé relation many to one
         $localite = Localite::find($client->localite);
 
         return view('clients.show',[
             'client'=>$client,
             'title' =>$title,
-            'client_localite' =>$localite,
         ]);
     }
 
@@ -227,6 +225,7 @@ class ClientController extends Controller
             'personne_contact'=> 'max:100',
             'telephone'=>'max:20',
             'email'=>[
+                'required',
                 'email',
                 Rule::unique('client')->ignore($id),
                 'max:100'
@@ -260,6 +259,7 @@ class ClientController extends Controller
             'email.email'=>__('general.error_type_email'),
             'email.unique'=>__('general.error_exist_email'),
             'email.max'=>__('general.error_email_caractere'),
+            'email.required'=>__('general.error_email'),
 
             //'adresse.required'=>'Veuillez entrer une adresse',
             'adresse.max'=>__('general.error_address_caractere'),
@@ -285,8 +285,7 @@ class ClientController extends Controller
         $client = Client::find($id);
         $data = Input::all();
 
-        //Ajout éventuel d'une nouvelle localité
-            
+        //Ajout éventuel d'une nouvelle localité 
         if($data['code_postal']!='' && $data['localite']!='') {
             //Rechercher si la localité existe déja dans la DB
             $localite = Localite::where('code_postal',$data['code_postal'])->get()->first();

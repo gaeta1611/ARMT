@@ -297,6 +297,7 @@
                                         
                                     </ul>
                                     <select name="status" id="status">
+                                        <option></option>
                                     @foreach($avancements as $avancement)
                                         <option @if($avancement->avancement==app('request')->input('status')) selected @endif>{{ $avancement->avancement }}</option>
                                     @endforeach
@@ -314,11 +315,10 @@
                                         <li style="display: inline">{{ HTML::linkRoute('candidats.index','DB adva',['type'=>'DB','mode'=>'adva']) }} <span>({{ $counters['DB adva'] }})</span></li>
                                     </ul>
                                     <select name="mode" id="mode">
+                                        <option></option>
                                     @foreach($modeCandidatures as $modeCandidature)
-                                        <?php //TODO: a remonter dans le controleur
-                                        $media = json_decode($modeCandidature->media);?>
-                                        <option value="{{ $media->type.'|'.$media->mode }}" @if($media->type==app('request')->input('type') && $media->mode==app('request')->input('mode') ) selected @endif>
-                                            {{ $media->type.' '.$media->mode }}
+                                        <option value="{{ $modeCandidature->media->type.'|'.$modeCandidature->media->mode }}" @if($modeCandidature->media->type==app('request')->input('type') && $modeCandidature->media->mode==app('request')->input('mode') ) selected @endif>
+                                            {{ $modeCandidature->media->type.' '.$modeCandidature->media->mode }}
                                         </option>
                                     @endforeach
                                     </select>

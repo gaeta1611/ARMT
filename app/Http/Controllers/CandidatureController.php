@@ -256,7 +256,7 @@ class CandidatureController extends Controller
             } 
             //Redirection
             //L'ajout de la candidature a été initié a partir d'une missions
-            if(preg_match("/\?mission=\d$/",$request->headers->get('referer'))) {
+            if(preg_match("/\?mission=\d{1,}$/",$request->headers->get('referer'))) {
                 return redirect()->route('missions.show',$missionId);
             }
             //L'ajout de la candidature a été initié a partir d'un candidt

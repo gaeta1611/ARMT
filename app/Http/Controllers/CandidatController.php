@@ -105,9 +105,11 @@ class CandidatController extends Controller
             'à contacter',
             'à valider'
         ])->get(['avancement']);
-
         $modeCandidatures = ModeCandidature::all();
         
+        foreach ($modeCandidatures as &$modeCandidature) {
+            $modeCandidature->media = json_decode($modeCandidature->media);
+        }
 
         $counters["all"] = Candidat::all()->count();
         $counters["à traiter"] = Status::where(['avancement' => 'à traiter'])->first()->candidatures()->count();
@@ -146,8 +148,20 @@ class CandidatController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
+        switch($request->query('error')) {
+            case 'PostTooLargeException':
+                Session::push('errors',"La taille du fichier ne peut dépasser 2MB!");
+                break;
+            case 'FileNotFoundException':
+                Session::push('errors',"Le fichier n'a pas été envoyé (maximum 2MB)!");
+                break;
+            case '': break;
+            default:
+                Session::push('errors',"Une erreur est survenue lors de l'enregistrement.");
+        }
+
         $title = __('general.titles.add_candidate');
         $route = 'candidats.store';
         $method = 'POST';
@@ -224,6 +238,7 @@ class CandidatController extends Controller
             'localite' => 'max:120',
             'date_naissance'=>'nullable|date',
             'telephone'=>'max:20',
+            'mobile'=>'max:20',
             'linkedin'=>'nullable|url|unique:candidat|max:255',
             'site'=>'nullable|url|unique:candidat|max:255',
         ],[
@@ -250,6 +265,7 @@ class CandidatController extends Controller
             'date_naissance.date'=>__('general.error_type_birth_date'),
 
             'telephone.max'=>__('general.error_phone_caractere'),
+            'mobile.max'=>__('general.error_phone_caractere'),
 
             'linkedin.url'=>__('general.error_valide_linkedin'),
             'linkedin.unique'=>__('general.error_db_linkedin'),
@@ -264,20 +280,29 @@ class CandidatController extends Controller
         $candidat = new candidat(Input::all());
         $data = Input::all();
 
-        //Ajout éventuel d'une nouvelle localité       
-        if($data['localite_id']==null) {
-            $localite = new Localite();
-            $localite->code_postal = $data['code_postal'];
-            $localite->localite = $data['localite'];
-            
-            if($localite->save()) {
-                $candidat->localite_id = $localite->id;
-                
-                Session::put('success',__('general.succes_locality'));
-            } else {
-                Session::push('errors',__('general.error_locality'));
-                
-                return redirect()->route('candidats.create');
+        //Ajout éventuel d'une nouvelle localité
+        if($data['localite_id']==null) {     
+            if($data['code_postal']!='' && $data['localite']!='') {
+                //Rechercher si la localité existe déja dans la DB
+                $localite = Localite::where('code_postal',$data['code_postal'])->get()->first();
+
+                if($localite) {
+                    $candidat->localite_id = $localite->id;
+                } else {
+                    $localite = new Localite();
+                    $localite->code_postal = $data['code_postal'];
+                    $localite->localite = $data['localite'];
+                    
+                    if($localite->save()) {
+                        $candidat->localite_id = $localite->id;
+                        
+                        Session::put('success',__('general.succes_locality'));
+                    } else {
+                        Session::push('errors',__('general.error_locality'));
+                        
+                        return redirect()->route('candidats.create');
+                    }
+                }
             }
         }
 
@@ -375,17 +400,17 @@ class CandidatController extends Controller
                     $filename = strrchr($filename,"/");
         
                     //Récuperer l'url du dossier de téléchargement
-                    //à partir du fichier de config config/filesystems.php
-                    $url = '/uploads/cvs'.$filename;
+                    $realPath = Storage::disk('public')->getDriver()->getAdapter()
+                        ->applyPathPrefix('uploads/cvs/'.$filename);
 
                     //Lire le contenu du CV 
-                    $cvContent = $this->readDocument(getcwd().'/storage/uploads/cvs'.$filename,$cvFiles[$i]->getClientOriginalName());
+                    $cvContent = $this->readDocument($realPath, $cvFiles[$i]->getClientOriginalName());
         
                     //Enregistrer le document dans la base de donnée
                     $cv = new Document ();
                     $cv-> type ='CV';
                     $cv-> description = $request->input('descriptionsForCV') [$i];
-                    $cv->url_document = $url;
+                    $cv->url_document = '/uploads/cvs'.$filename;
                     $cv->filename = $cvFiles[$i]->getClientOriginalName();
                     $cv->mission_id = null;
                     $cv->candidat_id = $candidat->id;
@@ -464,7 +489,6 @@ class CandidatController extends Controller
         return view('candidats.show',[
             'candidat'=>$candidat,
             'title' =>$title,
-            'candidat_localite' =>$localite,
             'candidatDiplomeEcoles' => $candidatDiplomeEcoles,
             'societeCandidats' => $societeCandidats,
             'lastFunction' => $lastFunction,
@@ -478,8 +502,20 @@ class CandidatController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
+        switch($request->query('error')) {
+            case 'PostTooLargeException':
+                Session::push('errors',"La taille du fichier ne peut dépasser 2MB!");
+                break;
+            case 'FileNotFoundException':
+                Session::push('errors',"Le fichier n'a pas été envoyé (maximum 2MB)!");
+                break;
+            case '': break;
+            default:
+                Session::push('errors',"Une erreur est survenue lors de l'enregistrement.");
+        }
+        
         $candidat = Candidat::find($id);
         $title = __('general.edit').' : '.$candidat->nom.' '.$candidat->prenom;
         $route = ['candidats.update',$id];
@@ -607,6 +643,7 @@ class CandidatController extends Controller
             'localite' => 'max:120',
             'date_naissance'=>'nullable|date',
             'telephone'=>'max:20',
+            'mobile'=>'max:20',
             'site'=>[
                 'nullable',
                 'url',
@@ -643,6 +680,7 @@ class CandidatController extends Controller
             'date_naissance.date'=>__('general.error_type_birth_date'),
 
             'telephone.max'=>__('general.error_phone_caractere'),
+            'mobile.max'=>__('general.error_phone_caractere'),
 
             'linkedin.url'=>__('general.error_valide_linkedin'),
             'linkedin.unique'=>__('general.error_db_linkedin'),
@@ -656,20 +694,27 @@ class CandidatController extends Controller
         $candidat = Candidat::find($id);
         $data = Input::all();
 
-        //Ajout éventuel d'une nouvelle localité       
-        if($data['localite_id']==null) {
-            $localite = new Localite();
-            $localite->code_postal = $data['code_postal'];
-            $localite->localite = $data['localite'];
-            
-            if($localite->save()) {
+        //Ajout éventuel d'une nouvelle localité 
+        if($data['code_postal']!='' && $data['localite']!='') {
+            //Rechercher si la localité existe déja dans la DB
+            $localite = Localite::where('code_postal',$data['code_postal'])->get()->first();
+
+            if($localite) {
                 $data['localite_id'] = $localite->id;
-                
-                Session::put('success',__('general.succes_locality'));
             } else {
-                Session::push('errors',__('general.error_locality'));
+                $localite = new Localite();
+                $localite->code_postal = $data['code_postal'];
+                $localite->localite = $data['localite'];
                 
-                return redirect()->route('candidats.update');
+                if($localite->save()) {
+                    $data['localite_id'] = $localite->id;
+                    
+                    Session::put('success',__('general.succes_locality'));
+                } else {
+                    Session::push('errors',__('general.error_locality'));
+                    
+                    return redirect()->route('candidats.update');
+                }
             }
         }
        
@@ -824,17 +869,17 @@ class CandidatController extends Controller
                     $filename = strrchr($filename,"/");
         
                     //Récuperer l'url du dossier de téléchargement
-                    //à partir du fichier de config config/filesystems.php
-                    $url = '/uploads/cvs'.$filename;
+                    $realPath = Storage::disk('public')->getDriver()->getAdapter()
+                        ->applyPathPrefix('uploads/cvs/'.$filename);
                     
                     //Lire le contenu du CV 
-                    $cvContent = $this->readDocument(getcwd().'/storage/uploads/cvs'.$filename,$cvFiles[$i]->getClientOriginalName());
+                    $cvContent = $this->readDocument($realPath, $cvFiles[$i]->getClientOriginalName());
 
                     //Enregistrer le document dans la base de donnée
                     $cv = new Document ();
                     $cv-> type ='CV';
                     $cv->description = $request->input('descriptionsForCV') [$i];
-                    $cv->url_document = $url;
+                    $cv->url_document = '/uploads/cvs'.$filename;
                     $cv->filename = $cvFiles[$i]->getClientOriginalName();
                     $cv->mission_id = null;
                     $cv->candidat_id = $id;
@@ -1048,7 +1093,7 @@ class CandidatController extends Controller
         
         $showLangues = $bestLangues;
 
-        $autresLangues = [0=>''];
+        $autresLangues = [0=>__('general.other')];
         foreach($listeLangues as $langue) {
             $autresLangues["{$langue->id}-{$langue->code_langue}"] = $langue->designation;
         }
@@ -1074,6 +1119,10 @@ class CandidatController extends Controller
         ])->get(['avancement']);
 
         $modeCandidatures = ModeCandidature::all();
+
+        foreach ($modeCandidatures as &$modeCandidature) {
+            $modeCandidature->media = json_decode($modeCandidature->media);
+        }
         
         $counters["all"] = Candidat::all()->count();
         $counters["à traiter"] = Status::where(['avancement' => 'à traiter'])->first()->candidatures()->count();
@@ -1111,7 +1160,7 @@ class CandidatController extends Controller
      *
      * @return string Contenu du document
      */
-    public function readDocument($filename,$originalClientName) {
+    private function readDocument($filename,$originalClientName) {
         $content = '';
         
         $fileType = strrchr($filename,'.');  //TODO: retrieve filetype
@@ -1255,6 +1304,16 @@ class CandidatController extends Controller
                 $content = preg_replace('/( )*(\n( )*){2,}/',"\n",$content);
                 $content = preg_replace('/( )*((\r\n)( )*){2,}/',"\r\n",$content);
                 $content = preg_replace('/( )*(\t( )*){2,}/',"\t",$content);
+                break;
+            case '.txt':
+            case '.csv':
+                $content = file_get_contents($filename);
+                
+                $encodingList = ['UTF-8', 'UTF-7', 'ASCII', 'EUC-JP','SJIS', 'eucJP-win', 'SJIS-win', 'JIS', 'ISO-2022-JP', 'ISO-8859-1'];
+                $encoding = mb_detect_encoding($content,$encodingList);
+                if($encoding!='UTF-8'){
+                    $content = mb_convert_encoding($content,'UTF-8',$encodingList);
+                }
                 break;
             case '.png':
             case '.jpeg':

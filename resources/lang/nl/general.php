@@ -69,6 +69,7 @@ return [
     'vat' => 'BTW',
     'contact_person' => 'Contactpersoon',
     'phone' => 'Telefoon',
+    'mobile' => 'GSM',
     'zip_code' => 'Postcode',
     'locality' => 'Plaats',
     'address' => 'Adres',
@@ -145,7 +146,7 @@ return [
     'error_zip_caractere' => "De postcode mag niet langer zijn dan 10 tekens.",
     'error_localite_caractere' => "De plaats kan maximaal 120 tekens bevatten.",
     'error_type_birth_date' => "Onjuiste waardetype voor geboortedatum",
-    'error_phone_caractere' => "Het telefoonnummer mag niet langer zijn dan 20 tekens",
+    'error_phone_caractere' => "Het telefoonnummer or GSM mag niet langer zijn dan 20 tekens",
     'error_valide_linkedin' => "Voer een geldige URL in voor LinkedIn door http:// toe te voegen",
     'error_db_linkedin' => "Deze Linkedin bestaat al in uw database",
     'error_linkedin_caractere' => "De Linkedin-URL mag niet langer zijn dan 255 tekens",
@@ -258,6 +259,8 @@ return [
     'impossible_user_connected_delete' => "Kan de ingelogde gebruiker niet verwijderen",
 
     'double_click_modify' => "Dubbelklik om te bewerken",
+    'doc_document' => "Let op, converteer alstublieft .doc naar .docx of .pdf ",
+    
 
 
 

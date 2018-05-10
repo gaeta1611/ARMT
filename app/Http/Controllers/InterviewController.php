@@ -41,8 +41,10 @@ class InterviewController extends Controller
             'candidature_id'=> $idCandidature, 
             $whereField => $whereValue,
         ]);
-        
-        if($interview->updateOrCreate($data)) {
+
+        if(empty($data['date_interview']) && $interview->delete()) {
+            return response()->json(true);
+        } elseif($interview->updateOrCreate($data)) {
             return response()->json(true);
         } else {
             return response()->json([0=>false,"message"=>"Error Ajax"]);

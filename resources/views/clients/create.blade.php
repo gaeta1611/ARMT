@@ -8,6 +8,36 @@
 @section('js')
 <script>
     $(function() {
+        const LINKEDIN_URL = 'https://www.linkedin.com/in/';
+
+        $('#linkedin').on('focus',function(){
+            var url = $(this).val().trim();
+
+            if(url===''){
+                $(this).val(LINKEDIN_URL);
+            }
+        }).on('blur',function(){
+            var url = $(this).val().trim();
+
+            if(url===LINKEDIN_URL){
+                $(this).val('');
+            }
+        });
+
+        $('#site').on('focus',function(){
+            var url = $(this).val().trim();
+
+            if(url.search(/^http(s){0,1}:\/\//i)!==0){
+                $(this).val('http://'+url);
+            }
+        }).on('blur',function(){
+            var url = $(this).val().trim();
+
+            if(url==='http://'){
+                $(this).val('');
+            }
+        });
+
         $('#code_postal')[0].onchange = function(event) { getLocaliteFromCP(this) };
         $('#localite')[0].onchange = function(event) { getCPFromLocalite(this) };
     });
@@ -107,7 +137,8 @@
                         {{Form::open([
                             'route'=>$route,
                             'method'=>$method,
-                            'role'=>'form'
+                            'role'=>'form',
+                            'autocomplete'=>'off',
                         ]) }}
                             <div class="row">
                                 <div class="col-lg-6">
@@ -180,7 +211,8 @@
                                                 old('email')?? (isset($client) ? $client->email:''),
                                                 [
                                                 'placeholder'=>'mail@example.com',
-                                                'class'=>'form-control'
+                                                'class'=>'form-control',
+                                                'required'=>'required',
                                             ]) }}
                                         </div>
                                     </div>
@@ -189,7 +221,7 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         {{ Form::hidden('localite_id',
-                                            old('localite')?? (isset($client) ? $client->localite_id:''),
+                                            old('localite_id')?? (isset($client) ? $client->localite_id:''),
                                             [
                                                 'id'=>'localite_id',
                                         ]) }}
@@ -197,7 +229,7 @@
                                             <div class="col-lg-4 col-xs-4">
                                                 {{ Form::label('code_postal',__('general.zip_code'))}} :
                                                 {{ Form::text('code_postal',
-                                                old('code_postal')?? (isset($client) ? $client->localite->code_postal : ''),
+                                                old('code_postal')?? (isset($client, $client->localite) ? $client->localite->code_postal : ''),
                                                 [
                                                     'placeholder' => 'ex.: 1400',
                                                     'class' => 'form-control',
@@ -206,7 +238,7 @@
                                             <div class="col-lg-8 col-xs-8">
                                                 {{ Form::label('localite',__('general.locality'))}} :
                                                 {{ Form::text('localite',
-                                                old('localite')?? (isset($client) ? $client->localite->localite : ''),
+                                                old('localite')?? (isset($client, $client->localite) ? $client->localite->localite : ''),
                                                 [
                                                     'placeholder' => 'ex.: Nivelles',
                                                     'class' => 'form-control',
@@ -232,22 +264,28 @@
 
                                     <div class="form-group">
                                         {{ Form::label('site',__('general.website'))}} :
-                                        {{ Form::url('site',
-                                            old('site')?? (isset($client) ? $client->site:''),
-                                            [
-                                            'placeholder'=>'ex: https://www.advaconsult.com',
-                                            'class'=>'form-control'
-                                        ]) }}
+                                        <div class="form-group input-group">
+                                            <span class="input-group-addon"><i class="fa fa-globe"></i></span>
+                                            {{ Form::url('site',
+                                                old('site')?? (isset($client) ? $client->site:''),
+                                                [
+                                                'placeholder'=>'ex: https://www.advaconsult.com',
+                                                'class'=>'form-control'
+                                            ]) }}
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
                                         {{ Form::label('linkedin',__('general.linkedin'))}} :
-                                        {{ Form::url('linkedin',
-                                            old('linkedin')?? (isset($client) ? $client->linkedin:''),
-                                            [
-                                            'placeholder'=>'ex: https://www.linkedin.com/in/example',
-                                            'class'=>'form-control'
-                                        ]) }}
+                                        <div class="form-group input-group">
+                                            <span class="input-group-addon"><i class="fa fa-linkedin"></i></span>
+                                            {{ Form::url('linkedin',
+                                                old('linkedin')?? (isset($client) ? $client->linkedin:''),
+                                                [
+                                                'placeholder'=>'ex: https://www.linkedin.com/in/example',
+                                                'class'=>'form-control'
+                                            ]) }}
+                                        </div>
                                     </div>
 
                                     <div class="bottom-bar">

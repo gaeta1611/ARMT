@@ -75,8 +75,14 @@ $(document).ready(function() {
                                         <dd>{{ $candidat->sexe}}</dd>
                                         <dt>{{ __('general.phone') }} : </dt>
                                         <dd>{{ $candidat->telephone }}</dd>
-                                        <dt>{{ __('general.locality') }} : </dt>
-                                        <dd>{{ $candidat_localite->code_postal }} {{ $candidat_localite->localite }}</dd>
+                                        <dt>{{ __('general.mobile') }} : </dt>
+                                        <dd>{{ $candidat->mobile }}</dd>
+                                        <dt>{{__('general.locality')}} :  </dt>
+                                        @if(isset($candidat->localite))
+                                            <dd> {{ $candidat->localite->code_postal }} {{ $candidat->localite->localite }}</dd>
+                                        @else
+                                            <dd></dd>
+                                        @endif
                                         <dt>{{ ucfirst(__('validation.attributes.email'))}} :</dt>
                                         <dd>{{ $candidat->email }}</dd>
                                         <dt>{{ __('general.linkedin') }} : </dt>
@@ -96,7 +102,7 @@ $(document).ready(function() {
                                     <dl class="dl-horizontal">                                     
                                         <dt id="diplome">{{ __('general.degree') }} : </dt>
                                         @foreach($candidatDiplomeEcoles as $cde)
-                                        <dd>
+                                        <dd class="dashed">
                                             {{ $cde->designation.' '.'('.$cde->niveau.' '.$cde->finalite.')'.' '.'-'.' '.($cde->code_ecole ?? '') }}
                                         </dd>
                                         @endforeach
@@ -118,7 +124,7 @@ $(document).ready(function() {
                                         <br \>
                                         <dt>{{ __('general.employer_function') }} : </dt>
                                         @forelse($societeCandidats as $societeCandidat)
-                                        <dd>
+                                        <dd class="dashed">
                                             <span class="societe">{{ $societeCandidat->societe->nom_entreprise }}</span> - {{$societeCandidat->fonction->fonction ?? 'Pas spécifiée'}}
                                             @if($societeCandidat->date_debut && $societeCandidat->date_fin)
                                             <small>({{Carbon::parse($societeCandidat->date_debut)->format('d/m/Y')}} => {{Carbon::parse($societeCandidat->date_fin)->format('d/m/Y')}})</small>

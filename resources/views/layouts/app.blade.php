@@ -59,38 +59,15 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand">{{ Html::image('img/logo_adva.jpg','ARMT',[
+                <a class="navbar-brand" href="{{ route('home') }}">{{ Html::image('img/logo_adva.jpg','ARMT',[
                     'width'=>'130',
                     'heigth'=>'30',
                      ]) }}
-                </a>
-                
+                </a>  
             </div>
             <!-- /.navbar-header -->
-
+        @if(auth()->user())
             <ul class="nav navbar-top-links navbar-right">
-                <form class="form-inline" id="frmSearchAll" autocomplete="off">
-                    <div id="search-group">
-                        <div class="input-group">
-                            <input type="text" id="search" class="form-control" placeholder="Search...">
-                            <div class="input-group-btn">
-                                <button class="btn btn-default" type="submit">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- /input-group -->
-                        <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Liste
-                            <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            </ul>
-                        </div>
-                    </div>
-                    <!-- /search-group -->
-                </form>
                 <li class="dropdown">
                 <select class="selectpicker" data-width="fit">
                 <option lang="en" {{ (session()->has('lang') && session('lang')=='en') ? 'selected' : ''}} 
@@ -101,7 +78,6 @@
                         data-content='<span class="flag-icon flag-icon-fr"></span> Français'>Français</option>
                 </select> 
                 </li>
-            @if(auth()->user())
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -123,9 +99,30 @@
                     <!-- /.dropdown-user -->
                 </li>
                 <!-- /.dropdown -->
-            @endif
             </ul>
-        @if(\Route::current()->getName() != 'login')
+            <form class="form-inline" id="frmSearchAll" autocomplete="off">
+                    <div id="search-group">
+                        <div class="input-group">
+                            <input type="text" id="search" class="form-control" placeholder="Search...">
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /input-group -->
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Liste
+                            <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /search-group -->
+                </form>
+ 
             <!-- /.navbar-top-links -->
             <div id="sidebar-wrapper">
                 @include('includes.sidebar')

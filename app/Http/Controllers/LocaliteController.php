@@ -14,7 +14,7 @@ class LocaliteController extends Controller
         return response()->json($data);
     }
 
-    public function getLocaliteFromLocalite($localite) {
+    public function getCPFromLocalite($localite) {
         
         $data = Localite::where(['localite'=>$localite])->get()->toArray();
             

@@ -36,7 +36,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/';
+    protected $redirectTo = '/users';
 
     /**
      * Create a new controller instance.
@@ -183,6 +183,10 @@ class RegisterController extends Controller
         $roles = [];
         foreach($listRoles as $role) {
             $roles[$role['id']] = $role['name'];
+
+            if($role['name']=='employee'){
+                $roleEmployeeId = $role['id'];
+            }
         }
 
 
@@ -191,6 +195,8 @@ class RegisterController extends Controller
             'method' => $method,
             'languages' => $languages,
             'roles' => $roles,
+            'roleEmployeeId' => $roleEmployeeId,
+            
         ]);
     }
 

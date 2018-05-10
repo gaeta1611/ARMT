@@ -69,6 +69,7 @@ return [
     'vat' => 'TVA',
     'contact_person' => 'Personne de contact',
     'phone' => 'Téléphone',
+    'mobile' => 'GSM',
     'zip_code' => 'Code postal',
     'locality' => 'Localité',
     'address' => 'Adresse',
@@ -94,7 +95,7 @@ return [
     'sex' => 'Sexe',
     'last_employer' => 'Dernier Employeur',
     'last_function' => 'Dernière Fonction',
-    'employer_function' => 'Employeurs/Fonctions',
+    'employer_function' => 'Employeur/Fonction',
     'function_exercised' => 'Fonction exercée',
     'employer_management' => 'Gestion des Employeurs',
     'load_cv' => 'Chargez le/les CV',
@@ -145,7 +146,7 @@ return [
     'error_zip_caractere' => "Le code postal ne peut dépasser 10 caractères.",
     'error_localite_caractere' => "La localité ne peut dépasser 120 caractères.",
     'error_type_birth_date' => "Type de valeur incorrecte pour la date de naissance",
-    'error_phone_caractere' => "Le numéro de téléphone ne peut pas dépasser 20 caractères",
+    'error_phone_caractere' => "Le numéro de téléphone ou GSM ne peut pas dépasser 20 caractères",
     'error_valide_linkedin' => "Veuillez entrer une URL valide pour Linkedin en ajoutant http://",
     'error_db_linkedin' => "Ce Linkedin existe déjà dans votre DB",
     'error_linkedin_caractere' => "L'URL de Linkedin ne peut pas dépasser 255 caractères",
@@ -258,6 +259,7 @@ return [
     'impossible_user_connected_delete' => "Impossible de supprimer l'utilisateur connecté",
 
     'double_click_modify' => "Double-cliquer pour modifier",
+    'doc_document' => "Attention veuillez convertir les .doc en .docx ou .pdf",
     
     
     

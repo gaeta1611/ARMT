@@ -3,7 +3,11 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\PostTooLargeException;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use App\Candidat;
 
 class Handler extends ExceptionHandler
 {
@@ -48,6 +52,22 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        $previous = url()->previous();
+        
+        if(strstr($previous,'?')) {
+            $previous = "$previous&";
+        } elseif($previous[strlen($previous)-1]!='?') {
+            $previous = "$previous?";
+        }
+        
+        if ($exception instanceof PostTooLargeException) {
+            return redirect($previous.http_build_query( ['error'=>'PostTooLargeException'] ));
+        } elseif ($exception instanceof FileNotFoundException) {
+            $idCandidat = Candidat::select('id')->orderBy('id','desc')->first()->id;
+
+            return redirect("candidats/$idCandidat/edit?".http_build_query( ['error'=>'FileNotFoundException'] ));
+        }
+
         return parent::render($request, $exception);
     }
 }

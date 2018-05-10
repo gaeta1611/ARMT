@@ -40,6 +40,7 @@
                     <div class="panel panel-default">
                         <!-- /.panel-heading -->
                         <div class="panel-body">
+                        @if($users->count())
                             <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-users">
                                 <thead>
                                     <tr>
@@ -77,12 +78,13 @@
                                             {{ Form::close() }}
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr><td colspan="5">{{ __('general.no_record',['record'=>trans_choice('general.user',1)]) }}</td></tr>
-                                @endforelse
+                                @endforeach
                                 </tbody>
                             </table>
                             <!-- /.table-responsive -->
+                        @else
+                            <p><strong>Aucun Utilisateur.</strong></p>
+                        @endif
                         </div>
                         <!-- /.panel-body -->
                     </div>

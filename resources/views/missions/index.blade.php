@@ -123,6 +123,7 @@ $(document).ready(function() {
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
+                        @if($missions->count())
                             <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-missions">
                                 <thead>
                                     <tr>
@@ -136,7 +137,7 @@ $(document).ready(function() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @forelse($missions as $mission)
+                                @foreach($missions as $mission)
                                     <tr class="odd">
                                         <td>
                                             <a href="{{ route('missions.show',$mission->id)}}">
@@ -164,12 +165,13 @@ $(document).ready(function() {
                                             {{ $mission->remarques}}
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr><td colspan="5">Aucune mission.</td></tr>
-                                @endforelse
+                                @endforeach
                                 </tbody>
                             </table>
                             <!-- /.table-responsive -->
+                        @else
+                            <p><strong>Aucune Mission.</strong></p>
+                        @endif
                         </div>
                         <!-- /.panel-body -->
                     </div>

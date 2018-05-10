@@ -18,6 +18,7 @@ class Candidat extends Model
         'sexe',
         'localite_id',
         'telephone',
+        'mobile',
         'email',
         'linkedin',
         'site',

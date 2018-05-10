@@ -125,6 +125,10 @@ class UserController extends Controller
         $roles = [];
         foreach($listRoles as $role) {
             $roles[$role['id']] = $role['name'];
+
+            if($role['name']=='employee'){
+                $roleEmployeeId = $role['id'];
+            }
         }
         
         return view('users.create',[
@@ -134,6 +138,7 @@ class UserController extends Controller
             'method' => $method,
             'languages' => $languages,
             'roles' => $roles,
+            'roleEmployeeId' => $roleEmployeeId,
         ]);
     }
 
@@ -160,8 +165,8 @@ class UserController extends Controller
                 if(preg_match("/mission_created_by_user/", $ex->getMessage())){
                     $user->firstname = '';
                     $user->lastname = '';
-                    $user->login = '';
-                    $user->email = '';
+                    $user->login = null;
+                    $user->email = null;
                     $user->language = '';
                     $user->password = '';
                     $user->remember_token = null;

@@ -19,10 +19,9 @@
             $($trs.eq(0)).addClass('danger');
         }
     });
+
     $( "#sortable-tbl" ).disableSelection();
-  });
-</script>
-<script>
+
     function getCPFromLocalite(localiteInput) {
         var apiURL = armtAPI+'localite/ville/'+localiteInput.value;
 
@@ -98,9 +97,7 @@
                $('#localite_id').val('');
            }
         });
-    }
-
-    $(function() {
+    
         //Animation de l'attente Ajax
         $body = $("body");
 
@@ -108,6 +105,7 @@
             ajaxStart: function() { $body.addClass("loading");    },
             ajaxStop: function() { $body.removeClass("loading"); }    
         });
+    }
 
         $('#nom, #prenom').each(function() {
             $(this).on('change', function() {
@@ -130,6 +128,36 @@
                     })
                 }
             });
+        });
+
+        const LINKEDIN_URL = 'https://www.linkedin.com/in/';
+
+        $('#linkedin').on('focus',function(){
+            var url = $(this).val().trim();
+
+            if(url===''){
+                $(this).val(LINKEDIN_URL);
+            }
+        }).on('blur',function(){
+            var url = $(this).val().trim();
+
+            if(url===LINKEDIN_URL){
+                $(this).val('');
+            }
+        });
+
+        $('#site').on('focus',function(){
+            var url = $(this).val().trim();
+
+            if(url.search(/^http(s){0,1}:\/\//i)!==0){
+                $(this).val('http://'+url);
+            }
+        }).on('blur',function(){
+            var url = $(this).val().trim();
+
+            if(url==='http://'){
+                $(this).val('');
+            }
         });
 
         $('#code_postal')[0].onchange = function(event) { getLocaliteFromCP(this) };
@@ -220,6 +248,17 @@
                     });
                 }
         });
+
+        //Traiter la touche Enter (boite modal diplome)
+        $('#addDiplomeModal div.modal-body').on('keypress', function(e){
+            if(e.keyCode==13) {
+                $('#btnAddDiplomeDialog').click();
+
+                e.preventDefault();
+                return false;
+            }
+        });
+        
         $('#btnAddDiplomeDialog').on('click', function() {
             var apiURL;
             var data = {};
@@ -337,42 +376,6 @@
         });
 
         $('#btnSaveSocieteDialog').on('click', function() {
-        /*
-            var nbSocCans = $('#tbl-societes tbody tr').length;
-
-            var $rows = $('#tbl-societes tbody tr[data-id]');
-            var socCanIds = [];
-           
-            $rows.each(function(i, row){
-                socCanIds.push($('<input>', {
-                    name:"socCan[socCanIds][]",
-                    value : $(row).data('id'),
-                })[0]);
-            });
-            
-            var $societeIds = $('input [name="socCan[societeIds][]"]');
-            var $fonctionIds = $('input [name="socCan[fonctionIds][]"]');
-            var $dateDebuts = $('input [name="socCan[dateDebuts][]"]');
-            var $dateFins = $('input [name="socCan[dateFins][]"]');
-
-            var idCandidat = $('#candidat_id').text();
-
-            data = socCanIds;
-            $.merge(data, $societeIds);
-            $.merge(data, $fonctionIds);
-            $.merge(data, $dataDebuts);
-            $.merge(data, $dateFins);
-            $.ajax({
-                url : armtAPI+'jobs/'+idCandidat,
-                type : 'PUT',
-                data : data,
-            }).done(function(data) {
-            }).fail(function(error) {
-                //Flash message
-                alert('Erreur lors de la modification');
-            });
-        */
-
             //Actualiser derniere societe et fonction
             updateActualSociety();
         });
@@ -680,7 +683,8 @@
                                             old('nom')?? (isset($candidat) ? $candidat->nom:''),
                                             [
                                             'placeholder'=>'ex: Croisy',
-                                            'class'=>'form-control'
+                                            'class'=>'form-control',
+                                            'required'=>'required',
                                         ]) }}
                                     </div>
 
@@ -690,7 +694,8 @@
                                             old('prenom')?? (isset($candidat) ? $candidat->prenom:''),
                                             [
                                             'placeholder'=>'ex: Eric',
-                                            'class'=>'form-control'
+                                            'class'=>'form-control',
+                                            'required'=>'required',
                                         ]) }}
                                     </div>
 
@@ -725,11 +730,19 @@
                                         {{ Form::text('telephone',
                                             old('telephone')?? (isset($candidat) ? $candidat->telephone:''),
                                             [
-                                            'placeholder'=>'ex: 0494/23/58/74',
+                                            'placeholder'=>'ex: 02/555.45.57',
                                             'class'=>'form-control'
                                         ]) }}
                                     </div>
-
+                                    <div class="form-group">
+                                        {{ Form::label('mobile',__('general.mobile').' : ')}} 
+                                        {{ Form::text('mobile',
+                                            old('mobile')?? (isset($candidat) ? $candidat->mobile:''),
+                                            [
+                                            'placeholder'=>'ex: 0494/77/25/56',
+                                            'class'=>'form-control'
+                                        ]) }}
+                                    </div>
                                     <div class="form-group">
                                         {{ Form::label('langues',ucfirst(__('validation.attributes.language')).' : ') }} 
                                         <p>0=>{{ trans_choice('general.language_level',1) }} | 1=>{{ trans_choice('general.language_level',2) }} | 2=>{{ trans_choice('general.language_level',3) }} | 
@@ -984,12 +997,10 @@
                                         </fieldset>  
                                     </div>         
                                 </div>
-                                
-
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         {{ Form::hidden('localite_id',
-                                            old('localite')?? (isset($candidat) ? $candidat->localite_id:''),
+                                            old('localite_id')?? (isset($candidat) ? $candidat->localite_id:''),
                                             [
                                                 'id'=>'localite_id',
                                         ]) }}
@@ -997,7 +1008,7 @@
                                             <div class="col-lg-4 col-xs-4">
                                                 {{ Form::label('code_postal',__('general.zip_code').' : ') }} 
                                                 {{ Form::text('code_postal',
-                                                old('code_postal')?? (isset($candidat) ? $candidat->localite->code_postal : ''),
+                                                old('code_postal')?? (isset($candidat, $candidat->localite) ? $candidat->localite->code_postal : ''),
                                                 [
                                                     'placeholder' => 'ex.: 1400',
                                                     'class' => 'form-control',
@@ -1006,7 +1017,7 @@
                                             <div class="col-lg-8 col-xs-8">
                                                 {{ Form::label('localite',__('general.locality').' : ') }} 
                                                 {{ Form::text('localite',
-                                                old('localite')?? (isset($candidat) ? $candidat->localite->localite : ''),
+                                                old('localite')?? (isset($candidat, $candidat->localite) ? $candidat->localite->localite : ''),
                                                 [
                                                     'placeholder' => 'ex.: Nivelles',
                                                     'class' => 'form-control',
@@ -1029,28 +1040,35 @@
                                                 old('email')?? (isset($candidat) ? $candidat->email:''),
                                                 [
                                                 'placeholder'=>'mail@example.com',
-                                                'class'=>'form-control'
+                                                'class'=>'form-control',
+                                                'required'=>'required',
                                             ]) }}
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         {{ Form::label('linkedin',__('general.linkedin').' : ')}}
-                                        {{ Form::url('linkedin',
-                                            old('linkedin')?? (isset($candidat) ? $candidat->linkedin:''),
-                                            [
-                                            'placeholder'=>'ex: https://www.linkedin.com/in/example',
-                                            'class'=>'form-control'
-                                        ]) }}
+                                        <div class="form-group input-group">
+                                            <span class="input-group-addon"><i class="fa fa-linkedin"></i></span>
+                                            {{ Form::url('linkedin',
+                                                old('linkedin')?? (isset($candidat) ? $candidat->linkedin:''),
+                                                [
+                                                'placeholder'=>'ex: https://www.linkedin.com/in/example',
+                                                'class'=>'form-control'
+                                            ]) }}
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         {{ Form::label('site',__('general.website').' : ')}}
-                                        {{ Form::url('site',
-                                            old('site')?? (isset($candidat) ? $candidat->site:''),
-                                            [
-                                            'placeholder'=>'ex: https://www.advaconsult.com',
-                                            'class'=>'form-control'
-                                        ]) }}
+                                        <div class="form-group input-group">
+                                            <span class="input-group-addon"><i class="fa fa-globe"></i></span>
+                                            {{ Form::url('site',
+                                                old('site')?? (isset($candidat) ? $candidat->site:''),
+                                                [
+                                                'placeholder'=>'ex: https://www.advaconsult.com',
+                                                'class'=>'form-control'
+                                            ]) }}
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
@@ -1064,7 +1082,8 @@
 
                                     <div class="form-group">
                                         <dl>
-                                            <dt>{{ Form::label('cvs',__('general.load_cv').' : ') }}</dt>
+                                            <dt>{{ Form::label('cvs',__('general.load_cv').' (Max 2MB): ') }}</dt>
+                                            <p style="color:blue;">{{__('general.doc_document')}}</p>
                                         @if(isset($candidat) && $candidat->cvs)
                                             <dd style="margin-left:15px">
                                             @foreach($candidat->cvs as $cv)
@@ -1087,17 +1106,16 @@
                                         </dl>
                                         <div class="m-1-2" style="margin-left: 20px; font-size: 0.9em">
                                             <div>
-                                                {{ Form::label('descriptionsForCV[]',__('general.description').' : ')}}
-                                                {{ Form::text('descriptionsForCV[]',
-                                                    old('descriptionsForCV[]')?? '',
-                                                    [
-                                                        'placeholder'=>'ex: 30/04/2018',
-                                                        'class'=>'form-control',
-                                                        'style'=>'display:inline;width:auto;height:1.8em;margin-bottom:5px'
-                                                ]) }}
-
-
-                                                {{ Form::file('cv_ids[]') }}
+                                            {{ Form::hidden('MAX_FILE_SIZE',2000000) }}
+                                            {{ Form::label('descriptionsForCV[]',__('general.description').' : ')}}
+                                            {{ Form::text('descriptionsForCV[]',
+                                                old('descriptionsForCV[]')?? '',
+                                                [
+                                                    'placeholder'=>'ex: 30/04/2018',
+                                                    'class'=>'form-control',
+                                                    'style'=>'display:inline;width:auto;height:1.8em;margin-bottom:5px'
+                                            ]) }}
+                                            {{ Form::file('cv_ids[]') }}
                                             </div>
 
                                             <i class="fa fa-plus-square" aria-hidden="true" 
